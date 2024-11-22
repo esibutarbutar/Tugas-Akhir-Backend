@@ -1,5 +1,7 @@
 body {
+    margin: 0;
     font-family: 'Inter', sans-serif;
+    line-height: 1.6;
 }
 
 .header {
@@ -11,7 +13,7 @@ body {
     padding: 0;
 }
 
-.green-nav {
+.green-header {
     background-color: green;
     color: white;
     padding: 10px;
@@ -25,97 +27,46 @@ nav a {
     color: white;
 }
 
-.fas {
-    margin-right: 5px;
-}
-
-.welcome-text {
-    position: absolute;
-    top: 180px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    text-align: center;
-    z-index: 10;
-}
-
-.welcome-text h2 {
-    font-size: 24px;
-    margin: 0;
-}
-
-.welcome-text h1 {
-    font-size: 36px;
-    margin: 10px 0;
-    font-weight: bold;
-}
-
-.view-more-link {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 8px 0;
-    color: white;
-    text-decoration: underline;
-    font-size: 18px;
-    transition: color 0.3s ease;
-}
-
-.view-more-link:hover {
-    color: green;
-}
-
 .nav-item {
     padding: 10px;
     margin: 5px;
-}
-
-.slideshow-container {
-    position: relative;
-    width: 100%;
-    margin: auto;
-    overflow: hidden;
-}
-
-.navigation-container {
-    position: fixed;
-    width: 96%;
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 1000;
-    background-color: transparent;
-    transition: background-color 0.3s ease;
-    margin-top: -2px;
 }
 
 .navigation-container.scrolled {
     background-color: green;
 }
 
-nav a {
+.navigation-container {
+    position: fixed;
+    width: 100%;
     color: white;
-    text-decoration: none;
-    margin-left: 15px;
+    padding: 15px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    background-color: transparent;
+    transition: background-color 0.1s ease;
+    margin-top: -5px;
 }
 
 .navigation-container .logo {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
-    margin-right: 30px;
+    margin: 0;
 }
 
 .navigation-container .navigation {
     display: flex;
-    justify-content: flex-start;
+    align-items: center;
 }
 
 .navigation-container .nav-item {
     color: white;
     text-decoration: none;
-    margin-left: 15px;
+    margin-left: 10px;
     padding: 5px 10px;
+    font-size: 16px;
     font-weight: bold;
     transition: color 0.3s ease;
 }
@@ -131,17 +82,17 @@ nav a {
 }
 
 .navigation-container .login {
-    padding: 8px 15px;
-    background-color: green;
-    color: white;
+    padding: 6px 12px;
+    background-color: white;
+    color: green;
     border-radius: 5px;
     transition: background-color 0.3s ease;
-    margin-left: 30px;
-    margin-right: 50px;
+    margin-left: 15px;
 }
 
 .navigation-container .login:hover {
     background-color: darkgreen;
+    color: white;
 }
 
 .navigation-container .nav-item.active {
@@ -149,18 +100,28 @@ nav a {
     font-weight: bold;
 }
 
+
+/* Dropdown container */
+
 .dropdown {
     position: relative;
+    display: inline-block;
 }
+
+
+/* Dropdown toggle link */
 
 .dropdown-toggle {
     cursor: pointer;
+    color: white;
     padding: 5px 10px;
+    font-weight: bold;
+    display: inline-block;
+    position: relative;
 }
 
-.dropdown-toggle .fa {
-    margin-left: 5px;
-}
+
+/* Dropdown menu container */
 
 .dropdown-menu {
     display: none;
@@ -169,30 +130,45 @@ nav a {
     left: 0;
     background-color: green;
     border-radius: 5px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     min-width: 160px;
-    z-index: 100;
+    z-index: 1000;
+    overflow: hidden;
 }
+
+
+/* Dropdown items */
 
 .dropdown-menu a {
-    color: white;
-    padding: 10px;
+    color: green;
+    padding: 10px 15px;
     text-decoration: none;
     display: block;
+    font-size: 14px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.navigation-container .dropdown.active .dropdown-toggle {
-    background-color: white;
-    color: green;
-    font-weight: bold;
-}
+
+/* Hover effect untuk item dropdown */
 
 .dropdown-menu a:hover {
-    background-color: darkgreen;
+    background-color: white;
+    color: green;
 }
 
 .dropdown:hover .dropdown-menu {
     display: block;
+}
+
+.dropdown-menu {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.slideshow-container {
+    position: relative;
+    width: 100%;
+    margin: auto;
+    overflow: hidden;
 }
 
 .mySlides {
@@ -234,29 +210,83 @@ nav a {
     padding: 20px;
     margin: 0 auto;
     max-width: 1200px;
-    position: relative;
-    bottom: 40px;
     display: flex;
+    align-items: center;
     border-radius: 8px;
+    overflow: hidden;
+    transform: translateY(-30px);
 }
 
 .profile-image {
-    width: 20%;
-    height: auto;
+    flex-shrink: 0;
+    width: 150px;
+    height: 150px;
     border-radius: 8px;
-    margin-right: 20px;
     overflow: hidden;
+    margin-right: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
 }
 
 .profile-image img {
     width: 100%;
-    height: auto;
-    display: block;
+    height: 100%;
+    object-fit: cover;
+    /* Supaya gambar ter-crop sesuai area */
 }
 
 .profile-content {
     flex: 1;
     text-align: left;
+}
+
+.profile-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.profile-content p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+.welcome-text {
+    position: absolute;
+    top: 180px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    text-align: center;
+    z-index: 10;
+}
+
+.welcome-text h2 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.welcome-text h1 {
+    font-size: 36px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.view-more-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 0;
+    color: white;
+    text-decoration: underline;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.view-more-link:hover {
+    color: green;
 }
 
 .card-number {
@@ -338,7 +368,7 @@ nav a {
 
 .card-view-more-link {
     display: inline-block;
-    margin-top: 10px;
+    margin-top: 20px;
     padding: 8px 20px;
     color: black;
     text-decoration: underline;
@@ -351,6 +381,16 @@ nav a {
 .card-view-more-link:hover {
     color: green;
     border-color: green;
+}
+
+.guru-container,
+.fasilitas-container {
+    text-align: center;
+}
+
+.guru-list,
+.card-container {
+    margin-bottom: 30px;
 }
 
 .ekstrakulikuler-container {
@@ -489,21 +529,23 @@ nav a {
 }
 
 .guru-list {
-    display: flex;
-    justify-content: space-around;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* Membuat 3 kolom */
     gap: 20px;
-    flex-wrap: wrap;
+    /* Jarak antar kolom */
     margin-top: 20px;
 }
 
 .guru-card {
-    width: 220px;
+    width: 200px;
     background-color: #fff;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: transform 0.3s ease;
+    margin: 0 auto;
 }
 
 .guru-card:hover {
@@ -511,12 +553,11 @@ nav a {
 }
 
 .guru-image {
-    background-color: #D6F3D8;
-    padding: 10px;
-    height: 160px;
+    height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .guru-image img {
@@ -622,4 +663,33 @@ footer {
 .social ul li a {
     display: inline-block;
     margin-left: 240px;
+}
+
+
+/* Responsive design */
+
+@media (max-width: 768px) {
+    .navigation-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+    .navigation-container .navigation {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 10px;
+    }
+    .navigation-container .nav-item {
+        padding: 8px;
+        font-size: 14px;
+        width: 100%;
+        text-align: center;
+    }
+    .navigation-container .login {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+    }
+    .dropdown-menu {
+        min-width: 100%;
+    }
 }

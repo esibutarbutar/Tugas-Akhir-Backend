@@ -16,8 +16,8 @@ app.get('/fasilitas', (req, res) => {
 });
 
 
-app.get('/students', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'students.html'));
+app.get('/guru', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'guru.html'));
 });
 
 // Jalankan server
