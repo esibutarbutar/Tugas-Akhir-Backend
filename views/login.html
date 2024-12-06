@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Portal Sekolah</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <a href="/" class="back-button"><i class="fas fa-arrow-left"></i></a>
+    <div class="left">
+        <img src="/images/login/tut-wuri-handayani.png" alt="Logo Sekolah" class="logo">
+        <p>Selamat datang di Portal Sekolah SMP AL Washliyah 20 Medan</p>
+    </div>
+    <div class="container">
+        <div class="right">
+            <p>SMP Swasta AL Washliyah 20 Medan</p>
+            <!-- Menyediakan dua elemen untuk Login dan Masuk Sebagai -->
+            <p class="login-text" id="login-title">Login</p>
+            <p class="login-subtext" id="login-subtext">Masuk sebagai <span id="role-text"></span></p>
+            <div class="button-group" id="button-group">
+                <button class="login-button" id="pegawai-btn">Pegawai</button>
+                <button class="login-button" id="siswa-btn">Siswa</button>
+            </div>
+            <form id="login-form" action="/api/login" method="POST" style="display: none;">
+                <input type="hidden" id="login_sebagai" name="login_sebagai">
+                <input type="text" id="username" name="username" placeholder="Username" required><br>
+                <input type="password" id="password" name="password" placeholder="Password" required><br>
+                <button type="submit" class="login-button">Login</button><br>
+                <a href="#" id="forgot-password">Lupa Password?</a>
+            </form>
+                       
+        </div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>

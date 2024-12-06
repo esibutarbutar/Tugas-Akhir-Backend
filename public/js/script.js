@@ -63,13 +63,15 @@ window.addEventListener('scroll', function() {
 const navItems = document.querySelectorAll('.nav-item');
 
 // untuk mengatur 'active' pada elemen yang diklik
-navItems.forEach(item => {
-    item.addEventListener('click', function(event) {
-        event.preventDefault();
-        navItems.forEach(nav => nav.classList.remove('active'));
-        item.classList.add('active');
-    });
-});
+// navItems.forEach(item => {
+//     item.addEventListener('click', function(event) {
+//         event.preventDefault();
+//         navItems.forEach(nav => nav.classList.remove('active'));
+//         item.classList.add('active');
+//     });
+// });
+
+
 
 // menghapus kelas 'active' saat scroll, tambahkan event scroll
 window.addEventListener('scroll', function() {

@@ -1,0 +1,240 @@
+/* Gaya umum untuk body */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+    padding: 20px;
+    flex-direction: row;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px; 
+    color: #2e7d32; 
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.back-button:hover {
+    color: #1b5e20; 
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.left img {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.left p {
+    font-size: 16px;
+    color: #2e7d32;
+}
+
+/* Gaya untuk container utama */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+}
+
+.right {
+    text-align: center;
+    width: 100%;
+}
+
+.right p {
+    font-size: 16px;
+    color: #2e7d32;
+}
+
+#login-title {
+    padding: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #2e7d32;
+    margin-bottom: 5px;
+}
+
+#login-subtext {
+    font-size: 16px;
+    text-align: left;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.login-button {
+    width: 200px;
+    padding: 10px;
+    border: 2px solid #2e7d32;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #2e7d32;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #2e7d32;
+    color: #fff;
+}
+
+#login-form {
+    display: none;
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#login-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+#login-form input:focus {
+    border: 2px solid #2e7d32; 
+    box-shadow: 0 0 5px rgba(46, 125, 50, 0.8); 
+    outline: none; 
+}
+
+#login-form button {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #2e7d32;
+    background-color: #2e7d32;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#login-form button:hover {
+    background-color: #1b5e20;
+}
+
+#role-text {
+    font-weight: bold; 
+    color: green;      
+}
+
+#forgot-password {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #2e7d32;
+    text-decoration: none;
+}
+
+#forgot-password:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .container {
+        max-width: 90%;
+        width: 50%;
+        margin-top: 20px;
+    }
+
+    .left img {
+        width: 100px;
+    }
+
+    .left p {
+        font-size: 14px;
+    }
+
+    .button-group {
+        gap: 8px;
+    }
+
+    .login-button {
+        width: 130px;
+        font-size: 14px;
+    }
+
+    #login-form input {
+        font-size: 14px;
+    }
+
+    #login-form button {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .container {
+        margin-top: 10px;
+        max-width: 50%;
+        margin-left: 0;
+    }
+
+    .right h2 {
+        font-size: 20px;
+    }
+
+    .right .login-text {
+        font-size: 16px;
+    }
+
+    .button-group {
+        gap: 6px;
+    }
+
+    .login-button {
+        width: 120px;
+        font-size: 12px;
+    }
+}

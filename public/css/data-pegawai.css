@@ -1,0 +1,160 @@
+/* CSS untuk tabel Data Pegawai */
+#data-pegawai table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+/* Menghapus background dan menggunakan border untuk header tabel */
+table th {
+   background-color: #3CB371; 
+    padding: 8px; 
+    text-align: left; 
+    font-size: 12px; 
+    font-weight: normal; 
+    color: #f1f1f1;
+    font-size: bold;
+    align-items: center;
+}
+
+/* Styling untuk body tabel agar lebih rapi */
+table td {
+    padding: 8px; 
+    font-size: 12px;
+}
+
+/* Styling untuk tabel secara keseluruhan */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Menggabungkan border untuk tampilan yang lebih rapi */
+    margin-top: 10px; /* Menambahkan margin atas untuk jarak */
+}
+
+#data-pegawai table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#data-pegawai table tr:hover {
+    background-color: #f1f1f1;
+}
+
+#data-pegawai h2 {
+    color: #2d3b47;
+    margin-bottom: 20px;
+}
+
+.link-detail {
+    color: #007bff; 
+    text-decoration: none; 
+    font-weight: bold; 
+    text-decoration: underline; 
+}
+
+.link-detail:hover {
+    color: #0056b3; 
+}
+
+/* Styling untuk tombol Edit dan Delete */
+button {
+    padding: 5px 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+/* Styling untuk tombol Edit */
+button:nth-child(1) {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 12px;
+}
+
+/* Styling untuk tombol Delete */
+button:nth-child(2) {
+    background-color: #f44336; 
+    color: white;
+    font-size: 12px;
+}
+
+.search-add-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 70%;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 6px 32px 6px 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar:hover {
+    border-color: #3CB371;  
+}
+
+.search-bar:focus {
+    border-color: #3CB371;  
+    outline: none; 
+}
+.search-icon {
+    position: absolute;
+    right: 8px; 
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+}
+
+.add-btn-pegawai {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #3CB371 !important;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+}
+
+.add-btn:hover {
+    background-color: #45a049;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.modal-content {
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.close-btn {
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
