@@ -79,3 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('admin-profile').classList.remove('hidden');  // Menampilkan Profil Admin
     }
 });
+
+document.querySelectorAll(".sidebar ul li a").forEach((link) => {
+    link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const target = e.target.getAttribute("data-target");
+        document.querySelectorAll(".content-section").forEach((section) => {
+            section.classList.add("hidden");
+        });
+        document.getElementById(target).classList.remove("hidden");
+    });
+});

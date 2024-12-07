@@ -333,6 +333,211 @@ app.put('/api/pegawai/:nip', async (req, res) => {
     }
 });
 
+app.get('/api/siswa', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM siswa'; // Pastikan tabel 'siswa' ada
+        const [rows] = await db.query(query);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Tidak ada data siswa ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data siswa:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
+app.post('/api/siswa', (req, res) => {
+    const { nisn, nama, jenis_kelamin, tanggal_lahir, alamat } = req.body;
+    const sql = `INSERT INTO siswa (nisn, nama, jenis_kelamin, tanggal_lahir, alamat) 
+                 VALUES (?, ?, ?, ?, ?, ?)`;
+    db.query(sql, [nisn, nama, , jenis_kelamin, tanggal_lahir, alamat], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error saving data');
+        }
+        res.status(201).send('Data saved successfully');
+    });
+});
+
+
+
+app.delete('/api/siswa/:nisn', async (req, res) => {
+    const { nisn } = req.params;
+    try {
+        const deleteQuery = 'DELETE FROM pegawai WHERE nisn = ?';
+        const [result] = await db.query(deleteQuery, [nisn]);
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Siswa berhasil dihapus.' });
+        } else {
+            res.status(404).json({ message: 'Siswa tidak ditemukan.' });
+        }
+    } catch (error) {
+        console.error("Error deleting Siswa:", error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+app.get('/api/siswa/:nisn', async (req, res) => {
+    const { nisn } = req.params;
+
+    try {
+        const query = 'SELECT * FROM siswa WHERE nisn = ?';
+        const [result] = await db.execute(query, [nisn]);
+
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: 'Siswa tidak ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data Siswa:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
+    }
+});
+
+app.put('/api/siswa/:nisn', (req, res) => {
+    console.log("Request Body:", req.body);
+    console.log("NISN:", req.params.nisn);
+
+    const nisn = req.params.nisn;
+    const { nama_siswa, alamat, tempat_lahir, tanggal_lahir } = req.body;
+
+    const siswa = siswaData.find(s => s.nisn === nisn);
+    if (!siswa) {
+        console.log("Siswa tidak ditemukan!");
+        return res.status(404).send({ message: "Siswa tidak ditemukan." });
+    }
+
+    siswa.nama_siswa = nama_siswa;
+    siswa.alamat = alamat;
+    siswa.tempat_lahir = tempat_lahir;
+    siswa.tanggal_lahir = tanggal_lahir;
+
+    console.log("Siswa setelah update:", siswa);
+    res.send({ message: "Data siswa berhasil diperbarui.", siswa });
+});
+
+app.get('/api/siswa/:nisn', async (req, res) => {
+    const { nisn } = req.params;
+
+    try {
+        const query = 'SELECT * FROM siswa WHERE nisn = ?';
+        const [result] = await db.execute(query, [nisn]);
+
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: 'Siswa tidak ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data Siswa:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
+    }
+})
+
+app.get('/api/tahun-ajaran', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM tahun_ajaran'; // Pastikan tabel 'siswa' ada
+        const [rows] = await db.query(query);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Tidak ada data siswa ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data siswa:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
+app.post('/api/tahun-ajaran', async (req, res) => {
+    try {
+        const { nama_tahun_ajaran, semester, tanggal_mulai, tanggal_selesai } = req.body;
+
+        if (!nama_tahun_ajaran || !semester || !tanggal_mulai || !tanggal_selesai) {
+            return res.status(400).json({ message: 'Semua kolom wajib diisi!' });
+        }
+
+        const result = await db.query(
+            `INSERT INTO tahun_ajaran (nama_tahun_ajaran, semester, tanggal_mulai, tanggal_selesai) 
+             VALUES (?, ?, ?, ?)`,
+            [nama_tahun_ajaran, semester, tanggal_mulai, tanggal_selesai]
+        );
+
+        res.status(201).json({ message: 'Tahun Ajaran berhasil ditambahkan!', id: result.insertId });
+    } catch (error) {
+        console.error("Error adding Tahun Ajaran:", error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+app.get('/api/tahun-ajaran/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Query untuk mendapatkan Tahun Ajaran berdasarkan ID
+        const query = 'SELECT * FROM tahun_ajaran WHERE id = ?';
+        const [result] = await db.execute(query, [id]);
+
+        // Jika data ditemukan, kirimkan sebagai response
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: 'Tahun Ajaran tidak ditemukan' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data Tahun Ajaran:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
+    }
+});
+
+
+// API untuk memperbarui data tahun ajaran berdasarkan ID
+app.put('/api/tahun-ajaran/:id', async (req, res) => {
+    const { id } = req.params; // Mengambil ID dari parameter URL
+    const { nama_tahun_ajaran, tanggal_mulai, tanggal_selesai, semester } = req.body; // Mengambil data dari body request
+
+    try {
+        // Query untuk update data berdasarkan ID
+        const [result] = await db.execute(
+            `UPDATE tahun_ajaran 
+             SET nama_tahun_ajaran = ?, tanggal_mulai = ?, tanggal_selesai = ?, semester = ? 
+             WHERE id = ?`,
+            [nama_tahun_ajaran, tanggal_mulai, tanggal_selesai, semester, id]
+        );
+        console.log('Data untuk update:', { nama_tahun_ajaran, semester, tanggal_mulai, tanggal_selesai, id });
+
+
+        // Cek apakah data ditemukan dan diperbarui
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Tahun Ajaran berhasil diperbarui' });
+        } else {
+            res.status(404).json({ message: 'Tahun Ajaran tidak ditemukan' });
+        }
+    } catch (error) {
+        console.error('Error memperbarui Tahun Ajaran:', error);
+        res.status(500).json({ error: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
+// API untuk menghapus tahun ajaran
+app.delete('/api/tahun-ajaran/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await db.query('DELETE FROM tahun_ajaran WHERE id = $1', [id]);
+        res.status(204).send();
+    } catch (err) {
+        res.status(500).json({ error: 'Gagal menghapus tahun ajaran.' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);

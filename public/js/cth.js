@@ -30,6 +30,13 @@ async function getDataPegawai() {
             `;
             pegawaiTbody.appendChild(row);
         });
+        const viewDetailsLinks = document.querySelectorAll('.view-details-pegawai');
+        viewDetailsLinks.forEach(link => {
+            link.addEventListener('click', async (event) => {
+                const nip = event.target.getAttribute('data-nip');
+                await viewDetailPegawai(nip); // Fungsi untuk menampilkan detail pegawai
+            });
+        });
 
         // Tambahkan event listener untuk tombol edit
         const editButtons = document.querySelectorAll('.edit-btn');
@@ -334,103 +341,80 @@ async function editPegawai(nip) {
 
             // Beri feedback bahwa data berhasil diperbarui
             Swal.fire('Data berhasil diperbarui', '', 'success');
-            getDataPegawai();
         }
     } catch (error) {
         Swal.fire('Terjadi kesalahan', 'Silakan coba lagi', 'error');
     }
 }
 
-document.addEventListener('click', async function (event) {
+
+// Menambahkan event listener untuk semua elemen dengan class 'view-details'
+
+
+// Fungsi untuk menampilkan detail pegawai
+function showDetails(nip) {
+    // Misalnya, menggunakan fetch untuk mendapatkan data pegawai berdasarkan NIP
+    fetch(`/api/pegawai/${nip}`) // Sesuaikan dengan endpoint API Anda
+        .then(response => response.json())
+        .then(data => {
+            // Menampilkan data pegawai lebih lengkap (misalnya di dalam modal)
+            const detailSection = document.getElementById('detail-section');
+            detailSection.innerHTML = `
+                <h3>Detail Pegawai</h3>
+                <p>NIP: ${data.nip}</p>
+                <p>Nama: ${data.nama_pegawai}</p>
+                <p>Tempat Lahir: ${data.tempat_lahir}</p>
+                <p>Tanggal Lahir: ${data.tanggal_lahir}</p>
+                <p>Jenjang Pendidikan: ${data.jenjang_pendidikan}</p>
+                <p>Jurusan: ${data.jurusan}</p>
+                <p>Alamat: ${data.alamat}</p>
+                <p>Telepon: ${data.telepon}</p>
+                <!-- Informasi lainnya sesuai dengan data pegawai -->
+            `;
+            detailSection.style.display = 'block'; // Menampilkan bagian detail
+        })
+        .catch(error => {
+            console.error('Terjadi kesalahan:', error);
+        });
+}
+
+document.addEventListener('click', (event) => {
     if (event.target.classList.contains('view-details-pegawai')) {
-        event.preventDefault(); // Mencegah navigasi default
+        event.preventDefault(); // Mencegah aksi default tautan
         const nip = event.target.getAttribute('data-nip');
-
-        try {
-            // Ambil data pegawai berdasarkan NIP
-            const response = await fetch(`/api/pegawai/${nip}`);
-            const pegawai = await response.json();
-
-            // Fungsi untuk memformat tanggal
-            const formatTanggal = (tanggal) => {
-                if (!tanggal) return 'Tidak tersedia';
-                const date = new Date(tanggal);
-                return date.toLocaleDateString('id-ID'); // Format Indonesia
-            };
-
-            // Pastikan roles adalah array
-
-            // Tampilkan detail pegawai menggunakan SweetAlert2
-            Swal.fire({
-                title: `Detail Pegawai: ${pegawai.nama_pegawai}`,
-                html: `
-                    <p><strong>NIP:</strong> ${pegawai.nip || 'Tidak tersedia'}</p>
-                    <p><strong>Nama:</strong> ${pegawai.nama_pegawai || 'Tidak tersedia'}</p>
-                    <p><strong>Tempat, Tanggal Lahir:</strong> ${pegawai.tempat_lahir || 'Tidak tersedia'}, ${formatTanggal(pegawai.tanggal_lahir)}</p>
-                    <p><strong>Jenis Kelamin:</strong> ${pegawai.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
-                    <p><strong>Alamat:</strong> ${pegawai.alamat || 'Tidak tersedia'}</p>
-                    <p><strong>Agama:</strong> ${pegawai.agama || 'Tidak tersedia'}</p>
-                    <p><strong>Email:</strong> ${pegawai.email || 'Tidak tersedia'}</p>
-                    <p><strong>No HP:</strong> ${pegawai.no_hp || 'Tidak tersedia'}</p>
-                    <p><strong>Jenjang Pendidikan:</strong> ${pegawai.jenjang_pendidikan || 'Tidak tersedia'}</p>
-                    <p><strong>Jurusan:</strong> ${pegawai.jurusan || 'Tidak tersedia'}</p>
-                    <p><strong>Tanggal Mulai Tugas:</strong> ${formatTanggal(pegawai.tanggal_mulai_tugas)}</p>
-                `,
-                icon: 'info',
-                confirmButtonText: 'Tutup',
-                confirmButtonColor: '#3CB371'
-            });
-            
-        } catch (error) {
-            console.error('Error fetching details:', error);
-            Swal.fire({
-                title: 'Gagal!',
-                text: 'Tidak dapat mengambil detail pegawai.',
-                icon: 'error',
-            });
-        }
+        viewDetails(nip); // Fungsi untuk menangani klik "Lihat Selengkapnya"
     }
 });
 
-async function viewDetails(nisn) {
+async function viewDetailPegawai(nip) {
     try {
-        console.log("Fetching details for NISN:", nisn); // Debug
-        const response = await fetch(`/api/siswa/${nisn}`);
-        if (!response.ok) throw new Error("Gagal mengambil data siswa!");
+        const response = await fetch(`/api/pegawai/${nip}`);
+        const pegawai = await response.json();
 
-        const siswa = await response.json();
-        console.log("Detail siswa:", siswa); // Debug untuk melihat data yang diterima
-
-        // Tampilkan dengan SweetAlert2
+        // Menampilkan detail pegawai menggunakan SweetAlert2 atau cara lain
         Swal.fire({
-            title: `Detail Siswa: ${siswa.nama_siswa}`,
+            title: 'Detail Pegawai',
             html: `
-                <strong>NISN:</strong> ${siswa.nisn}<br>
-                <strong>Nama:</strong> ${siswa.nama_siswa}<br>
-                <strong>Tempat Lahir:</strong> ${siswa.tempat_lahir}<br>
-                <strong>Tanggal Lahir:</strong> ${formatDate(siswa.tanggal_lahir)}<br>
-                <strong>Alamat:</strong> ${siswa.alamat}<br>
-                <strong>Jenis Kelamin:</strong> ${siswa.jenis_kelamin}<br>
-                <strong>Agama:</strong> ${siswa.agama}<br>
-                <strong>NIK:</strong> ${siswa.nik}<br>
-                <strong>Nama Ayah:</strong> ${siswa.nama_ayah}<br>
-                <strong>Nama Ibu:</strong> ${siswa.nama_ibu}<br>
-                <strong>No HP ortu:</strong> ${siswa.no_hp_ortu}<br>
-                <strong>Email:</strong> ${siswa.email}<br>
-                <strong>Anak Ke:</strong> ${siswa.anak_ke}<br>
-                <strong>Status:</strong> ${siswa.status}<br>
-                <strong>Tanggal Masuk:</strong> ${formatDate(siswa.tanggal_masuk)}<br>
+                <p><strong>NIP:</strong> ${pegawai.nip}</p>
+                <p><strong>Nama:</strong> ${pegawai.nama_pegawai}</p>
+                <p><strong>Tempat Lahir:</strong> ${pegawai.tempat_lahir}</p>
+                <p><strong>Tanggal Lahir:</strong> ${formatDate(pegawai.tanggal_lahir)}</p>
+                <p><strong>Jenjang Pendidikan:</strong> ${pegawai.jenjang_pendidikan}</p>
+                <p><strong>Jurusan:</strong> ${pegawai.jurusan}</p>
+                <p><strong>Alamat:</strong> ${pegawai.alamat}</p>
+                <p><strong>Email:</strong> ${pegawai.email}</p>
+                <p><strong>Nomor HP:</strong> ${pegawai.no_hp}</p>
+                <p><strong>Agama:</strong> ${pegawai.agama}</p>
             `,
             icon: 'info',
             confirmButtonText: 'Tutup',
         });
     } catch (error) {
-        console.error("Error fetching siswa details:", error);
+        console.error('Error fetching detail pegawai:', error);
         Swal.fire({
-            title: 'Error',
-            text: 'Gagal mengambil detail siswa. Silakan coba lagi.',
+            title: 'Gagal!',
+            text: 'Tidak dapat mengambil data detail pegawai.',
             icon: 'error',
-            confirmButtonText: 'Tutup',
         });
     }
 }

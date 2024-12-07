@@ -110,12 +110,68 @@
                     <tbody id="pegawai-tbody">                       
                     </tbody>
                 </table>
-            </section>   
+            </section>
+            
+            <section id="data-siswa" class="content-section hidden">
+                <h2>Data Siswa</h2>
+                <div class="search-add-container">
+                    <div class="search-wrapper">
+                        <input type="text" id="search-student-input" placeholder="Cari siswa..." class="search-bar">
+                        <i class="fas fa-search search-icon"></i> <!-- Ikon Search -->
+                    </div>
+                    <button id="add-student-btn" class="add-btn-siswa"> Tambah Data</button>
+                </div>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>NIS</th>
+                            <th>Nama</th>
+                            <th>Tempat Lahir</th>
+                            <th>Tanggal Lahir</th>
+                            <th>Alamat</th>
+                            <th>Detail</th>
+                            <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
+                        </tr>
+                    </thead>
+                    <tbody id="siswa-tbody">
+                        <!-- Data Siswa akan diisi dengan JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+            <section id="tahun-ajaran" class="content-section hidden">
+                <h2>Data Tahun Ajaran</h2>
+                <div class="search-add-container">
+                    <div class="search-wrapper">
+                        <input type="text" id="search-year-input" placeholder="Cari tahun ajaran..." class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button id="tambah-tahun-ajaran" class="btn btn-primary">Tambah Tahun Ajaran</button>
+                </div>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Nama Tahun Ajaran</th>
+                            <th>Tanggal Mulai</th>
+                            <th>Tanggal Selesai</th>
+                            <th>Semester</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tahun-ajaran-tbody">
+                        <!-- Data Tahun Ajaran akan diisi dengan JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+            
+            
         </main>
     </div>
     <script src="/js/dashboard-admin.js"></script>
     <script src="/js/data-pegawai.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/data-siswa.js"></script>
+    <script src="/js/tahun-ajaran.js"></script>
+
 </body>
 
 </html>
