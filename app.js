@@ -549,6 +549,39 @@ app.delete('/api/tahun-ajaran/:id', async (req, res) => {
 });
 
 
+app.get('/api/kelas', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM kelas'; // Pastikan tabel 'siswa' ada
+        const [rows] = await db.query(query);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Tidak ada data siswa ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data siswa:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+app.get('/api/mata-pelajaran', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM mata_pelajaran';
+        const [rows] = await db.query(query);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Tidak ada data Mata Pelajaran ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data Mata Pelajaran:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });

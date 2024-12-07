@@ -162,7 +162,55 @@
                     </tbody>
                 </table>
             </section>
-            
+            <section id="data-kelas" class="content-section hidden">
+                <h2>Data Kelas</h2>
+                <div class="search-add-container">
+                    <div class="search-wrapper">
+                        <input type="text" id="search-class-input" placeholder="Cari kelas..." class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button id="add-class-btn" class="btn btn-primary">Tambah Kelas</button>
+                </div>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>ID Kelas</th>
+                            <th>Nama Kelas</th>
+                            <th>Wali Kelas</th>
+                            <th>Tahun Ajaran</th>
+                            <th>Jumlah Siswa</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kelas-tbody">
+                        <!-- Data Kelas akan diisi dengan JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+            <section id="mata-pelajaran" class="content-section hidden">
+                <h2>Data Mata Pelajaran</h2>
+                <div class="search-add-container">
+                    <div class="search-wrapper">
+                        <input type="text" id="search-subject-input" placeholder="Cari mata pelajaran..." class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button id="add-subject-btn" class="btn btn-primary">Tambah Mata Pelajaran</button>
+                </div>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Kode Mata Pelajaran</th>
+                            <th>Nama Mata Pelajaran</th>
+                            <th>NIP</th>
+                            <th>ID tahun Ajaran </th>
+                            <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
+                        </tr>
+                    </thead>
+                    <tbody id="mata-pelajaran-tbody">
+                        <!-- Data Mata Pelajaran akan diisi dengan JavaScript -->
+                    </tbody>
+                </table>
+            </section>            
             
         </main>
     </div>
@@ -171,6 +219,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/data-siswa.js"></script>
     <script src="/js/tahun-ajaran.js"></script>
+    <script src="/js/data-kelas.js"></script>
+    <script src="/js/data-mata-pelajaran.js"></script>
 
 </body>
 
