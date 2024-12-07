@@ -29,19 +29,42 @@ loginForm.addEventListener("submit", function(event) {
     .then(data => {
         if (data.message === 'Login berhasil') {
             const user = data.user;
-    
-            if (user.role === 'admin') {
-                window.location.href = '/dashboard-admin';  // Redirect to admin dashboard
-            } else {
-                window.location.href = '/dashboard';  // Redirect to general dashboard
-            }
+
+            // Tampilkan SweetAlert
+            Swal.fire({
+                title: 'Selamat Datang!',
+                text: `Selamat datang, ${user.name}!`,
+                icon: 'success',
+                confirmButtonText: 'Lanjutkan',
+                confirmButtonColor: '#3CB371'
+            }).then(() => {
+                // Redirect setelah menutup SweetAlert
+                if (user.role === 'admin') {
+                    window.location.href = '/dashboard-admin';  // Redirect to admin dashboard
+                } else {
+                    window.location.href = '/dashboard';  // Redirect to general dashboard
+                }
+            });
         } else {
-            alert('Login gagal: ' + data.message);
+            // SweetAlert untuk login gagal
+            Swal.fire({
+                title: 'Login Gagal!',
+                text: data.message,
+                icon: 'error',
+                confirmButtonText: 'Coba Lagi'
+            });
         }
     })
-    
     .catch(error => {
         console.error('Error:', error);
+
+        // SweetAlert untuk error sistem
+        Swal.fire({
+            title: 'Terjadi Kesalahan!',
+            text: 'Tidak dapat terhubung ke server.',
+            icon: 'error',
+            confirmButtonText: 'Coba Lagi'
+        });
     });
 });
 

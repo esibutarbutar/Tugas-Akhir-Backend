@@ -22,18 +22,28 @@ function renderTahunAjaran(data) {
             <td>${item.semester}</td>
             <td>
                 <button class="edit-button-TA" data-id-TA="${item.id}">Edit</button>
-                <button onclick="deleteTahunAjaran('${item.id}')">Delete</button>
+                <button class="delete-button-TA" data-id-TA="${item.id}">Delete</button>            
             </td>
         `;
         tbody.appendChild(tr);
     });
 
-    document.querySelectorAll('.edit-button-TA').forEach(button => {
-        button.addEventListener('click', () => {
-            const id = button.getAttribute('data-id-TA');
-            editTahunAjaran(id);
-        });
+     // Event delegation untuk tombol Delete
+     tbody.addEventListener("click", function (event) {
+        if (event.target.classList.contains("delete-button-TA")) {
+            const id = event.target.getAttribute("data-id-TA");
+            deleteTahunAjaran(id);
+        }
     });
+
+    // Event delegation untuk tombol Edit
+    tbody.addEventListener("click", function (event) {
+        if (event.target.classList.contains("edit-button-TA")) {
+            const id = event.target.getAttribute("data-id-TA");
+            editTahunAjaran(id);
+        }
+    });
+    
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -125,16 +135,50 @@ function formatDateToInput(dateString) {
     return `${year}-${month}-${day}`;
 }
 
+async function deleteTahunAjaran(id) {
+    console.log("Menghapus data dengan ID " + id);
 
+    // Gunakan SweetAlert untuk konfirmasi
+    const result = await Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: "Data yang dihapus tidak dapat dikembalikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+    });
 
-// Fungsi untuk menghapus tahun ajaran
-function deleteTahunAjaran(id) {
-    const confirmed = confirm("Apakah Anda yakin ingin menghapus data ini?");
-    if (confirmed) {
-        const index = tahunAjaranData.findIndex((item) => item.id === id);
-        if (index !== -1) {
-            tahunAjaranData.splice(index, 1);
-            renderTahunAjaran();
+    if (result.isConfirmed) {
+        try {
+            // Mengirim permintaan DELETE ke API
+            const response = await fetch(`/api/tahun-ajaran/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Data Tahun Ajaran berhasil dihapus.',
+                    icon: 'success',
+                });
+                fetchTahunAjaran(); // Memuat ulang data setelah penghapusan
+            } else {
+                const errorMessage = await response.json();
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: errorMessage.message || 'Terjadi kesalahan saat menghapus data.',
+                    icon: 'error',
+                });
+            }
+        } catch (error) {
+            console.error("Error deleting Tahun Ajaran:", error);
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Tidak dapat menghapus data Tahun Ajaran.',
+                icon: 'error',
+            });
         }
     }
 }
@@ -161,7 +205,12 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
                     Swal.showValidationMessage('Tanggal Mulai harus sebelum Tanggal Selesai!');
                     return null;
                 }
-            
+                console.log("Data yang dikirim:", {
+                    nama_tahun_ajaran: document.getElementById('nama_TA').value,
+                    semester: document.getElementById('semester').value,  // Pastikan semester ada di sini
+                    tanggal_mulai: document.getElementById('tanggal_mulai').value,
+                    tanggal_selesai: document.getElementById('tanggal_selesai').value,
+                });
                 return {
                     nama_tahun_ajaran: document.getElementById('nama_TA').value,
                     semester: document.getElementById('semester').value,
@@ -169,7 +218,6 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
                     tanggal_selesai: document.getElementById('tanggal_selesai').value,
                 };
             }
-            
         });
 
         if (formValues) {
@@ -207,4 +255,21 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
     }
 });
 
+document.getElementById('search-year-input').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#tahun-ajaran-tbody tr');
+
+    rows.forEach(row => {
+        const nameCell = row.cells[1].textContent.toLowerCase();
+        const nisnCell = row.cells[0].textContent.toLowerCase();
+
+        if (nameCell.includes(searchQuery) || nisnCell.includes(searchQuery)) {
+            row.style.display = ''; // Tampilkan baris
+        } else {
+            row.style.display = 'none'; // Sembunyikan baris
+        }
+    });
+});
+
 fetchTahunAjaran();
+

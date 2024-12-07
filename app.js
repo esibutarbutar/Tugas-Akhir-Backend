@@ -528,16 +528,26 @@ app.put('/api/tahun-ajaran/:id', async (req, res) => {
 });
 
 
-// API untuk menghapus tahun ajaran
 app.delete('/api/tahun-ajaran/:id', async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params; // Ambil ID dari parameter URL
     try {
-        await db.query('DELETE FROM tahun_ajaran WHERE id = $1', [id]);
-        res.status(204).send();
-    } catch (err) {
-        res.status(500).json({ error: 'Gagal menghapus tahun ajaran.' });
+        // Query untuk menghapus data dari tabel tahun_ajaran
+        const deleteQuery = 'DELETE FROM tahun_ajaran WHERE id = ?';
+        const [result] = await db.query(deleteQuery, [id]);
+
+        // Cek apakah data berhasil dihapus
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Tahun ajaran berhasil dihapus.' });
+        } else {
+            res.status(404).json({ message: 'Tahun ajaran tidak ditemukan.' });
+        }
+    } catch (error) {
+        // Log error untuk debugging
+        console.error("Error deleting Tahun Ajaran:", error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
