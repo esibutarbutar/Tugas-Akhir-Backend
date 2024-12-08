@@ -1,62 +1,48 @@
-.mading-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
+#mading-container {
+    display: flex;              /* Menggunakan flexbox untuk layout */
+    flex-wrap: wrap;            /* Membuat card membungkus jika ruang habis */
+    gap: 16px;                  /* Memberikan jarak antar card */
+    padding: 16px;              /* Memberikan padding pada kontainer */
 }
 
 .mading-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    padding: 16px;
-    background-color: #fff;
-    transition: transform 0.2s ease-in-out;
-}
-
-.mading-card:hover {
-    transform: scale(1.05);
+    display: flex;                      /* Menggunakan Flexbox untuk layout */
+    flex-direction: column;             /* Menyusun elemen secara vertikal */
+    justify-content: space-between;     /* Memastikan konten di tengah dan tanggal di bawah */
+    width: 250px;                       /* Lebar tetap untuk card */
+    background-color: #fff;             /* Warna latar belakang */
+    border: 1px solid #ddd;             /* Border */
+    border-radius: 8px;                 /* Sudut melengkung */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Bayangan */
+    padding: 16px;                      /* Padding di dalam card */
+    transition: transform 0.2s ease-in-out; /* Animasi saat hover */
+    height: 350px;                      /* Menentukan tinggi card */
+    position: relative;                 /* Menambahkan posisi relatif untuk tanggal */
 }
 
 .mading-title {
+    text-align: center;                 /* Menyusun teks judul di tengah */
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 8px;
     color: #333;
 }
 
-.mading-date {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 12px;
-}
-
 .mading-description {
+    display: flex;                      /* Membuat konten menggunakan flexbox */
+    justify-content: center;             /* Menyusun konten di tengah secara horizontal */
+    align-items: center;                 /* Menyusun konten di tengah secara vertikal */
     font-size: 14px;
     color: #666;
     margin-bottom: 12px;
+    flex-grow: 1;                        /* Konten mengisi ruang yang tersisa */
 }
 
-.mading-actions {
-    display: flex;
-    justify-content: space-between;
-}
-
-.mading-actions button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.mading-date {
     font-size: 14px;
-}
-
-.mading-actions .view-btn {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.mading-actions .delete-btn {
-    background-color: #dc3545;
-    color: #fff;
+    color: #555;
+    text-align: right;                  /* Menyusun tanggal di sebelah kanan */
+    position: absolute;                 /* Menempatkan tanggal secara absolut */
+    bottom: 16px;                       /* Memastikan tanggal berada di bawah */
+    right: 16px;                        /* Menempatkan tanggal di sebelah kanan */
 }

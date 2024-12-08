@@ -579,39 +579,24 @@ app.get('/api/mata-pelajaran', async (req, res) => {
 
 
 app.post('/api/mading', async (req, res) => {
+    const { judul, konten, tanggal } = req.body;
+    const nip = req.session.user?.id;
+    console.log('NIP:', nip);
+
+    if (!nip) return res.status(401).json({ message: 'Unauthorized' });
+    if (!judul || !konten || !tanggal) {
+        return res.status(400).json({ message: 'All fields are required.' });
+    }
+
     try {
-        // Pastikan user sudah login
-        if (!req.session.user) {
-            return res.status(401).json({ message: "Anda harus login terlebih dahulu." });
-        }
-
-        // Periksa apakah user memiliki role Admin
-        if (req.session.user.role !== 'Admin') {
-            return res.status(403).json({ message: "Anda tidak memiliki akses untuk membuat mading." });
-        }
-
-        const { judul, konten, tanggal } = req.body;
-
-        // Validasi data
-        if (!judul || !konten || !tanggal) {
-            return res.status(400).json({ message: "Judul, konten, dan tanggal wajib diisi." });
-        }
-
-        // Ambil NIP admin dari sesi user
-        const nip = req.session.user.id;
-
-        const newMading = await Mading.create({
-            judul: req.body.judul,
-            konten: req.body.konten,
-            tanggal: req.body.tanggal,
-            nip: req.session.user.id,
-            foto: req.body.foto, // Tambahkan jika foto diperlukan
-        });
-        
-        res.status(201).json(newMading);
-    } catch (error) {
-        console.error("Error adding Mading:", error);
-        res.status(500).json({ message: "Terjadi kesalahan pada server." });
+        await db.query(
+            'INSERT INTO mading (judul, konten, tanggal, nip) VALUES (?, ?, ?, ?)',
+            [judul, konten, tanggal, nip]
+        );
+        res.status(201).json({ message: 'Mading added successfully' });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Failed to add mading.' });
     }
 });
 
@@ -631,6 +616,48 @@ app.get('/api/mading', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
     }
 });
+
+app.get('/api/mading/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Query untuk mendapatkan Tahun Ajaran berdasarkan ID
+        const query = 'SELECT * FROM mading WHERE id = ?';
+        const [result] = await db.execute(query, [id]);
+
+        // Jika data ditemukan, kirimkan sebagai response
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: 'Mading tidak ditemukan' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data Mading:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
+    }
+});
+
+app.delete('/api/mading/:id', async (req, res) => {
+    const { id } = req.params; // Ambil ID dari parameter URL
+    try {
+        // Query untuk menghapus data dari tabel tahun_ajaran
+        const deleteQuery = 'DELETE FROM mading WHERE id = ?';
+        const [result] = await db.query(deleteQuery, [id]);
+
+        // Cek apakah data berhasil dihapus
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Pengumuman berhasil dihapus.' });
+        } else {
+            res.status(404).json({ message: 'Pengumuman ajaran tidak ditemukan.' });
+        }
+    } catch (error) {
+        // Log error untuk debugging
+        console.error("Error deleting Pengumumann:", error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
 
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
