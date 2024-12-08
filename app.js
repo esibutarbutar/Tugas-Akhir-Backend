@@ -17,13 +17,18 @@ app.use(session({
     }
 }));
 
+// Menyiapkan storage untuk gambar
 const storage = multer.diskStorage({
-    destination: 'uploads/',
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/'); // Tentukan folder tempat gambar akan disimpan
     },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname); // Menentukan nama file
+    }
 });
-const upload = multer({ storage });
+
+// Menggunakan multer untuk upload gambar
+const upload = multer({ storage: storage });
 
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -31,6 +36,8 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
+
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'index.html'));
@@ -577,11 +584,13 @@ app.get('/api/mata-pelajaran', async (req, res) => {
     }
 });
 
-
-app.post('/api/mading', async (req, res) => {
+app.post('/api/mading', upload.single('image'), async (req, res) => {
     const { judul, konten, tanggal } = req.body;
     const nip = req.session.user?.id;
+    const imagePath = req.file ? '/uploads/' + req.file.filename : null; // Menyimpan path gambar jika ada
+
     console.log('NIP:', nip);
+    console.log('Image Path:', imagePath);
 
     if (!nip) return res.status(401).json({ message: 'Unauthorized' });
     if (!judul || !konten || !tanggal) {
@@ -590,8 +599,8 @@ app.post('/api/mading', async (req, res) => {
 
     try {
         await db.query(
-            'INSERT INTO mading (judul, konten, tanggal, nip) VALUES (?, ?, ?, ?)',
-            [judul, konten, tanggal, nip]
+            'INSERT INTO mading (judul, konten, tanggal, nip, foto) VALUES (?, ?, ?, ?, ?)',
+            [judul, konten, tanggal, nip, imagePath] // Menambahkan path gambar ke query
         );
         res.status(201).json({ message: 'Mading added successfully' });
     } catch (err) {

@@ -17,7 +17,11 @@ function renderMading(data) {
         const card = document.createElement("div");
         card.className = "mading-card";
 
+        // Periksa apakah ada gambar untuk ditampilkan
+        const imageHtml = item.imagePath ? `<img src="${item.imagePath}" class="mading-image" alt="Image">` : '';
+
         card.innerHTML = `
+            ${imageHtml} <!-- Menampilkan gambar jika ada -->
             <div class="mading-title">${item.judul}</div>
             <div class="mading-date">${new Date(item.tanggal).toLocaleDateString()}</div>
             <div class="mading-description">${item.konten}</div>
@@ -28,6 +32,17 @@ function renderMading(data) {
         `;
 
         container.appendChild(card);
+    });
+
+    // Delegasi event untuk tombol
+    container.addEventListener("click", function (event) {
+        const id = event.target.getAttribute("data-id");
+
+        if (event.target.classList.contains("view-btn")) {
+            viewMading(id);
+        } else if (event.target.classList.contains("delete-btn")) {
+            deleteMading(id);
+        }
     });
 }
 
@@ -107,29 +122,38 @@ async function addMading() {
         html: `
             <input type="text" id="judul" class="swal2-input" placeholder="Judul Pengumuman">
             <textarea id="konten" class="swal2-textarea" placeholder="Isi Pengumuman"></textarea>
+            <input type="file" id="image" class="swal2-input" accept="image/*"> <!-- Input gambar -->
         `,
         confirmButtonText: "Tambah",
         showCancelButton: true,
         preConfirm: () => {
             const judul = document.getElementById("judul").value.trim();
             const konten = document.getElementById("konten").value.trim();
+            const image = document.getElementById("image").files[0]; // Mengambil file gambar
 
             if (!judul || !konten) {
                 Swal.showValidationMessage("Semua kolom harus diisi!");
                 return null;
             }
 
-            // Return object tanpa tanggal, karena tanggal sudah otomatis diambil
-            return { judul, konten, tanggal: today };
+            // Return objek dengan tambahan file gambar
+            return { judul, konten, tanggal: today, image };
         },
     }).then((result) => {
         if (result.isConfirmed) {
-            const { judul, konten, tanggal } = result.value;
+            const { judul, konten, tanggal, image } = result.value;
+
+            const formData = new FormData();
+            formData.append("judul", judul);
+            formData.append("konten", konten);
+            formData.append("tanggal", tanggal);
+            if (image) {
+                formData.append("image", image); // Menambahkan file gambar ke form data
+            }
 
             fetch('/api/mading', {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ judul, konten, tanggal }),
+                body: formData, // Kirim data dengan FormData
             })
             .then(async (response) => {
                 if (!response.ok) {
@@ -138,14 +162,14 @@ async function addMading() {
                 }
                 return response.json();
             })
-                .then(() => {
-                    Swal.fire("Berhasil!", "Pengumuman baru telah ditambahkan.", "success");
-                    fetchMading(); // Refresh data
-                })
-                .catch((error) => {
-                    console.error("Error adding Mading:", error);
-                    Swal.fire("Gagal!", "Terjadi kesalahan saat menambah pengumuman.", "error");
-                });
+            .then(() => {
+                Swal.fire("Berhasil!", "Pengumuman baru telah ditambahkan.", "success");
+                fetchMading(); // Refresh data
+            })
+            .catch((error) => {
+                console.error("Error adding Mading:", error);
+                Swal.fire("Gagal!", "Terjadi kesalahan saat menambah pengumuman.", "error");
+            });
         }
     });
 }
@@ -273,29 +297,38 @@ async function addMading() {
         html: `
             <input type="text" id="judul" class="swal2-input" placeholder="Judul Pengumuman">
             <textarea id="konten" class="swal2-textarea" placeholder="Isi Pengumuman"></textarea>
+            <input type="file" id="image" class="swal2-input" accept="image/*"> <!-- Input gambar -->
         `,
         confirmButtonText: "Tambah",
         showCancelButton: true,
         preConfirm: () => {
             const judul = document.getElementById("judul").value.trim();
             const konten = document.getElementById("konten").value.trim();
+            const image = document.getElementById("image").files[0]; // Mengambil file gambar
 
             if (!judul || !konten) {
                 Swal.showValidationMessage("Semua kolom harus diisi!");
                 return null;
             }
 
-            // Return object tanpa tanggal, karena tanggal sudah otomatis diambil
-            return { judul, konten, tanggal: today };
+            // Return objek dengan tambahan file gambar
+            return { judul, konten, tanggal: today, image };
         },
     }).then((result) => {
         if (result.isConfirmed) {
-            const { judul, konten, tanggal } = result.value;
+            const { judul, konten, tanggal, image } = result.value;
+
+            const formData = new FormData();
+            formData.append("judul", judul);
+            formData.append("konten", konten);
+            formData.append("tanggal", tanggal);
+            if (image) {
+                formData.append("image", image); // Menambahkan file gambar ke form data
+            }
 
             fetch('/api/mading', {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ judul, konten, tanggal }),
+                body: formData, // Kirim data dengan FormData
             })
             .then(async (response) => {
                 if (!response.ok) {
@@ -304,14 +337,14 @@ async function addMading() {
                 }
                 return response.json();
             })
-                .then(() => {
-                    Swal.fire("Berhasil!", "Pengumuman baru telah ditambahkan.", "success");
-                    fetchMading(); // Refresh data
-                })
-                .catch((error) => {
-                    console.error("Error adding Mading:", error);
-                    Swal.fire("Gagal!", "Terjadi kesalahan saat menambah pengumuman.", "error");
-                });
+            .then(() => {
+                Swal.fire("Berhasil!", "Pengumuman baru telah ditambahkan.", "success");
+                fetchMading(); // Refresh data
+            })
+            .catch((error) => {
+                console.error("Error adding Mading:", error);
+                Swal.fire("Gagal!", "Terjadi kesalahan saat menambah pengumuman.", "error");
+            });
         }
     });
 }
