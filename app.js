@@ -17,18 +17,14 @@ app.use(session({
     }
 }));
 
-
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); 
-    },
+    destination: 'uploads/',
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Nama file unik
-    }
+        cb(null, `${Date.now()}-${file.originalname}`);
+    },
 });
+const upload = multer({ storage });
 
-// Inisialisasi upload middleware
-const upload = multer({ storage: storage });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -581,6 +577,60 @@ app.get('/api/mata-pelajaran', async (req, res) => {
     }
 });
 
+
+app.post('/api/mading', async (req, res) => {
+    try {
+        // Pastikan user sudah login
+        if (!req.session.user) {
+            return res.status(401).json({ message: "Anda harus login terlebih dahulu." });
+        }
+
+        // Periksa apakah user memiliki role Admin
+        if (req.session.user.role !== 'Admin') {
+            return res.status(403).json({ message: "Anda tidak memiliki akses untuk membuat mading." });
+        }
+
+        const { judul, konten, tanggal } = req.body;
+
+        // Validasi data
+        if (!judul || !konten || !tanggal) {
+            return res.status(400).json({ message: "Judul, konten, dan tanggal wajib diisi." });
+        }
+
+        // Ambil NIP admin dari sesi user
+        const nip = req.session.user.id;
+
+        const newMading = await Mading.create({
+            judul: req.body.judul,
+            konten: req.body.konten,
+            tanggal: req.body.tanggal,
+            nip: req.session.user.id,
+            foto: req.body.foto, // Tambahkan jika foto diperlukan
+        });
+        
+        res.status(201).json(newMading);
+    } catch (error) {
+        console.error("Error adding Mading:", error);
+        res.status(500).json({ message: "Terjadi kesalahan pada server." });
+    }
+});
+
+// Get all mading
+app.get('/api/mading', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM mading'; // Pastikan tabel 'siswa' ada
+        const [rows] = await db.query(query);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Tidak ada data siswa ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data siswa:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);

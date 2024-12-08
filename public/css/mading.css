@@ -1,0 +1,62 @@
+.mading-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.mading-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    padding: 16px;
+    background-color: #fff;
+    transition: transform 0.2s ease-in-out;
+}
+
+.mading-card:hover {
+    transform: scale(1.05);
+}
+
+.mading-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.mading-date {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.mading-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.mading-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.mading-actions button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mading-actions .view-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.mading-actions .delete-btn {
+    background-color: #dc3545;
+    color: #fff;
+}

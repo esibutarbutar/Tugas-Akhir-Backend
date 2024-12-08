@@ -9,6 +9,7 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/dashboard-admin.css">
     <link rel="stylesheet" href="/css/data-pegawai.css">
+    <link rel="stylesheet" href="/css/mading.css">
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- SweetAlert2 JavaScript -->
@@ -211,6 +212,20 @@
                     </tbody>
                 </table>
             </section>            
+            <section id="mading" class="content-section hidden">
+                <h2>Data Pengumuman pada Mading</h2>
+                <div class="search-add-container">
+                    <div class="search-wrapper">
+                        <input type="text" id="search-mading-input" placeholder="Cari mata Pengumuman..." class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button id="add-mading-btn" class="btn btn-primary">Tambah Pengumuman</button>
+                </div>
+                <div id="mading-container" class="mading-cards">
+                    <!-- Cards akan ditambahkan dengan JavaScript -->
+                </div>
+            </section>
+            
             
         </main>
     </div>
@@ -221,7 +236,7 @@
     <script src="/js/tahun-ajaran.js"></script>
     <script src="/js/data-kelas.js"></script>
     <script src="/js/data-mata-pelajaran.js"></script>
-
+    <script src="/js/data-mading.js"></script>
 </body>
 
 </html>
