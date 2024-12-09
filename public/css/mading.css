@@ -1,27 +1,36 @@
 #mading-container {
-    display: flex;              /* Menggunakan flexbox untuk layout */
-    flex-wrap: wrap;            /* Membuat card membungkus jika ruang habis */
-    gap: 16px;                  /* Memberikan jarak antar card */
-    padding: 16px;              /* Memberikan padding pada kontainer */
+    display: flex;              
+    flex-wrap: wrap;           
+    gap: 16px;                  
+    padding: 16px;              
 }
 
 .mading-card {
-    display: flex;                      /* Menggunakan Flexbox untuk layout */
-    flex-direction: column;             /* Menyusun elemen secara vertikal */
-    justify-content: space-between;     /* Memastikan konten di tengah dan tanggal di bawah */
-    width: 250px;                       /* Lebar tetap untuk card */
-    background-color: #fff;             /* Warna latar belakang */
-    border: 1px solid #ddd;             /* Border */
-    border-radius: 8px;                 /* Sudut melengkung */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Bayangan */
-    padding: 16px;                      /* Padding di dalam card */
-    transition: transform 0.2s ease-in-out; /* Animasi saat hover */
-    height: 350px;                      /* Menentukan tinggi card */
-    position: relative;                 /* Menambahkan posisi relatif untuk tanggal */
+    display: flex;                     
+    flex-direction: column;            
+    justify-content: space-between;     
+    width: 250px;                      
+    background-color: #fff;             
+    border: 1px solid #ddd;             
+    border-radius: 8px;                
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    padding: 16px;                     
+    transition: transform 0.2s ease-in-out; 
+    height: 350px;                     
+    position: relative;                 
+}
+
+.mading-image img {
+    width: 100%; 
+    height: auto;
+    max-height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 12px;
 }
 
 .mading-title {
-    text-align: center;                 /* Menyusun teks judul di tengah */
+    text-align: center;                 
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 8px;
@@ -29,20 +38,49 @@
 }
 
 .mading-description {
-    display: flex;                      /* Membuat konten menggunakan flexbox */
-    justify-content: center;             /* Menyusun konten di tengah secara horizontal */
-    align-items: center;                 /* Menyusun konten di tengah secara vertikal */
+    display: -webkit-box;
+    -webkit-line-clamp: 6; /* Batas baris */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 14px;
     color: #666;
     margin-bottom: 12px;
-    flex-grow: 1;                        /* Konten mengisi ruang yang tersisa */
+    flex-grow: 1;
+    position: relative; /* Dibutuhkan untuk positioning hyperlink */
 }
+.mading-description a {
+    color: #007bff; /* Warna link */
+    text-decoration: none; /* Hilangkan garis bawah */
+    margin-left: 4px; /* Jarak sedikit dari teks */
+}
+.mading-description a:hover {
+    text-decoration: underline; /* Tambahkan efek hover */
+}
+
 
 .mading-date {
     font-size: 14px;
     color: #555;
-    text-align: right;                  /* Menyusun tanggal di sebelah kanan */
-    position: absolute;                 /* Menempatkan tanggal secara absolut */
-    bottom: 16px;                       /* Memastikan tanggal berada di bawah */
-    right: 16px;                        /* Menempatkan tanggal di sebelah kanan */
+    text-align: right;                 
+    position: absolute;                 
+    bottom: 16px;                       
+    right: 16px;                       
+}
+
+hr{
+    margin-bottom: 5px;
+}
+
+/* Custom Style for SweetAlert */
+.swal-custom-popup .swal-content p {
+    text-align: justify; /* Rata kiri-kanan */
+    line-height: 1.6;    /* Tinggi baris untuk kemudahan membaca */
+    color: #333;         /* Warna teks opsional */
+}
+
+.swal-content img {
+    max-width: 300px;
+    height: auto;
+    margin-bottom: 10px;
 }

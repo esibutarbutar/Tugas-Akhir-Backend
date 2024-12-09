@@ -1,0 +1,69 @@
+.form-container {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 15px; 
+    font-family: 'Arial', sans-serif;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column; 
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.swal2-input  {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.swal2-select {
+    -webkit-appearance: none;  
+    -moz-appearance: none;
+    appearance: none;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+
+.swal2-input:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.swal2-input[type="date"] {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Gaya tombol SweetAlert */
+.swal2-confirm, .swal2-cancel {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.swal2-confirm {
+    background-color: #28a745 !important;
+    color: white;
+}
+
+/* Gaya tombol batal */
+.swal2-cancel {
+    background-color: #dc3545;
+    color: white;
+}

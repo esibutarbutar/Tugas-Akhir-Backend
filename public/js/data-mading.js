@@ -11,39 +11,87 @@ function fetchMading() {
 
 function renderMading(data) {
     const container = document.getElementById("mading-container");
-    container.innerHTML = ""; // Kosongkan container sebelum render ulang
+    container.innerHTML = "";
 
     data.forEach(item => {
         const card = document.createElement("div");
         card.className = "mading-card";
 
-        // Periksa apakah ada gambar untuk ditampilkan
-        const imageHtml = item.imagePath ? `<img src="${item.imagePath}" class="mading-image" alt="Image">` : '';
+        const shortDescription = item.konten.length > 200 
+            ? item.konten.slice(0, 200).trim() + "..." 
+            : item.konten;
 
+        // Membuat konten HTML untuk setiap item
         card.innerHTML = `
-            ${imageHtml} <!-- Menampilkan gambar jika ada -->
             <div class="mading-title">${item.judul}</div>
+            <hr>
+            <div class="mading-image">
+                ${item.foto ? `<img src="${item.foto}" alt="Mading Image">` : ''}
+            </div>
+            <div class="mading-description">
+                ${shortDescription}
+                ${item.konten.length > 200 ? `<a href="#" class="read-more">Lihat Selengkapnya</a>` : ''}
+            </div>
             <div class="mading-date">${new Date(item.tanggal).toLocaleDateString()}</div>
-            <div class="mading-description">${item.konten}</div>
             <div class="mading-actions">
                 <button class="view-btn" data-id="${item.id}">Lihat</button>
                 <button class="delete-btn" data-id="${item.id}">Hapus</button>
             </div>
         `;
-
         container.appendChild(card);
-    });
 
-    // Delegasi event untuk tombol
-    container.addEventListener("click", function (event) {
-        const id = event.target.getAttribute("data-id");
-
-        if (event.target.classList.contains("view-btn")) {
-            viewMading(id);
-        } else if (event.target.classList.contains("delete-btn")) {
-            deleteMading(id);
+        // Event handler untuk "Lihat Selengkapnya"
+        const readMoreLink = card.querySelector('.read-more');
+        if (readMoreLink) {
+            readMoreLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Tampilkan detail dengan SweetAlert
+                Swal.fire({
+                    title: item.judul,
+                    html: `
+                        <div class="swal-content">
+                            ${item.foto ? `<img src="${item.foto}" alt="Mading Image" style="max-width: 300px; height: auto; margin-bottom: 10px;">` : ''}
+                            <p>${item.konten}</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    showCloseButton: true,
+                    confirmButtonText: 'Tutup',
+                    customClass: {
+                        popup: 'swal-custom-popup'
+                    }
+                });
+            });
         }
     });
+
+container.addEventListener("click", function (event) {
+    const id = event.target.getAttribute("data-id");
+
+    if (event.target.classList.contains("view-btn")) {
+        // Ambil data dari atribut tombol "data-id"
+        const selectedMading = data.find(item => item.id === id); 
+        if (selectedMading) {
+            Swal.fire({
+                title: selectedMading.judul,
+                html: `
+                    <div class="swal-content">
+                        ${selectedMading.foto ? `<img src="${selectedMading.foto}" alt="Mading Image" style="max-width: 100%; margin-bottom: 10px;">` : ''}
+                        <p>${selectedMading.konten}</p>
+                    </div>
+                `,
+                icon: 'info',
+                showCloseButton: true,
+                confirmButtonText: 'Tutup',
+                customClass: {
+                    popup: 'swal-custom-popup'
+                }
+            });
+        }
+    } else if (event.target.classList.contains("delete-btn")) {
+        deleteMading(id);
+    }
+});
 }
 
 async function viewMading(id) {
@@ -53,7 +101,12 @@ async function viewMading(id) {
 
         Swal.fire({
             title: mading.judul,
-            text: mading.deskripsi,
+            html: `
+                <div class="swal-content">
+                    ${mading.foto ? `<img src="${mading.foto}" alt="Mading Image" style="max-width: 300px; height: auto; margin-bottom: 10px;">` : ''}
+                    <p>${mading.deskripsi}</p>
+                </div>
+            `,
             footer: `Dibuat pada: ${new Date(mading.tanggal).toLocaleDateString()}`,
         });
     } catch (error) {
@@ -188,38 +241,7 @@ function fetchMading() {
         });
 }
 
-function renderMading(data) {
-    const container = document.getElementById("mading-container");
-    container.innerHTML = ""; // Kosongkan container sebelum render ulang
 
-    data.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "mading-card";
-
-        card.innerHTML = `
-            <div class="mading-title">${item.judul}</div>
-            <div class="mading-date">${new Date(item.tanggal).toLocaleDateString()}</div>
-            <div class="mading-description">${item.konten}</div>
-            <div class="mading-actions">
-                <button class="view-btn" data-id="${item.id}">Lihat</button>
-                <button class="delete-btn" data-id="${item.id}">Hapus</button>
-            </div>
-        `;
-
-        container.appendChild(card);
-    });
-
-    // Delegasi event untuk tombol
-    container.addEventListener("click", function (event) {
-        const id = event.target.getAttribute("data-id");
-
-        if (event.target.classList.contains("view-btn")) {
-            viewMading(id);
-        } else if (event.target.classList.contains("delete-btn")) {
-            deleteMading(id);
-        }
-    });
-}
 
 async function viewMading(id) {
     try {

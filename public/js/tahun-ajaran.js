@@ -17,8 +17,8 @@ function renderTahunAjaran(data) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${item.nama_tahun_ajaran}</td>
-            <td>${item.tanggal_mulai}</td>
-            <td>${item.tanggal_selesai}</td>
+            <td>${formatDate(item.tanggal_mulai)}</td>
+            <td>${formatDate(item.tanggal_selesai)}</td>
             <td>${item.semester}</td>
             <td>
                 <button class="edit-button-TA" data-id-TA="${item.id}">Edit</button>
@@ -56,33 +56,46 @@ document.getElementById("tahun-ajaran-tbody").addEventListener('click', (event) 
     }
 });
 
-
+// Fungsi untuk mengedit data Tahun Ajaran
 async function editTahunAjaran(id) {
     try {
         const response = await fetch(`/api/tahun-ajaran/${id}`);
-        if (!response.ok) throw new Error("Gagal mengambil Tahun Ajaran untuk edit!");
+        if (!response.ok) throw new Error("Gagal mengambil data Tahun Ajaran untuk edit!");
 
         const TA = await response.json();
 
         const { value: formValues } = await Swal.fire({
             title: 'Edit Data Tahun Ajaran',
             html: `
-            <input id="nama_TA" type="text" class="swal2-input" value="${TA.nama_tahun_ajaran}">
-            <input id="semester" type="text" class="swal2-input" value="${TA.semester}">
-            <input id="tanggal_mulai" type="date" class="swal2-input" value="${formatDateToInput(TA.tanggal_mulai)}">
-            <input id="tanggal_selesai" type="date" class="swal2-input" value="${formatDateToInput(TA.tanggal_selesai)}">
-        `,        
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="nama_TA">Nama Tahun Ajaran</label>
+                        <input id="nama_TA" type="text" class="swal2-input" value="${TA.nama_tahun_ajaran}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="semester">Semester</label>
+                        <select id="semester" class="swal2-input">
+                            <option value="Ganjil" ${TA.semester === 'Ganjil' ? 'selected' : ''}>Ganjil</option>
+                            <option value="Genap" ${TA.semester === 'Genap' ? 'selected' : ''}>Genap</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tanggal_mulai">Tanggal Mulai</label>
+                        <input id="tanggal_mulai" type="date" class="swal2-input" value="${formatDateToInput(TA.tanggal_mulai)}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tanggal_selesai">Tanggal Selesai</label>
+                        <input id="tanggal_selesai" type="date" class="swal2-input" value="${formatDateToInput(TA.tanggal_selesai)}">
+                    </div>
+                </div>
+            `,
             showCancelButton: true,
             cancelButtonText: 'Batal',
             confirmButtonText: 'Simpan',
             preConfirm: () => {
-                console.log("Data yang dikirim:", {
-                    nama_tahun_ajaran: document.getElementById('nama_TA').value,
-                    semester: document.getElementById('semester').value,  // Pastikan semester ada di sini
-                    tanggal_mulai: document.getElementById('tanggal_mulai').value,
-                    tanggal_selesai: document.getElementById('tanggal_selesai').value,
-                });
-            
                 return {
                     nama_tahun_ajaran: document.getElementById('nama_TA').value,
                     semester: document.getElementById('semester').value,
@@ -90,7 +103,6 @@ async function editTahunAjaran(id) {
                     tanggal_selesai: document.getElementById('tanggal_selesai').value,
                 };
             }
-            
         });
 
         if (formValues) {
@@ -138,61 +150,86 @@ function formatDateToInput(dateString) {
 async function deleteTahunAjaran(id) {
     console.log("Menghapus data dengan ID " + id);
 
-    // Gunakan SweetAlert untuk konfirmasi
-    const result = await Swal.fire({
-        title: 'Apakah Anda yakin?',
-        text: "Data yang dihapus tidak dapat dikembalikan!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal',
-    });
+    try {
+        // Mengambil data Tahun Ajaran untuk mendapatkan nama_tahun_ajaran
+        const response = await fetch(`/api/tahun-ajaran/${id}`);
+        if (!response.ok) throw new Error("Gagal mengambil data Tahun Ajaran!");
 
-    if (result.isConfirmed) {
-        try {
+        const TA = await response.json();
+        
+        // Gunakan SweetAlert untuk konfirmasi dengan nama_tahun_ajaran
+        const result = await Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: `Data Tahun Ajaran "${TA.nama_tahun_ajaran}" akan dihapus dari sistem dan tidak dapat dikembalikan!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+        });
+
+        if (result.isConfirmed) {
             // Mengirim permintaan DELETE ke API
-            const response = await fetch(`/api/tahun-ajaran/${id}`, {
+            const deleteResponse = await fetch(`/api/tahun-ajaran/${id}`, {
                 method: 'DELETE',
             });
 
-            if (response.ok) {
+            if (deleteResponse.ok) {
                 Swal.fire({
                     title: 'Berhasil!',
-                    text: 'Data Tahun Ajaran berhasil dihapus.',
+                    text: `Data Tahun Ajaran "${TA.nama_tahun_ajaran}" berhasil dihapus.`,
                     icon: 'success',
                 });
                 fetchTahunAjaran(); // Memuat ulang data setelah penghapusan
             } else {
-                const errorMessage = await response.json();
+                const errorMessage = await deleteResponse.json();
                 Swal.fire({
                     title: 'Gagal!',
                     text: errorMessage.message || 'Terjadi kesalahan saat menghapus data.',
                     icon: 'error',
                 });
             }
-        } catch (error) {
-            console.error("Error deleting Tahun Ajaran:", error);
-            Swal.fire({
-                title: 'Gagal!',
-                text: 'Tidak dapat menghapus data Tahun Ajaran.',
-                icon: 'error',
-            });
         }
+    } catch (error) {
+        console.error("Error deleting Tahun Ajaran:", error);
+        Swal.fire({
+            title: 'Gagal!',
+            text: 'Tidak dapat menghapus data Tahun Ajaran.',
+            icon: 'error',
+        });
     }
 }
-
 
 document.getElementById('tambah-tahun-ajaran').addEventListener('click', async () => {
     try {
         const { value: formValues } = await Swal.fire({
             title: 'Tambah Tahun Ajaran Baru',
             html: `
-                <input id="nama_TA" type="text" class="swal2-input" placeholder="Nama Tahun Ajaran">
-                <input id="semester" type="text" class="swal2-input" placeholder="Semester">
-                <input id="tanggal_mulai" type="date" class="swal2-input" placeholder="Tanggal Mulai">
-                <input id="tanggal_selesai" type="date" class="swal2-input" placeholder="Tanggal Selesai">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="nama_TA">Nama Tahun Ajaran</label>
+                        <input id="nama_TA" type="text" class="swal2-input" placeholder="Nama Tahun Ajaran">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="semester">Semester</label>
+                        <select id="semester" class="swal2-input">
+                            <option value="Ganjil">Ganjil</option>
+                            <option value="Genap">Genap</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tanggal_mulai">Tanggal Mulai</label>
+                        <input id="tanggal_mulai" type="date" class="swal2-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tanggal_selesai">Tanggal Selesai</label>
+                        <input id="tanggal_selesai" type="date" class="swal2-input">
+                    </div>
+                </div>
             `,
             showCancelButton: true,
             cancelButtonText: 'Batal',
@@ -200,28 +237,22 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
             preConfirm: () => {
                 const tanggal_mulai = new Date(document.getElementById('tanggal_mulai').value);
                 const tanggal_selesai = new Date(document.getElementById('tanggal_selesai').value);
-            
+
                 if (tanggal_mulai > tanggal_selesai) {
                     Swal.showValidationMessage('Tanggal Mulai harus sebelum Tanggal Selesai!');
                     return null;
                 }
-                console.log("Data yang dikirim:", {
-                    nama_tahun_ajaran: document.getElementById('nama_TA').value,
-                    semester: document.getElementById('semester').value,  // Pastikan semester ada di sini
-                    tanggal_mulai: document.getElementById('tanggal_mulai').value,
-                    tanggal_selesai: document.getElementById('tanggal_selesai').value,
-                });
+
                 return {
                     nama_tahun_ajaran: document.getElementById('nama_TA').value,
                     semester: document.getElementById('semester').value,
                     tanggal_mulai: document.getElementById('tanggal_mulai').value,
                     tanggal_selesai: document.getElementById('tanggal_selesai').value,
                 };
-            }
+            },
         });
 
         if (formValues) {
-            // Kirim data ke API untuk menyimpan
             const response = await fetch('/api/tahun-ajaran', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -254,6 +285,7 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
         });
     }
 });
+
 
 document.getElementById('search-year-input').addEventListener('input', function () {
     const searchQuery = this.value.toLowerCase();
