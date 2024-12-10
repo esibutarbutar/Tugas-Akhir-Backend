@@ -1,12 +1,9 @@
 function loadMatpelData(filterTahunAjaran = '') {
-    // Tentukan URL untuk request dengan parameter filterTahunAjaran jika ada
     const url = filterTahunAjaran
         ? `/api/mata-pelajaran?tahun_ajaran=${encodeURIComponent(filterTahunAjaran)}`
         : '/api/mata-pelajaran';
 
     console.log('Memuat data mata pelajaran dari:', url);
-
-    // Lakukan fetch data dari API
     fetch(url)
         .then(response => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -16,31 +13,23 @@ function loadMatpelData(filterTahunAjaran = '') {
             console.log('Data mata pelajaran:', data);
 
             const tbody = document.getElementById('mata-pelajaran-tbody');
-            tbody.innerHTML = ''; // Bersihkan isi tabel
-
-            // Jika data kosong, tampilkan pesan tidak ditemukan
+            tbody.innerHTML = ''; 
             if (!data || data.length === 0) {
                 console.log('Data tidak ditemukan untuk filter tahun ajaran:', filterTahunAjaran);
                 tbody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan</td></tr>';
-                return; // Keluar dari fungsi
+                return; 
             }
-
-            // Filter data berdasarkan tahun ajaran jika filterTahunAjaran disediakan
             const filteredData = data.filter(matpel => {
                 if (filterTahunAjaran) {
                     return matpel.id_tahun_ajaran == filterTahunAjaran;
                 }
-                return true; // Jika tidak ada filter, tampilkan semua data
+                return true; 
             });
-
-            // Cek apakah ada data yang sesuai setelah filter
             if (filteredData.length === 0) {
                 console.log('Tidak ada data mata pelajaran yang sesuai dengan filter tahun ajaran:', filterTahunAjaran);
                 tbody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan untuk filter tahun ajaran tersebut.</td></tr>';
                 return;
             }
-
-            // Render data yang sudah difilter
             filteredData.forEach(matpel => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -48,8 +37,8 @@ function loadMatpelData(filterTahunAjaran = '') {
                     <td>${matpel.nama_pelajaran}</td>
                     <td>${matpel.nip}</td>
                     <td>
-                        <button onclick="editMatpel(${matpel.id_mata_pelajaran})">Edit</button>
-                        <button onclick="deleteMatpel('${matpel.id_mata_pelajaran}')">Delete</button>
+                        <button onclick="editMatpel('${matpel.id}')">Edit</button>
+                        <button onclick="deleteMatpel('${matpel.id}')">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -158,6 +147,8 @@ document.getElementById('add-subject-btn').addEventListener('click', function ()
                 const nip = document.getElementById('nip').value;
                 const idTahunAjaran = document.getElementById('id_tahun_ajaran').value;
                 const idMataPelajaran = generateSubjectId(namaMatpel);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000); // Timeout 5 detik
 
                 // Debug: Periksa nilai yang dipilih
                 console.log('Nama Mata Pelajaran:', namaMatpel);
@@ -168,28 +159,31 @@ document.getElementById('add-subject-btn').addEventListener('click', function ()
                     Swal.showValidationMessage('Semua field harus diisi');
                     return false;
                 }
-
                 try {
                     const response = await fetch('/api/mata-pelajaran', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: idMataPelajaran, nama_pelajaran: namaMatpel, nip, id_tahun_ajaran: idTahunAjaran }),
+                        headers: { 
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({
+                            id: idMataPelajaran, 
+                            nama_pelajaran: namaMatpel, 
+                            nip, 
+                            id_tahun_ajaran: idTahunAjaran
+                        }),
+                        signal: controller.signal,
                     });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    if (!result.success) {
-                        throw new Error(result.message);
-                    }
-
-                    return result;
+                    clearTimeout(timeoutId);
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    const data = await response.json();
+                    console.log('Response from server:', data);
                 } catch (error) {
-                    Swal.showValidationMessage(`Error: ${error.message}`);
-                    return false;
-                }
+                    if (error.name === 'AbortError') {
+                        console.error('Request timed out');
+                    } else {
+                        console.error('Error during fetch operation:', error);
+                    }
+                }                
             },
         }).then((result) => {
             if (result.isConfirmed) {
@@ -206,6 +200,8 @@ document.getElementById('add-subject-btn').addEventListener('click', function ()
 });
 
 function deleteMatpel(id) {
+    console.log('ID yang akan dihapus:', id); // Debugging log
+
     Swal.fire({
         title: 'Apakah Anda yakin?',
         text: 'Mata pelajaran akan dihapus secara permanen!',
@@ -219,6 +215,7 @@ function deleteMatpel(id) {
                 method: 'DELETE',
             })
                 .then(response => {
+                    console.log('Status response:', response.status); // Debugging log
                     if (response.ok) {
                         Swal.fire('Berhasil!', 'Mata pelajaran telah dihapus.', 'success').then(() => {
                             loadMatpelData(); // Memuat ulang data setelah penghapusan
@@ -237,4 +234,120 @@ function deleteMatpel(id) {
     });
 }
 
+document.getElementById('search-subject-input').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase(); // Ambil nilai pencarian dan ubah menjadi lowercase
+    const rows = document.querySelectorAll('#mata-pelajaran-tbody tr'); // Ambil semua baris tabel
 
+    rows.forEach(row => {
+        const kodeMatpel = row.querySelector('.kode-matpel')?.textContent.toLowerCase() || ''; // Kolom kode mata pelajaran
+        const namaMatpel = row.querySelector('.nama-matpel')?.textContent.toLowerCase() || ''; // Kolom nama mata pelajaran
+        const nipGuru = row.querySelector('.nip-guru')?.textContent.toLowerCase() || ''; // Kolom NIP guru
+        const tahunAjaran = row.querySelector('.tahun-ajaran')?.textContent.toLowerCase() || ''; // Kolom tahun ajaran
+
+        if (
+            kodeMatpel.includes(searchTerm) ||
+            namaMatpel.includes(searchTerm) ||
+            nipGuru.includes(searchTerm) ||
+            tahunAjaran.includes(searchTerm)
+        ) {
+            row.style.display = ''; // Tampilkan baris jika ada yang cocok
+        } else {
+            row.style.display = 'none'; // Sembunyikan baris jika tidak cocok
+        }
+    });
+});
+
+
+function editMatpel(id) {
+    console.log('ID mata pelajaran yang akan diedit:', id); // Debugging log
+    fetch(`/api/mata-pelajaran/${id}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+        })
+        .then(matpel => {
+            console.log('Data mata pelajaran yang akan diedit:', matpel);
+            Promise.all([
+                fetch('/api/pegawai'),
+                fetch('/api/tahun-ajaran')
+            ])
+            .then(responses => Promise.all(responses.map(response => response.json())))
+            .then(([guruData, tahunAjaranData]) => {
+                let guruOptions = guruData.map(guru => {
+                    const selected = guru.nip === matpel.nip ? 'selected' : '';
+                    return `<option value="${guru.nip}" ${selected}>${guru.nip} - ${guru.nama_pegawai}</option>`;
+                }).join('');
+
+                let tahunAjaranOptions = tahunAjaranData.map(tahun => {
+                    const selected = tahun.id === matpel.id_tahun_ajaran ? 'selected' : '';
+                    return `<option value="${tahun.id}" ${selected}>${tahun.id} - ${tahun.nama_tahun_ajaran}</option>`;
+                }).join('');
+
+                Swal.fire({
+                    title: 'Edit Mata Pelajaran',
+                    html: `
+                        <div class="form-container">
+                            <label for="edit_nama_matpel">Nama Mata Pelajaran</label>
+                            <input type="text" id="edit_nama_matpel" class="swal2-input" value="${matpel.nama_pelajaran}">
+                            
+                            <label for="edit_nip">Guru (NIP + Nama)</label>
+                            <select id="edit_nip" class="swal2-select">
+                                ${guruOptions}
+                            </select>
+                            
+                            <label for="edit_id_tahun_ajaran">Tahun Ajaran</label>
+                            <select id="edit_id_tahun_ajaran" class="swal2-select">
+                                ${tahunAjaranOptions}
+                            </select>
+                        </div>
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Simpan',
+                    cancelButtonText: 'Batal',
+                    preConfirm: () => {
+                        const editedMatpel = {
+                            nama_pelajaran: document.getElementById('edit_nama_matpel').value,
+                            nip: document.getElementById('edit_nip').value,
+                            id_tahun_ajaran: document.getElementById('edit_id_tahun_ajaran').value,
+                        };
+
+                        // Validasi data
+                        if (!editedMatpel.nama_pelajaran || !editedMatpel.nip || !editedMatpel.id_tahun_ajaran) {
+                            Swal.showValidationMessage('Semua field harus diisi');
+                            return false;
+                        }
+
+                        return fetch(`/api/mata-pelajaran/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(editedMatpel),
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Gagal menyimpan data');
+                            return response.json();
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(`Error: ${error.message}`);
+                        });
+                    },
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        Swal.fire('Berhasil!', 'Data mata pelajaran berhasil diperbarui.', 'success').then(() => {
+                            loadMatpelData(); // Refresh data
+                        });
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                Swal.fire('Error!', 'Gagal memuat data guru atau tahun ajaran.', 'error');
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching mata pelajaran:', error);
+            Swal.fire('Error!', 'Gagal memuat data mata pelajaran.', 'error');
+        });
+}

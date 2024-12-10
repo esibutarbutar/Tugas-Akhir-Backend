@@ -42,41 +42,30 @@ async function fetchSessionData() {
 document.addEventListener('DOMContentLoaded', fetchSessionData);
 
 document.addEventListener('DOMContentLoaded', () => {
-    const links = document.querySelectorAll('.sidebar a'); // Menu di sidebar
-    const sections = document.querySelectorAll('.content-section'); // Semua bagian konten
-
-    // Fungsi untuk menyembunyikan semua bagian konten
+    const links = document.querySelectorAll('.sidebar a'); 
+    const sections = document.querySelectorAll('.content-section'); 
     function hideAllSections() {
-        sections.forEach(section => section.classList.add('hidden')); // Tambahkan kelas 'hidden'
+        sections.forEach(section => section.classList.add('hidden')); 
     }
-
-    // Event listener untuk setiap menu sidebar
     links.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault(); // Mencegah reload halaman
+            e.preventDefault(); 
 
-            // Hapus kelas 'active' dari semua menu
             links.forEach(l => l.classList.remove('active'));
-            link.classList.add('active'); // Tambahkan kelas 'active' ke menu yang diklik
-
-            // Sembunyikan semua bagian konten
+            link.classList.add('active'); 
             hideAllSections();
-
-            // Tampilkan konten yang sesuai
             const target = link.getAttribute('data-target');
             const targetSection = document.getElementById(target);
             if (targetSection) {
-                targetSection.classList.remove('hidden'); // Hapus kelas 'hidden'
+                targetSection.classList.remove('hidden'); 
             }
         });
     });
-
-    // Halaman default: hanya tampilkan Profil Admin
-    hideAllSections();  // Menyembunyikan semua konten terlebih dahulu
-    const defaultLink = document.querySelector('[data-target="admin-profile"]'); // Menambahkan logika untuk default link
+    hideAllSections();  
+    const defaultLink = document.querySelector('[data-target="admin-profile"]'); 
     if (defaultLink) {
-        defaultLink.classList.add('active'); // Menambahkan kelas 'active' ke link default
-        document.getElementById('admin-profile').classList.remove('hidden');  // Menampilkan Profil Admin
+        defaultLink.classList.add('active'); 
+        document.getElementById('admin-profile').classList.remove('hidden');  
     }
 });
 
