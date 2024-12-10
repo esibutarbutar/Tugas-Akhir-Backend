@@ -581,6 +581,27 @@ app.get('/api/kelas', async (req, res) => {
     }
 });
 
+app.post('/api/mata-pelajaran', (req, res) => {
+    const { id, nama_pelajaran, nip, id_tahun_ajaran } = req.body;
+
+    // Log data yang diterima
+    console.log('Received data:', req.body);
+
+    if (!id || !nama_pelajaran || !nip || !id_tahun_ajaran) {
+        return res.status(400).json({ success: false, message: 'Field tidak boleh kosong' });
+    }
+
+    const query = 'INSERT INTO mata_pelajaran (id, nama_pelajaran, nip, id_tahun_ajaran) VALUES (?, ?, ?, ?)';
+    db.query(query, [id, nama_pelajaran, nip, id_tahun_ajaran], (err) => {
+        if (err) {
+            console.error('Error inserting data:', err);
+            res.status(500).json({ success: false, message: 'Error inserting data' });
+        } else {
+            res.status(200).json({ success: true, message: 'Mata Pelajaran berhasil ditambahkan' });
+        }
+    });
+});
+
 app.get('/api/mata-pelajaran', async (req, res) => {
     try {
         const query = 'SELECT * FROM mata_pelajaran'; // Query untuk tabel 'mata_pelajaran'
@@ -597,52 +618,16 @@ app.get('/api/mata-pelajaran', async (req, res) => {
     }
 });
 
-app.get('/api/mata-pelajaran', async (req, res) => {
-    try {
-        const { tahun_ajaran } = req.query; // Ambil parameter query tahun_ajaran
 
-        let query = 'SELECT * FROM mata_pelajaran'; // Query dasar
-        const queryParams = [];
+app.get('/api/mata-pelajaran', (req, res) => {
+    const tahunAjaran = req.query.tahun_ajaran;
 
-        if (tahun_ajaran) {
-            query += ' WHERE id_tahun_ajaran = ?'; // Filter berdasarkan id_tahun_ajaran
-            queryParams.push(tahun_ajaran); // Menambahkan parameter ke query
-        }
-
-        const [rows] = await db.query(query, queryParams); // Jalankan query
-
-        if (rows.length > 0) {
-            res.status(200).json(rows); // Kirim data mata pelajaran
-        } else {
-            res.status(404).json({ message: 'Tidak ada data mata pelajaran ditemukan.' });
-        }
-    } catch (error) {
-        console.error('Error mengambil data mata pelajaran:', error); // Tangani error
-        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
-    }
-});
-
-
-app.post('/api/mata-pelajaran', (req, res) => {
-    const { nama_matpel, nip, id_tahun_ajaran } = req.body;
-
-    if (!nama_matpel || !nip || !id_tahun_ajaran) {
-        return res.status(400).json({ success: false, message: 'Semua data harus diisi.' });
+    let mataPelajaran = allMataPelajaran; // Ambil semua data mata pelajaran
+    if (tahunAjaran) {
+        mataPelajaran = mataPelajaran.filter(mp => mp.id_tahun_ajaran == tahunAjaran);
     }
 
-    const query = `
-        INSERT INTO mata_pelajaran (nama_matpel, nip, id_tahun_ajaran) 
-        VALUES (?, ?, ?)
-    `;
-
-    connection.query(query, [nama_matpel, nip, id_tahun_ajaran], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat menyimpan data.' });
-        }
-
-        res.json({ success: true, message: 'Mata Pelajaran berhasil ditambahkan.' });
-    });
+    res.json(mataPelajaran);
 });
 
 app.post('/api/mading', upload.single('image'), async (req, res) => {

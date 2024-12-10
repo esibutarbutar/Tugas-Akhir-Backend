@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="/css/dashboard-admin.css">
     <link rel="stylesheet" href="/css/data-pegawai.css">
     <link rel="stylesheet" href="/css/mading.css">
-    <link rel="stylesheet" href="/css/tahun-ajaran.css">
+    <link rel="stylesheet" href="/css/mata-pelajaran.css">
+
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- SweetAlert2 JavaScript -->
@@ -191,6 +192,13 @@
             </section>
             <section id="mata-pelajaran" class="content-section hidden">
                 <h2>Data Mata Pelajaran</h2>
+                <div class="filter-wrapper">
+                    <label for="tahun-ajaran-filter">Semester:</label>
+                    <select id="tahun-ajaran-filter">
+                        <option value="">Semua</option>
+                        <!-- Options akan diisi melalui JavaScript -->
+                    </select>
+                </div>
                 <div class="search-add-container">
                     <div class="search-wrapper">
                         <input type="text" id="search-subject-input" placeholder="Cari mata pelajaran..." class="search-bar">
@@ -198,13 +206,13 @@
                     </div>
                     <button id="add-subject-btn" class="btn btn-primary">Tambah Mata Pelajaran</button>
                 </div>
+                
                 <table border="1">
                     <thead>
                         <tr>
                             <th>Kode Mata Pelajaran</th>
                             <th>Nama Mata Pelajaran</th>
                             <th>NIP</th>
-                            <th>ID tahun Ajaran </th>
                             <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
                         </tr>
                     </thead>
