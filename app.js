@@ -540,6 +540,45 @@ app.get('/api/kelas', async (req, res) => {
     }
 });
 
+app.get('/api/kelas', async (req, res) => {
+    try {
+        const { tahun_ajaran } = req.query;
+        let query = `
+            SELECT 
+                k.id,
+                k.nama_kelas,
+                k.nip,
+                p.nama_pegawai, 
+                k.id_tahun_ajaran,
+                ta.nama_tahun_ajaran,
+                k.tingkatan
+            FROM 
+                kelas k
+            JOIN 
+                pegawai p ON k.nip = p.nip
+            JOIN 
+                tahun_ajaran ta ON k.id_tahun_ajaran = ta.id;
+        `;
+        
+        if (tahun_ajaran) {
+            query += ` WHERE k.id_tahun_ajaran = ?`;
+        }
+        
+        query += ` ORDER BY k.nama_kelas ASC`;
+        
+        const [rows] = tahun_ajaran 
+            ? await db.execute(query, [tahun_ajaran]) 
+            : await db.execute(query);
+
+        console.log('Data kelas yang dikirim ke frontend:', rows); // Log data untuk debug
+        res.json(rows);
+    } catch (error) {
+        console.error('Terjadi kesalahan pada server:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
 app.post('/api/mata-pelajaran', (req, res) => {
     const { id, nama_pelajaran, nip, id_tahun_ajaran } = req.body;
 

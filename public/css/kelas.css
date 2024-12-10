@@ -1,0 +1,48 @@
+/* Wrapper untuk filter */
+.filter-wrapper {
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+/* Label filter */
+.filter-wrapper label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Dropdown tahun ajaran */
+#kelas-filter {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
+    width: 200px;
+}
+
+/* Efek saat fokus pada dropdown */
+#kelas-filter:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Styling untuk option di dalam dropdown */
+#kelas-filter option {
+    padding: 10px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Styling ketika hover di atas option */
+#kelas-filter option:hover {
+    background-color: #f1f1f1;
+}

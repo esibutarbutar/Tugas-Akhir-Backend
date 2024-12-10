@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="/css/data-pegawai.css">
     <link rel="stylesheet" href="/css/mading.css">
     <link rel="stylesheet" href="/css/mata-pelajaran.css">
+    <link rel="stylesheet" href="/css/kelas.css">
+
 
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -167,12 +169,19 @@
             </section>
             <section id="data-kelas" class="content-section hidden">
                 <h2>Data Kelas</h2>
+                <div class="filter-wrapper">
+                    <label for="kelas-filter">Tahun Ajaran:</label>
+                    <select id="kelas-filter">
+                        <option value="">Semua</option>
+                        <!-- Options akan diisi melalui JavaScript -->
+                    </select>
+                </div>
                 <div class="search-add-container">
                     <div class="search-wrapper">
-                        <input type="text" id="search-class-input" placeholder="Cari kelas..." class="search-bar">
+                        <input type="text" id="search-subject-input" placeholder="Cari mata pelajaran..." class="search-bar">
                         <i class="fas fa-search search-icon"></i>
                     </div>
-                    <button id="add-class-btn" class="btn btn-primary">Tambah Kelas</button>
+                    <button id="add-kelas-btn" class="btn btn-primary">Tambah Kelas</button>
                 </div>
                 <table border="1">
                     <thead>
@@ -180,8 +189,7 @@
                             <th>ID Kelas</th>
                             <th>Nama Kelas</th>
                             <th>Wali Kelas</th>
-                            <th>Tahun Ajaran</th>
-                            <th>Jumlah Siswa</th>
+                            <th>Tingkatan</th>
                             <th>Action</th>
                         </tr>
                     </thead>
