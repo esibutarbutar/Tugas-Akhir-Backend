@@ -598,16 +598,12 @@ app.get('/api/kelas', async (req, res) => {
 });
 
 
-
 app.get('/api/kelas/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Query untuk mendapatkan Tahun Ajaran berdasarkan ID
         const query = 'SELECT * FROM kelas WHERE id = ?';
         const [result] = await db.execute(query, [id]);
-
-        // Jika data ditemukan, kirimkan sebagai response
         if (result.length > 0) {
             res.status(200).json(result[0]);
         } else {
@@ -619,33 +615,37 @@ app.get('/api/kelas/:id', async (req, res) => {
     }
 });
 
-app.put('/api/kelas/:id', (req, res) => {
-    const kelasId = req.params.id;
-    const { nama_kelas, nip, tingkatan } = req.body;
 
-    // Validasi data
-    if (!nama_kelas || !nip || !tingkatan) {
-        return res.status(400).json({ message: 'Semua field harus diisi!' });
+app.put('/api/kelas/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nama_kelas, pegawai_id, tahun_ajaran_id, tingkatan } = req.body;
+
+    try {
+        // Eksekusi query SQL untuk memperbarui data kelas
+        const [result] = await db.execute(
+            `UPDATE kelas 
+             SET nama_kelas = ?, nip = ?, id = ?, tingkatan = ? 
+             WHERE id = ?`,
+            [nama_kelas, pegawai_id, tahun_ajaran_id, tingkatan, id]
+        );
+
+        // Log untuk melihat data yang akan diupdate
+        console.log('Data untuk update:', { nama_kelas, pegawai_id, tahun_ajaran_id, tingkatan, id });
+
+        // Jika query berhasil memperbarui data
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Kelas berhasil diperbarui' });
+        } else {
+            // Jika kelas dengan ID tersebut tidak ditemukan
+            res.status(404).json({ message: 'Kelas tidak ditemukan' });
+        }
+    } catch (error) {
+        // Tangani kesalahan
+        console.error('Error memperbarui Kelas:', error);
+        res.status(500).json({ error: 'Terjadi kesalahan pada server.' });
     }
-
-    // Cari kelas yang ingin diperbarui
-    const kelasIndex = kelasData.findIndex(kelas => kelas.id === kelasId);
-
-    if (kelasIndex === -1) {
-        return res.status(404).json({ message: 'Kelas tidak ditemukan!' });
-    }
-
-    // Perbarui data kelas
-    kelasData[kelasIndex] = {
-        id: kelasId,
-        nama_kelas,
-        nip,
-        tingkatan
-    };
-
-    // Kirim respons sukses
-    res.status(200).json({ success: true, message: 'Kelas berhasil diperbarui', data: kelasData[kelasIndex] });
 });
+
 
 app.post('/api/kelas', async (req, res) => {
     const { nama_kelas, pegawai_id, tahun_ajaran_id, tingkatan } = req.body;
@@ -669,6 +669,35 @@ app.post('/api/kelas', async (req, res) => {
     } catch (err) {
         console.error('Error inserting data:', err);
         res.status(500).json({ success: false, message: 'Error inserting data', error: err.message });
+    }
+});
+
+
+app.delete('/api/kelas/:id', async (req, res) => {
+    const { id } = req.params;  // Mengambil ID dari parameter URL
+    console.log('ID yang diterima API:', id);
+
+    // Memastikan ID yang diterima valid
+    if (!id) {
+        return res.status(400).json({ message: 'ID tidak valid.' });
+    }
+
+    try {
+        // Query untuk menghapus kelas berdasarkan ID
+        const deleteQuery = 'DELETE FROM kelas WHERE id = ?';
+        const [result] = await db.query(deleteQuery, [id]);
+
+        // Mengecek apakah baris yang terpengaruh lebih dari 0
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Kelas berhasil dihapus.' });
+        } else {
+            // Jika tidak ada kelas yang ditemukan dengan ID tersebut
+            res.status(404).json({ message: 'Kelas tidak ditemukan.' });
+        }
+    } catch (error) {
+        // Menangani kesalahan yang terjadi selama proses penghapusan
+        console.error("Error deleting Kelas:", error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
     }
 });
 

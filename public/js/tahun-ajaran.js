@@ -290,16 +290,15 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
 });
 
 
-
 document.getElementById('search-year-input').addEventListener('input', function () {
     const searchQuery = this.value.toLowerCase();
     const rows = document.querySelectorAll('#tahun-ajaran-tbody tr');
 
     rows.forEach(row => {
         const nameCell = row.cells[1].textContent.toLowerCase();
-        const nisnCell = row.cells[0].textContent.toLowerCase();
+        const startCell = row.cells[0].textContent.toLowerCase();
 
-        if (nameCell.includes(searchQuery) || nisnCell.includes(searchQuery)) {
+        if (nameCell.includes(searchQuery) || startCell.includes(searchQuery)) {
             row.style.display = ''; // Tampilkan baris
         } else {
             row.style.display = 'none'; // Sembunyikan baris

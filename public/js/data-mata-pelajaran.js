@@ -234,29 +234,21 @@ function deleteMatpel(id) {
     });
 }
 
-document.getElementById('search-subject-input').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase(); // Ambil nilai pencarian dan ubah menjadi lowercase
-    const rows = document.querySelectorAll('#mata-pelajaran-tbody tr'); // Ambil semua baris tabel
+document.getElementById('search-subject-input').addEventListener('input', function () {
+    const searchQuery = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#mata-pelajaran-tbody tr');
 
     rows.forEach(row => {
-        const kodeMatpel = row.querySelector('.kode-matpel')?.textContent.toLowerCase() || ''; // Kolom kode mata pelajaran
-        const namaMatpel = row.querySelector('.nama-matpel')?.textContent.toLowerCase() || ''; // Kolom nama mata pelajaran
-        const nipGuru = row.querySelector('.nip-guru')?.textContent.toLowerCase() || ''; // Kolom NIP guru
-        const tahunAjaran = row.querySelector('.tahun-ajaran')?.textContent.toLowerCase() || ''; // Kolom tahun ajaran
+        const idCell = row.cells[0].textContent.toLowerCase(); // Kolom ID mata pelajaran
+        const namaMatpelCell = row.cells[1].textContent.toLowerCase(); // Kolom nama mata pelajaran
 
-        if (
-            kodeMatpel.includes(searchTerm) ||
-            namaMatpel.includes(searchTerm) ||
-            nipGuru.includes(searchTerm) ||
-            tahunAjaran.includes(searchTerm)
-        ) {
-            row.style.display = ''; // Tampilkan baris jika ada yang cocok
+        if (idCell.includes(searchQuery) || namaMatpelCell.includes(searchQuery)) {
+            row.style.display = ''; // Tampilkan baris
         } else {
-            row.style.display = 'none'; // Sembunyikan baris jika tidak cocok
+            row.style.display = 'none'; // Sembunyikan baris
         }
     });
 });
-
 
 function editMatpel(id) {
     console.log('ID mata pelajaran yang akan diedit:', id); // Debugging log
