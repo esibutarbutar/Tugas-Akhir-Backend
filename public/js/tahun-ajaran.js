@@ -253,6 +253,7 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
         });
 
         if (formValues) {
+            console.log('Form Values:', formValues); // Pastikan form values yang dikirim sudah benar
             const response = await fetch('/api/tahun-ajaran', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -260,7 +261,8 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
             });
 
             if (response.ok) {
-                await response.json();
+                const data = await response.json();
+                console.log('Response from server:', data); // Cek apakah respons sesuai harapan
                 Swal.fire({
                     title: 'Berhasil!',
                     text: 'Tahun Ajaran berhasil ditambahkan.',
@@ -269,6 +271,7 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
                 fetchTahunAjaran(); // Refresh data
             } else {
                 const errorMessage = await response.json();
+                console.error('Error response:', errorMessage);
                 Swal.fire({
                     title: 'Gagal!',
                     text: errorMessage.message || 'Terjadi kesalahan saat menambahkan Tahun Ajaran.',
@@ -285,6 +288,7 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
         });
     }
 });
+
 
 
 document.getElementById('search-year-input').addEventListener('input', function () {

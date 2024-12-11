@@ -86,39 +86,94 @@ function loadKelasData(filterTahunAjaran = '') {
         });
 }
 
+
+document.getElementById('add-kelas-btn').addEventListener('click', function () {
+    // Mengambil data pegawai dan tahun ajaran dari API atau server
+    Promise.all([
+        fetch('/api/pegawai'), // Sesuaikan URL dengan API pegawai Anda
+        fetch('/api/tahun-ajaran') // Sesuaikan URL dengan API tahun ajaran Anda
+    ])
+        .then(([pegawaiResponse, tahunAjaranResponse]) => {
+            return Promise.all([
+                pegawaiResponse.json(),
+                tahunAjaranResponse.json()
+            ]);
+        })
+        .then(([pegawaiData, tahunAjaranData]) => {
+            const pegawaiOptions = pegawaiData.map(pegawai => {
+                return `<option value="${pegawai.nip}">${pegawai.nama_pegawai}</option>`;
+            }).join('');
+
+            const tahunAjaranOptions = tahunAjaranData.map(tahun => {
+                return `<option value="${tahun.id}">${tahun.nama_tahun_ajaran}</option>`;
+            }).join('');
+
+            const tingkatanOptions = ["VII", "VIII", "IX"].map(tingkatan => {
+                return `<option value="${tingkatan}">${tingkatan}</option>`;
+            }).join('');
+
+            // Menampilkan SweetAlert
+            Swal.fire({
+                title: 'Tambah Kelas',
+                html: `
+                    <input id="kelas-name" class="swal2-input" placeholder="Nama Kelas" required>
+                    <select id="pegawai-select" class="swal2-input" required>
+                        <option value="" disabled selected>Pilih Pegawai</option>
+                        ${pegawaiOptions}
+                    </select>
+                    <select id="tahun-ajaran-select" class="swal2-input" required>
+                        <option value="" disabled selected>Pilih Tahun Ajaran</option>
+                        ${tahunAjaranOptions}
+                    </select>
+                    <select id="tingkatan-select" class="swal2-input" required>
+                        <option value="" disabled selected>Pilih Tingkatan</option>
+                        ${tingkatanOptions}
+                    </select>
+                `,
+                focusConfirm: false,
+                preConfirm: () => {
+                    const kelasName = document.getElementById('kelas-name').value.trim();
+                    const pegawaiId = document.getElementById('pegawai-select').value;
+                    const tahunAjaranId = document.getElementById('tahun-ajaran-select').value;
+                    const tingkatan = document.getElementById('tingkatan-select').value;
+
+                    if (!kelasName || !pegawaiId || !tahunAjaranId || !tingkatan) {
+                        Swal.showValidationMessage('Semua kolom harus diisi!');
+                        return null; // Tidak memproses jika ada yang kosong
+                    }
+
+                    const kelasData = {
+                        nama_kelas: kelasName,
+                        pegawai_id: pegawaiId,
+                        tahun_ajaran_id: tahunAjaranId,
+                        tingkatan: tingkatan,
+                    };
+
+                    // Kembalikan promise untuk diproses
+                    return fetch('/api/kelas', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(kelasData),
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => {
+                                    throw new Error(err.message || 'Gagal menambahkan kelas.');
+                                });
+                            }
+                            return response.json();
+                        });
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    // Tampilkan SweetAlert sukses
+                    Swal.fire('Berhasil!', 'Kelas baru telah ditambahkan.', 'success');
+                    loadKelasData(); // Memuat ulang data kelas
+                }
+            }).catch(error => {
+                // Tampilkan SweetAlert error
+                Swal.fire('Gagal!', error.message, 'error');
+            });
+        });
+});
 document.addEventListener('DOMContentLoaded', loadKelasData);
-
-// Fungsi untuk mengedit data kelas
-function editKelas(id) {
-    const kelas = prompt('Masukkan nama kelas yang baru:');
-    if (kelas) {
-        const deskripsi = prompt('Masukkan deskripsi kelas:');
-        fetch(`/api/kelas/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ nama_kelas: kelas, deskripsi: deskripsi })
-        })
-        .then(response => {
-            if (response.ok) {
-                loadKelasData(); // Refresh data setelah update
-            }
-        });
-    }
-}
-
-// Fungsi untuk menghapus kelas
-function deleteKelas(id) {
-    const confirmDelete = confirm('Apakah Anda yakin ingin menghapus kelas ini?');
-    if (confirmDelete) {
-        fetch(`/api/kelas/${id}`, {
-            method: 'DELETE',
-        })
-        .then(response => {
-            if (response.ok) {
-                loadKelasData(); // Refresh data setelah delete
-            }
-        });
-    }
-}
