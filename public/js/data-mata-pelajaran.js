@@ -1,4 +1,9 @@
-function loadMatpelData(filterTahunAjaran = '') {
+document.getElementById('search-subject-input').addEventListener('input', function() {
+    const searchValue = this.value.trim().toLowerCase();
+    loadMatpelData('', searchValue); // Menyaring berdasarkan input pencarian
+});
+
+function loadMatpelData(filterTahunAjaran = '', searchQuery = '') {
     const url = filterTahunAjaran
         ? `/api/mata-pelajaran?tahun_ajaran=${encodeURIComponent(filterTahunAjaran)}`
         : '/api/mata-pelajaran';
@@ -13,35 +18,45 @@ function loadMatpelData(filterTahunAjaran = '') {
             console.log('Data mata pelajaran:', data);
 
             const tbody = document.getElementById('mata-pelajaran-tbody');
-            tbody.innerHTML = ''; 
+            tbody.innerHTML = '';
             if (!data || data.length === 0) {
                 console.log('Data tidak ditemukan untuk filter tahun ajaran:', filterTahunAjaran);
                 tbody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan</td></tr>';
-                return; 
-            }
-            const filteredData = data.filter(matpel => {
-                if (filterTahunAjaran) {
-                    return matpel.id_tahun_ajaran == filterTahunAjaran;
-                }
-                return true; 
-            });
-            if (filteredData.length === 0) {
-                console.log('Tidak ada data mata pelajaran yang sesuai dengan filter tahun ajaran:', filterTahunAjaran);
-                tbody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan untuk filter tahun ajaran tersebut.</td></tr>';
                 return;
             }
+
+            // Filter berdasarkan nama mata pelajaran jika ada query pencarian
+            const filteredData = data.filter(matpel => {
+                if (filterTahunAjaran && matpel.id_tahun_ajaran !== filterTahunAjaran) {
+                    return false;
+                }
+                if (searchQuery && 
+                    !matpel.nama_pelajaran.toLowerCase().includes(searchQuery) && 
+                    !matpel.id.toLowerCase().includes(searchQuery)) {
+                    return false;
+                }
+                return true;
+            });
+
+            if (filteredData.length === 0) {
+                console.log('Tidak ada data mata pelajaran yang sesuai.');
+                tbody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan</td></tr>';
+                return;
+            }
+
             filteredData.forEach(matpel => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${matpel.id}</td>
                     <td>${matpel.nama_pelajaran}</td>
-                    <td>${matpel.nip}</td>
-                    <td>
+<td>${matpel.nip} - ${matpel.nama_pegawai || 'Tidak ditemukan'}</td>                    <td>
                         <button onclick="editMatpel('${matpel.id}')">Edit</button>
                         <button onclick="deleteMatpel('${matpel.id}')">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(row);
+                console.log('Data yang diterima:', filteredData);
+
             });
         })
         .catch(error => {
@@ -234,21 +249,6 @@ function deleteMatpel(id) {
     });
 }
 
-document.getElementById('search-subject-input').addEventListener('input', function () {
-    const searchQuery = this.value.toLowerCase();
-    const rows = document.querySelectorAll('#mata-pelajaran-tbody tr');
-
-    rows.forEach(row => {
-        const idCell = row.cells[0].textContent.toLowerCase(); // Kolom ID mata pelajaran
-        const namaMatpelCell = row.cells[1].textContent.toLowerCase(); // Kolom nama mata pelajaran
-
-        if (idCell.includes(searchQuery) || namaMatpelCell.includes(searchQuery)) {
-            row.style.display = ''; // Tampilkan baris
-        } else {
-            row.style.display = 'none'; // Sembunyikan baris
-        }
-    });
-});
 
 function editMatpel(id) {
     console.log('ID mata pelajaran yang akan diedit:', id); // Debugging log
@@ -343,3 +343,4 @@ function editMatpel(id) {
             Swal.fire('Error!', 'Gagal memuat data mata pelajaran.', 'error');
         });
 }
+

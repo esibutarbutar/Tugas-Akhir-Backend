@@ -15,6 +15,8 @@ function loadTahunAjaran() {
         });
 }
 
+loadKelasData(); // Load semua data
+
 document.getElementById('kelas-filter').addEventListener('change', function() {
     const filterValue  = this.value; // Ambil value tahun ajaran yang dipilih
     loadKelasData(filterValue); // Panggil fungsi loadKelasData dengan filter tahun ajaran
@@ -37,40 +39,24 @@ function loadKelasData(filterTahunAjaran = '') {
             return response.json();
         })
         .then(data => {
-            console.log('Data kelas yang diterima:', data);  // Log data yang diterima
+            console.log('Data kelas yang diterima:', data);
 
             const tbody = document.getElementById('kelas-tbody');
             tbody.innerHTML = ''; // Kosongkan tabel sebelum mengisi data
 
             if (!data || data.length === 0) {
-                console.log('Data tidak ditemukan untuk filter tahun ajaran:', filterTahunAjaran);
                 tbody.innerHTML = '<tr><td colspan="6">Data tidak ditemukan</td></tr>';
                 return;
             }
 
-            // Filter data berdasarkan tahun ajaran yang dipilih
-            const filteredData = data.filter(kelas => {
-                if (filterTahunAjaran) {
-                    return kelas.id_tahun_ajaran == filterTahunAjaran; // Sesuaikan ID tahun ajaran
-                }
-                return true; // Jika tidak ada filter, tampilkan semua data
-            });
-
-            if (filteredData.length === 0) {
-                console.log('Tidak ada data kelas yang sesuai dengan filter tahun ajaran:', filterTahunAjaran);
-                tbody.innerHTML = '<tr><td colspan="6">Data tidak ditemukan untuk filter tahun ajaran tersebut.</td></tr>';
-                return;
-            }
-
             // Loop untuk menambahkan setiap data kelas ke tabel
-            filteredData.forEach(kelas => {
-                console.log(kelas); 
-                console.log('Nama Pegawai:', kelas.nama_pegawai);  // Log untuk memastikan ada nama_pegawai
+            data.forEach(kelas => {
+                const namaPegawai = kelas.nama_pegawai || 'Nama Pegawai Tidak Ada';
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${kelas.id}</td>
                     <td>${kelas.nama_kelas}</td>
-                    <td>${kelas.nip} - ${kelas.nama_pegawai || 'Nama Pegawai Tidak Ada'}</td>
+                    <td>${kelas.nip} - ${namaPegawai}</td>
                     <td>${kelas.tingkatan}</td>
                     <td>
                         <button class="edit-button-kelas" data-id-kelas="${kelas.id}">Edit</button>
@@ -82,52 +68,49 @@ function loadKelasData(filterTahunAjaran = '') {
         })
         .catch(error => {
             console.error('Error:', error);
-            const tbody = document.getElementById('kelas-tbody');
-            tbody.innerHTML = '<tr><td colspan="6">Terjadi kesalahan saat memuat data</td></tr>';
+            alert('Terjadi kesalahan saat memuat data kelas.');
         });
 }
 
-
 // Fungsi pencarian data kelas
+document.getElementById('search-kelas-input').addEventListener('input', function() {
+    const searchQuery = this.value.trim(); // Ambil nilai dari input pencarian
+    const filterTahunAjaran = document.getElementById('kelas-filter').value; // Ambil filter tahun ajaran
+    searchKelas(searchQuery, filterTahunAjaran); // Panggil fungsi pencarian dengan query pencarian dan filter tahun ajaran
+});
+
 function searchKelas(searchQuery, filterTahunAjaran = '') {
     const url = filterTahunAjaran
         ? `/api/kelas?tahun_ajaran=${encodeURIComponent(filterTahunAjaran)}`
         : '/api/kelas';
 
-    console.log('Memuat data kelas untuk pencarian dari:', url);
     fetch(url)
         .then(response => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             return response.json();
         })
         .then(data => {
-            console.log('Data kelas yang diterima untuk pencarian:', data);
-
             const tbody = document.getElementById('kelas-tbody');
             tbody.innerHTML = ''; // Kosongkan tabel sebelum mengisi data
 
             if (!data || data.length === 0) {
-                console.log('Data tidak ditemukan untuk filter tahun ajaran:', filterTahunAjaran);
                 tbody.innerHTML = '<tr><td colspan="6">Data tidak ditemukan</td></tr>';
                 return;
             }
 
-            // Filter data berdasarkan query pencarian
             const filteredData = data.filter(kelas => {
                 const query = searchQuery.toLowerCase();
-                // Cek apakah query ada di ID kelas, nama kelas, atau nama pegawai
-                return kelas.id.toString().includes(query) || 
+                return kelas.id.toString().includes(query) ||
                        kelas.nama_kelas.toLowerCase().includes(query) || 
-                       kelas.nama_pegawai.toLowerCase().includes(query);
+                       kelas.nip.toString().includes(query) ||
+                       (kelas.nama_pegawai && kelas.nama_pegawai.toLowerCase().includes(query));
             });
 
             if (filteredData.length === 0) {
-                console.log('Tidak ada data kelas yang sesuai dengan pencarian.');
-                tbody.innerHTML = '<tr><td colspan="6">Data tidak ditemukan.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6">Data tidak ditemukan untuk pencarian tersebut.</td></tr>';
                 return;
             }
 
-            // Loop untuk menambahkan setiap data kelas ke tabel
             filteredData.forEach(kelas => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -149,7 +132,6 @@ function searchKelas(searchQuery, filterTahunAjaran = '') {
             tbody.innerHTML = '<tr><td colspan="6">Terjadi kesalahan saat memuat data</td></tr>';
         });
 }
-
 // Event listener untuk input pencarian
 document.getElementById('search-subject-input').addEventListener('input', function() {
     const searchQuery = this.value.trim(); // Ambil nilai dari input pencarian

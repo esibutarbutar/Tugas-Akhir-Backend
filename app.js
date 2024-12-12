@@ -302,36 +302,28 @@ app.get('/api/pegawai/:nip', async (req, res) => {
 });
 
 
-app.put('/api/pegawai/:nip', async (req, res) => {
-    const { nip } = req.params;
-    const { namaPegawai, tanggalLahir, tempatLahir, jenisKelamin, alamat, agama, email, noHp, password, nik, tanggalMulaiTugas, jenjangPendidikan, jurusan, roles } = req.body;
+app.put('/api/siswa/:nisn', async (req, res) => {
+    const { nisn } = req.params;
+    const { nama_siswa, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas } = req.body;
 
     try {
-        // Update data pegawai
+        // Update data siswa
         const updateQuery = `
-            UPDATE pegawai 
-            SET nama_pegawai = ?, tanggal_lahir = ?, tempat_lahir = ?, jenis_kelamin = ?, alamat = ?, agama = ?, email = ?, no_hp = ?, password = ?, nik = ?, tanggal_mulai_tugas = ?, jenjang_pendidikan = ?, jurusan = ?
-            WHERE nip = ?`;
+            UPDATE siswa 
+            SET nama_siswa = ?, tempat_lahir = ?, tanggal_lahir = ?, jenis_kelamin = ?, alamat = ?, agama = ?, tanggal_masuk = ?, nama_ayah = ?, nama_ibu = ?, no_hp_ortu = ?, email = ?, nik = ?, anak_ke = ?, status = ?, id_kelas = ?
+            WHERE nisn = ?`;
 
         const [result] = await db.execute(updateQuery, [
-            namaPegawai, tanggalLahir, tempatLahir, jenisKelamin, alamat, agama, email, noHp, password, nik, tanggalMulaiTugas, jenjangPendidikan, jurusan, nip
+            nama_siswa, tempat_lahir, tanggal_lahir, jenis_kelamin, alamat, agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas, nisn
         ]);
 
         if (result.affectedRows > 0) {
-            // Hapus role lama untuk pegawai
-            await db.execute('DELETE FROM pegawai_roles WHERE nip = ?', [nip]);
-
-            // Insert role baru
-            for (let role of roles) {
-                await db.execute('INSERT INTO pegawai_roles (nip, role_id) VALUES (?, ?)', [nip, role]);
-            }
-
-            res.status(200).json({ message: 'Data pegawai berhasil diperbarui!' });
+            res.status(200).json({ message: 'Data siswa berhasil diperbarui!' });
         } else {
-            res.status(404).json({ message: 'Pegawai tidak ditemukan.' });
+            res.status(404).json({ message: 'Siswa tidak ditemukan.' });
         }
     } catch (error) {
-        console.error('Error mengupdate data pegawai:', error);
+        console.error('Error mengupdate data siswa:', error);
         res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
     }
 });
@@ -353,25 +345,45 @@ app.get('/api/siswa', async (req, res) => {
 });
 
 
-app.post('/api/siswa', (req, res) => {
-    const { nisn, nama, jenis_kelamin, tanggal_lahir, alamat } = req.body;
-    const sql = `INSERT INTO siswa (nisn, nama, jenis_kelamin, tanggal_lahir, alamat) 
-                 VALUES (?, ?, ?, ?, ?, ?)`;
-    db.query(sql, [nisn, nama, , jenis_kelamin, tanggal_lahir, alamat], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Error saving data');
-        }
-        res.status(201).send('Data saved successfully');
-    });
+app.post('/api/siswa', async (req, res) => {
+    const {
+        nisn, nama_siswa, alamat, tempat_lahir, tanggal_lahir, jenis_kelamin,
+        agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas
+    } = req.body;
+
+    // Validasi input (pastikan semua data ada)
+    if (!nisn || !nama_siswa || !alamat || !tempat_lahir || !tanggal_lahir || !jenis_kelamin ||
+        !agama || !tanggal_masuk || !nama_ayah || !nama_ibu || !no_hp_ortu || !email || !nik || !anak_ke ||
+        !status || !id_kelas) {
+        return res.status(400).json({ message: 'Semua field harus diisi!' });
+    }
+
+    // Query SQL untuk menyimpan data siswa baru, termasuk id_kelas
+    const query = `
+    INSERT INTO siswa (nisn, nama_siswa, alamat, tempat_lahir, tanggal_lahir, jenis_kelamin,
+        agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
+
+    try {
+        // Menjalankan query dengan try/catch dan await
+        await db.query(query, [
+            nisn, nama_siswa, alamat, tempat_lahir, tanggal_lahir, jenis_kelamin,
+            agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas
+        ]);
+        // Jika query berhasil, kirimkan response sukses
+        res.status(201).json({ message: 'Data siswa berhasil ditambahkan.' });
+    } catch (err) {
+        // Tangani error jika terjadi masalah pada query
+        console.error('Error inserting siswa:', err);
+        res.status(500).json({ message: 'Terjadi kesalahan saat menambahkan data siswa.' });
+    }
 });
-
-
 
 app.delete('/api/siswa/:nisn', async (req, res) => {
     const { nisn } = req.params;
     try {
-        const deleteQuery = 'DELETE FROM pegawai WHERE nisn = ?';
+        const deleteQuery = 'DELETE FROM siswa WHERE nisn = ?';
         const [result] = await db.query(deleteQuery, [nisn]);
 
         if (result.affectedRows > 0) {
@@ -403,27 +415,6 @@ app.get('/api/siswa/:nisn', async (req, res) => {
     }
 });
 
-app.put('/api/siswa/:nisn', (req, res) => {
-    console.log("Request Body:", req.body);
-    console.log("NISN:", req.params.nisn);
-
-    const nisn = req.params.nisn;
-    const { nama_siswa, alamat, tempat_lahir, tanggal_lahir } = req.body;
-
-    const siswa = siswaData.find(s => s.nisn === nisn);
-    if (!siswa) {
-        console.log("Siswa tidak ditemukan!");
-        return res.status(404).send({ message: "Siswa tidak ditemukan." });
-    }
-
-    siswa.nama_siswa = nama_siswa;
-    siswa.alamat = alamat;
-    siswa.tempat_lahir = tempat_lahir;
-    siswa.tanggal_lahir = tanggal_lahir;
-
-    console.log("Siswa setelah update:", siswa);
-    res.send({ message: "Data siswa berhasil diperbarui.", siswa });
-});
 
 app.get('/api/siswa/:nisn', async (req, res) => {
     const { nisn } = req.params;
@@ -472,7 +463,7 @@ app.post('/api/tahun-ajaran', async (req, res) => {
         INSERT INTO tahun_ajaran (nama_tahun_ajaran, semester, tanggal_mulai, tanggal_selesai)
         VALUES (?, ?, ?, ?)
     `;
-    
+
     try {
         await db.query(query, [nama_tahun_ajaran, semester, tanggal_mulai, tanggal_selesai]);
         res.status(201).json({ message: 'Tahun Ajaran berhasil ditambahkan.' });
@@ -545,55 +536,39 @@ app.delete('/api/tahun-ajaran/:id', async (req, res) => {
 
 app.get('/api/kelas', async (req, res) => {
     try {
-        const query = 'SELECT * FROM kelas'; // Pastikan tabel 'siswa' ada
-        const [rows] = await db.query(query);
+        const filterTahunAjaran = req.query.tahun_ajaran || null;
 
-        if (rows.length > 0) {
-            res.status(200).json(rows);
-        } else {
-            res.status(404).json({ message: 'Tidak ada data siswa ditemukan.' });
-        }
-    } catch (error) {
-        console.error('Error mengambil data siswa:', error);
-        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
-    }
-});
-
-app.get('/api/kelas', async (req, res) => {
-    try {
-        const { tahun_ajaran } = req.query;
+        // Query dasar: ambil data kelas dan nama pegawai
         let query = `
-            SELECT 
-                k.id,
-                k.nama_kelas,
-                k.nip,
-                p.nama_pegawai, 
-                k.id_tahun_ajaran,
-                ta.nama_tahun_ajaran,
-                k.tingkatan
-            FROM 
-                kelas k
-            JOIN 
-                pegawai p ON k.nip = p.nip
-            JOIN 
-                tahun_ajaran ta ON k.id_tahun_ajaran = ta.id;
+            SELECT k.id, k.nama_kelas, k.nip, 
+                   IFNULL(p.nama_pegawai, 'Nama Pegawai Tidak Ada') AS nama_pegawai, 
+                   k.id_tahun_ajaran, k.tingkatan
+            FROM kelas k
+            LEFT JOIN pegawai p ON k.nip = p.nip
         `;
 
-        if (tahun_ajaran) {
+        const params = [];
+
+        // Tambahkan filter hanya jika tahun ajaran disediakan
+        if (filterTahunAjaran) {
             query += ` WHERE k.id_tahun_ajaran = ?`;
+            params.push(filterTahunAjaran);
         }
 
-        query += ` ORDER BY k.nama_kelas ASC`;
+        // Eksekusi query
+        const [rows] = await db.query(query, params);
 
-        const [rows] = tahun_ajaran
-            ? await db.execute(query, [tahun_ajaran])
-            : await db.execute(query);
-
-        console.log('Data kelas yang dikirim ke frontend:', rows); // Log data untuk debug
-        res.json(rows);
+        // Kirimkan hasil ke frontend
+        if (rows.length > 0) {
+            console.log('Data kelas yang dikirimkan:', rows);
+            res.json(rows);
+        } else {
+            console.log('Tidak ada data kelas yang ditemukan.');
+            res.json([]); // Kirim array kosong jika tidak ada data
+        }
     } catch (error) {
-        console.error('Terjadi kesalahan pada server:', error);
-        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+        console.error('Terjadi kesalahan:', error);
+        res.status(500).json({ error: 'Terjadi kesalahan saat memproses data.' });
     }
 });
 
@@ -617,32 +592,32 @@ app.get('/api/kelas/:id', async (req, res) => {
 
 
 app.put('/api/kelas/:id', async (req, res) => {
-    const { id } = req.params;
     const { nama_kelas, pegawai_id, tahun_ajaran_id, tingkatan } = req.body;
 
+    // Validasi jika data tidak ada, ubah menjadi null
+    const kelasUpdate = {
+        nama_kelas: nama_kelas || null,
+        pegawai_id: pegawai_id || null,
+        tahun_ajaran_id: tahun_ajaran_id || null,
+        tingkatan: tingkatan || null,
+    };
+
     try {
-        // Eksekusi query SQL untuk memperbarui data kelas
-        const [result] = await db.execute(
+        // Pastikan parameter hanya mengandung data valid
+        const result = await db.query(
             `UPDATE kelas 
-             SET nama_kelas = ?, nip = ?, id = ?, tingkatan = ? 
+             SET 
+                nama_kelas = ?, 
+                nip = ?, 
+                id_tahun_ajaran = ?, 
+                tingkatan = ?
              WHERE id = ?`,
-            [nama_kelas, pegawai_id, tahun_ajaran_id, tingkatan, id]
+            [kelasUpdate.nama_kelas, kelasUpdate.pegawai_id, kelasUpdate.tahun_ajaran_id, kelasUpdate.tingkatan, req.params.id]
         );
-
-        // Log untuk melihat data yang akan diupdate
-        console.log('Data untuk update:', { nama_kelas, pegawai_id, tahun_ajaran_id, tingkatan, id });
-
-        // Jika query berhasil memperbarui data
-        if (result.affectedRows > 0) {
-            res.status(200).json({ message: 'Kelas berhasil diperbarui' });
-        } else {
-            // Jika kelas dengan ID tersebut tidak ditemukan
-            res.status(404).json({ message: 'Kelas tidak ditemukan' });
-        }
+        res.json({ success: true, message: 'Data kelas berhasil diperbarui.' });
     } catch (error) {
-        // Tangani kesalahan
         console.error('Error memperbarui Kelas:', error);
-        res.status(500).json({ error: 'Terjadi kesalahan pada server.' });
+        res.status(500).json({ success: false, message: 'Gagal memperbarui kelas.' });
     }
 });
 
@@ -713,7 +688,7 @@ app.post('/api/mata-pelajaran', async (req, res) => {
     }
 
     const query = 'INSERT INTO mata_pelajaran (id, nama_pelajaran, nip, id_tahun_ajaran) VALUES (?, ?, ?, ?)';
-    
+
     try {
         await db.query(query, [id, nama_pelajaran, nip, id_tahun_ajaran]);
         console.log('Data successfully inserted');
@@ -739,33 +714,44 @@ app.get('/api/mata-pelajaran', async (req, res) => {
     }
 });
 
-app.get('/api/mata-pelajaran/:id', async (req, res) => {
-    const { id } = req.params;
-
+app.get('/api/mata-pelajaran', async (req, res) => {
     try {
-        const query = 'SELECT * FROM mata_pelajaran WHERE id = ?';
-        const [result] = await db.execute(query, [id]);
-        if (result.length > 0) {
-            res.status(200).json(result[0]);
+
+        // Query dasar: ambil data mata pelajaran dan nama pegawai
+        let query = `
+            SELECT mp.id, mp.nama_pelajaran, mp.nip, 
+                IFNULL(p.nama_pegawai, 'Nama Pegawai Tidak Ada') AS nama_pegawai
+            FROM mata_pelajaran mp
+            LEFT JOIN pegawai p ON mp.nip = p.nip
+`;
+
+        // Eksekusi query
+        const [rows] = await db.query(query);
+        console.log('Hasil query:', rows);
+        // Kirimkan hasil ke frontend
+        if (rows.length > 0) {
+            console.log('Data mata pelajaran yang dikirimkan:', rows);
+            res.json(rows);
         } else {
-            res.status(404).json({ message: 'Tahun Ajaran tidak ditemukan' });
+            console.log('Tidak ada data mata pelajaran yang ditemukan.');
+            res.json([]); // Kirim array kosong jika tidak ada data
         }
     } catch (error) {
-        console.error('Error mengambil data Tahun Ajaran:', error);
-        res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
+        console.error('Terjadi kesalahan:', error);
+        res.status(500).json({ error: 'Terjadi kesalahan saat memproses data.' });
     }
 });
 
-app.get('/api/mata-pelajaran', (req, res) => {
-    const tahunAjaran = req.query.tahun_ajaran;
+// app.get('/api/mata-pelajaran', (req, res) => {
+//     const tahunAjaran = req.query.tahun_ajaran;
 
-    let mataPelajaran = allMataPelajaran;
-    if (tahunAjaran) {
-        mataPelajaran = mataPelajaran.filter(mp => mp.id_tahun_ajaran == tahunAjaran);
-    }
+//     let mataPelajaran = allMataPelajaran;
+//     if (tahunAjaran) {
+//         mataPelajaran = mataPelajaran.filter(mp => mp.id_tahun_ajaran == tahunAjaran);
+//     }
 
-    res.json(mataPelajaran);
-});
+//     res.json(mataPelajaran);
+// });
 
 app.put('/api/mata-pelajaran/:id', async (req, res) => {
     const { id } = req.params; // Ambil ID dari parameter URL
