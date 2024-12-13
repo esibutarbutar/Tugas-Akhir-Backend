@@ -3,7 +3,7 @@ document.getElementById('search-subject-input').addEventListener('input', functi
     loadMatpelData('', searchValue); // Menyaring berdasarkan input pencarian
 });
 
-function loadMatpelData(filterTahunAjaran = '', searchQuery = '') {
+function loadMatpelData(filterTahunAjaran = '') {
     const url = filterTahunAjaran
         ? `/api/mata-pelajaran?tahun_ajaran=${encodeURIComponent(filterTahunAjaran)}`
         : '/api/mata-pelajaran';
@@ -15,54 +15,35 @@ function loadMatpelData(filterTahunAjaran = '', searchQuery = '') {
             return response.json();
         })
         .then(data => {
-            console.log('Data mata pelajaran:', data);
+            console.log('Data mata pelajaran yang diterima:', data);
 
             const tbody = document.getElementById('mata-pelajaran-tbody');
-            tbody.innerHTML = '';
+            tbody.innerHTML = ''; // Kosongkan tabel sebelum mengisi data
+
             if (!data || data.length === 0) {
-                console.log('Data tidak ditemukan untuk filter tahun ajaran:', filterTahunAjaran);
                 tbody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan</td></tr>';
                 return;
             }
 
-            // Filter berdasarkan nama mata pelajaran jika ada query pencarian
-            const filteredData = data.filter(matpel => {
-                if (filterTahunAjaran && matpel.id_tahun_ajaran !== filterTahunAjaran) {
-                    return false;
-                }
-                if (searchQuery && 
-                    !matpel.nama_pelajaran.toLowerCase().includes(searchQuery) && 
-                    !matpel.id.toLowerCase().includes(searchQuery)) {
-                    return false;
-                }
-                return true;
-            });
-
-            if (filteredData.length === 0) {
-                console.log('Tidak ada data mata pelajaran yang sesuai.');
-                tbody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan</td></tr>';
-                return;
-            }
-
-            filteredData.forEach(matpel => {
+            // Loop untuk menambahkan setiap data mata pelajaran ke tabel
+            data.forEach(matpel => {
+                const namaPegawai = matpel.nama_pegawai || 'Nama Pegawai Tidak Ada';
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${matpel.id}</td>
                     <td>${matpel.nama_pelajaran}</td>
-<td>${matpel.nip} - ${matpel.nama_pegawai || 'Tidak ditemukan'}</td>                    <td>
-                        <button onclick="editMatpel('${matpel.id}')">Edit</button>
-                        <button onclick="deleteMatpel('${matpel.id}')">Delete</button>
+                    <td>${matpel.nip} - ${namaPegawai}</td> <!-- Menampilkan NIP dan Nama Pegawai -->
+                    <td>
+                        <button class="edit-button-matpel" data-id-matpel="${matpel.id}">Edit</button>
+                        <button class="delete-button-matpel" data-id-matpel="${matpel.id}">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(row);
-                console.log('Data yang diterima:', filteredData);
-
             });
         })
         .catch(error => {
             console.error('Error:', error);
-            const tbody = document.getElementById('mata-pelajaran-tbody');
-            tbody.innerHTML = '<tr><td colspan="5">Terjadi kesalahan saat memuat data</td></tr>';
+            alert('Terjadi kesalahan saat memuat data mata pelajaran.');
         });
 }
 
@@ -343,4 +324,3 @@ function editMatpel(id) {
             Swal.fire('Error!', 'Gagal memuat data mata pelajaran.', 'error');
         });
 }
-

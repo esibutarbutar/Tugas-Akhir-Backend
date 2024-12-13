@@ -303,11 +303,7 @@ function editKelas(id) {
                         const tahunAjaranId = document.getElementById('tahun-ajaran-select').value;
                         const tingkatan = document.getElementById('tingkatan-select').value;
 
-                        if (!kelasName || !pegawaiId || !tahunAjaranId || !tingkatan) {
-                            Swal.showValidationMessage('Semua kolom harus diisi!');
-                            return null;
-                        }
-
+                       
                         // Data yang telah diedit
                         const kelasDataUpdate = {
                             nama_kelas: kelasName,

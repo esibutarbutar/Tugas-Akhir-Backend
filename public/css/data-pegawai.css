@@ -158,3 +158,63 @@ button:nth-child(2) {
     top: 10px;
     right: 10px;
 }
+
+/* Styling untuk select box */
+.swal2-input {
+    appearance: none; /* Menghapus tampilan default */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-radius: 8px; /* Menambahkan sudut melengkung */
+    border: 1px solid #ddd; /* Border abu-abu muda */
+    padding: 10px 12px; /* Padding di dalam select */
+    font-size: 16px; /* Ukuran font */
+    width: 100%; /* Menyesuaikan lebar dengan kontainer */
+    background-color: #f9f9f9; /* Warna latar belakang */
+    color: #333; /* Warna teks */
+    box-sizing: border-box; /* Agar padding tidak membuat elemen melebihi lebar kontainer */
+    transition: all 0.3s ease; /* Animasi transisi */
+}
+
+.swal2-input:focus {
+    border-color: #3CB371; /* Border hijau ketika fokus */
+    outline: none; /* Menghapus outline default */
+    background-color: #fff; /* Warna latar belakang putih saat fokus */
+}
+
+/* Styling untuk pilihan dropdown */
+.swal2-input option {
+    padding: 10px; /* Padding untuk setiap option */
+    font-size: 16px;
+    background-color: #fff; /* Latar belakang putih untuk setiap pilihan */
+    color: #333; /* Warna teks */
+}
+
+/* Styling untuk pilihan saat hover */
+.swal2-input option:hover {
+    background-color: #f0f0f0; /* Warna latar belakang saat hover */
+}
+
+/* Untuk memberi padding pada container swal */
+.swal2-container {
+    font-family: 'Arial', sans-serif; /* Font untuk Swal */
+}
+
+/* Optional: Styling tambahan untuk multiple select */
+.swal2-input[multiple] {
+    height: 150px; /* Menambahkan tinggi pada select multiple */
+    overflow-y: auto; /* Agar scrollable jika pilihan banyak */
+}
+
+/* Styling untuk note */
+.note {
+    font-size: 14px; /* Ukuran font yang lebih kecil */
+    color: #888; /* Warna teks abu-abu muda */
+    margin-top: 8px; /* Jarak antara select dan catatan */
+    font-style: italic; /* Memberikan gaya italic */
+}
+
+/* Styling tambahan jika ingin note lebih mencolok */
+.note strong {
+    font-weight: bold; /* Menebalkan kata Ctrl dan Cmd */
+    color: #3CB371; /* Warna hijau agar lebih mencolok */
+}

@@ -201,43 +201,72 @@ siswaTbody.addEventListener('click', async (event) => {
         const { value: formValues } = await Swal.fire({
             title: 'Edit Data Siswa',
             html: `
-        <input id="nisn" type="text" class="swal2-input" value="${siswaData.nisn}" placeholder="NISN">
-        <input id="nama_siswa" type="text" class="swal2-input" value="${siswaData.nama_siswa}" placeholder="Nama Siswa">
-        <input id="alamat" type="text" class="swal2-input" value="${siswaData.alamat}" placeholder="Alamat">
-        <input id="tempat_lahir" type="text" class="swal2-input" value="${siswaData.tempat_lahir}" placeholder="Tempat Lahir">
-        <input id="tanggal_lahir" type="date" class="swal2-input" value="${formatDateToInput(siswaData.tanggal_lahir)}">
-        <select id="jenis_kelamin" class="swal2-input">
-            <option ${siswaData.jenis_kelamin === 'laki-laki' ? 'selected' : ''} value="laki-laki">Laki - Laki</option>
-            <option ${siswaData.jenis_kelamin === 'perempuan' ? 'selected' : ''} value="perempuan">Perempuan</option>
-        </select>
-        <select id="agama" class="swal2-input">
-            <option ${siswaData.agama === 'Islam' ? 'selected' : ''} value="Islam">Islam</option>
-            <option ${siswaData.agama === 'Kristen' ? 'selected' : ''} value="Kristen">Kristen</option>
-            <option ${siswaData.agama === 'Hindu' ? 'selected' : ''} value="Hindu">Hindu</option>
-            <option ${siswaData.agama === 'Buddha' ? 'selected' : ''} value="Buddha">Buddha</option>
-            <option ${siswaData.agama === 'Katholik' ? 'selected' : ''} value="Katholik">Katholik</option>
-        </select>
-        <input id="tanggal_masuk" type="date" class="swal2-input" value="${formatDateToInput(siswaData.tanggal_masuk)}">
-        <input id="nama_ayah" type="text" class="swal2-input" value="${siswaData.nama_ayah}" placeholder="Nama Ayah">
-        <input id="nama_ibu" type="text" class="swal2-input" value="${siswaData.nama_ibu}" placeholder="Nama Ibu">
-        <input id="no_hp_ortu" type="text" class="swal2-input" value="${siswaData.no_hp_ortu}" placeholder="No HP Ortu">
-        <input id="email" type="email" class="swal2-input" value="${siswaData.email}" placeholder="Email">
-        <input id="nik" type="number" class="swal2-input" value="${siswaData.nik}" placeholder="NIK">
-        <input id="anak_ke" type="number" class="swal2-input" value="${siswaData.anak_ke}" placeholder="Anak Ke" min="1" step="1">
-        <select id="status" class="swal2-input">
-            <option ${siswaData.status === 'Aktif' ? 'selected' : ''} value="Aktif">Aktif</option>
-            <option ${siswaData.status === 'Lulus' ? 'selected' : ''} value="Lulus">Lulus</option>
-            <option ${siswaData.status === 'Cuti' ? 'selected' : ''} value="Cuti">Cuti</option>
-        </select>
-        <select id="id_kelas" class="swal2-input">
-    ${kelasData.map(kelas =>
-                `<option value="${kelas.id}" ${siswaData.id_kelas === kelas.id ? 'selected' : ''}>
-            ${kelas.id} - ${kelas.nama_kelas}
-        </option>`
-            ).join('')}
-</select>
+            <label for="nisn"><strong>NISN:</strong></label>
+            <input id="nisn" type="text" class="swal2-input" value="${siswaData.nisn}" placeholder="NISN"><br>
 
-    `,
+            <label for="nama_siswa"><strong>Nama Siswa:</strong></label>
+            <input id="nama_siswa" type="text" class="swal2-input" value="${siswaData.nama_siswa}" placeholder="Nama Siswa"><br>
+
+            <label for="alamat"><strong>Alamat:</strong></label>
+            <input id="alamat" type="text" class="swal2-input" value="${siswaData.alamat}" placeholder="Alamat"><br>
+
+            <label for="tempat_lahir"><strong>Tempat Lahir:</strong></label>
+            <input id="tempat_lahir" type="text" class="swal2-input" value="${siswaData.tempat_lahir}" placeholder="Tempat Lahir"><br>
+
+            <label for="tanggal_lahir"><strong>Tanggal Lahir:</strong></label>
+            <input id="tanggal_lahir" type="date" class="swal2-input" value="${formatDateToInput(siswaData.tanggal_lahir)}"><br>
+
+            <label for="jenis_kelamin"><strong>Jenis Kelamin:</strong></label>
+            <select id="jenis_kelamin" class="swal2-input">
+                <option ${siswaData.jenis_kelamin === 'laki-laki' ? 'selected' : ''} value="laki-laki">Laki - Laki</option>
+                <option ${siswaData.jenis_kelamin === 'perempuan' ? 'selected' : ''} value="perempuan">Perempuan</option>
+            </select><br>
+
+            <label for="agama"><strong>Agama:</strong></label>
+            <select id="agama" class="swal2-input">
+                <option ${siswaData.agama === 'Islam' ? 'selected' : ''} value="Islam">Islam</option>
+                <option ${siswaData.agama === 'Kristen' ? 'selected' : ''} value="Kristen">Kristen</option>
+                <option ${siswaData.agama === 'Hindu' ? 'selected' : ''} value="Hindu">Hindu</option>
+                <option ${siswaData.agama === 'Buddha' ? 'selected' : ''} value="Buddha">Buddha</option>
+                <option ${siswaData.agama === 'Katholik' ? 'selected' : ''} value="Katholik">Katholik</option>
+            </select><br>
+
+            <label for="tanggal_masuk"><strong>Tanggal Masuk:</strong></label>
+            <input id="tanggal_masuk" type="date" class="swal2-input" value="${formatDateToInput(siswaData.tanggal_masuk)}"><br>
+
+            <label for="nama_ayah"><strong>Nama Ayah:</strong></label>
+            <input id="nama_ayah" type="text" class="swal2-input" value="${siswaData.nama_ayah}" placeholder="Nama Ayah"><br>
+
+            <label for="nama_ibu"><strong>Nama Ibu:</strong></label>
+            <input id="nama_ibu" type="text" class="swal2-input" value="${siswaData.nama_ibu}" placeholder="Nama Ibu"><br>
+
+            <label for="no_hp_ortu"><strong>No HP Ortu:</strong></label>
+            <input id="no_hp_ortu" type="text" class="swal2-input" value="${siswaData.no_hp_ortu}" placeholder="No HP Ortu"><br>
+
+            <label for="email"><strong>Email:</strong></label>
+            <input id="email" type="email" class="swal2-input" value="${siswaData.email}" placeholder="Email"><br>
+
+            <label for="nik"><strong>NIK:</strong></label>
+            <input id="nik" type="number" class="swal2-input" value="${siswaData.nik}" placeholder="NIK"><br>
+
+            <label for="anak_ke"><strong>Anak Ke:</strong></label>
+            <input id="anak_ke" type="number" class="swal2-input" value="${siswaData.anak_ke}" placeholder="Anak Ke" min="1" step="1"><br>
+
+            <label for="status"><strong>Status:</strong></label>
+            <select id="status" class="swal2-input">
+                <option ${siswaData.status === 'Aktif' ? 'selected' : ''} value="Aktif">Aktif</option>
+                <option ${siswaData.status === 'Lulus' ? 'selected' : ''} value="Lulus">Lulus</option>
+                <option ${siswaData.status === 'Cuti' ? 'selected' : ''} value="Cuti">Cuti</option>
+            </select><br>
+
+            <label for="id_kelas"><strong>Kelas:</strong></label>
+            <select id="id_kelas" class="swal2-input">
+                ${kelasData.map(kelas =>
+                    `<option value="${kelas.id}" ${siswaData.id_kelas === kelas.id ? 'selected' : ''}>
+                        ${kelas.id} - ${kelas.nama_kelas}
+                    </option>`).join('')}
+            </select><br>
+             `,
             showCancelButton: true,
             confirmButtonText: 'Simpan',
             cancelButtonText: 'Batal',
@@ -355,42 +384,72 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
     const { value: formValues } = await Swal.fire({
         title: 'Tambah Data Siswa',
         html: `
-            <input id="nisn" type="text" class="swal2-input" placeholder="NISN">
-            <input id="nama_siswa" type="text" class="swal2-input" placeholder="Nama Siswa">
-            <input id="alamat" type="text" class="swal2-input" placeholder="Alamat">
-            <input id="tempat_lahir" type="text" class="swal2-input" placeholder="Tempat Lahir">
-            <input id="tanggal_lahir" type="date" class="swal2-input">
-            <select id="jenis_kelamin" class="swal2-input">
-                <option>Pilih Jenis Kelamin</option>
-                <option value="laki-laki">Laki - Laki</option>
-                <option value="perempuan">Perempuan</option>
-            </select>            
-            <select id="agama" class="swal2-input">
-                <option>Pilih Agama</option>
-                <option value="Islam">Islam</option>
-                <option value="Kristen">Kristen</option>
-                <option value="Hindu">Hindu</option>
-                <option value="Buddha">Buddha</option>
-                <option value="Katholik">Katholik</option>
-            </select>
-            <input id="tanggal_masuk" type="date" class="swal2-input">
-            <input id="nama_ayah" type="text" class="swal2-input" placeholder="Nama Ayah">
-            <input id="nama_ibu" type="text" class="swal2-input" placeholder="Nama Ibu">
-            <input id="no_hp_ortu" type="text" class="swal2-input" placeholder="No HP Ortu">
-            <input id="email" type="email" class="swal2-input" placeholder="Email">
-            <input id="nik" type="number" class="swal2-input" placeholder="NIK">
-            <input id="anak_ke" type="number" class="swal2-input" placeholder="Anak Ke" min="1" step="1">
-            <select id="status" class="swal2-input">
-                <option>Status</option>
-                <option value="Aktif">Aktif</option>
-                <option value="Lulus">Lulus</option>
-                <option value="Cuti">Cuti</option>
-            </select>
-            <!-- Tambahkan select kelas -->
-            <select id="id_kelas" class="swal2-input">
-                <option value="">Pilih Kelas</option>
-                ${kelasOptions} <!-- Mengisi opsi kelas -->
-            </select>
+        <label for="nisn"><strong>NISN:</strong></label>
+        <input id="nisn" type="text" class="swal2-input" placeholder="NISN"><br>
+
+        <label for="nama_siswa"><strong>Nama Siswa:</strong></label>
+        <input id="nama_siswa" type="text" class="swal2-input" placeholder="Nama Siswa"><br>
+
+        <label for="alamat"><strong>Alamat:</strong></label>
+        <input id="alamat" type="text" class="swal2-input" placeholder="Alamat"><br>
+
+        <label for="tempat_lahir"><strong>Tempat Lahir:</strong></label>
+        <input id="tempat_lahir" type="text" class="swal2-input" placeholder="Tempat Lahir"><br>
+
+        <label for="tanggal_lahir"><strong>Tanggal Lahir:</strong></label>
+        <input id="tanggal_lahir" type="date" class="swal2-input"><br>
+
+        <label for="jenis_kelamin"><strong>Jenis Kelamin:</strong></label>
+        <select id="jenis_kelamin" class="swal2-input">
+            <option>Pilih Jenis Kelamin</option>
+            <option value="laki-laki">Laki - Laki</option>
+            <option value="perempuan">Perempuan</option>
+        </select><br>
+
+        <label for="agama"><strong>Agama:</strong></label>
+        <select id="agama" class="swal2-input">
+            <option>Pilih Agama</option>
+            <option value="Islam">Islam</option>
+            <option value="Kristen">Kristen</option>
+            <option value="Hindu">Hindu</option>
+            <option value="Buddha">Buddha</option>
+            <option value="Katholik">Katholik</option>
+        </select><br>
+
+        <label for="tanggal_masuk"><strong>Tanggal Masuk:</strong></label>
+        <input id="tanggal_masuk" type="date" class="swal2-input"><br>
+
+        <label for="nama_ayah"><strong>Nama Ayah:</strong></label>
+        <input id="nama_ayah" type="text" class="swal2-input" placeholder="Nama Ayah"><br>
+
+        <label for="nama_ibu"><strong>Nama Ibu:</strong></label>
+        <input id="nama_ibu" type="text" class="swal2-input" placeholder="Nama Ibu"><br>
+
+        <label for="no_hp_ortu"><strong>No HP Ortu:</strong></label>
+        <input id="no_hp_ortu" type="text" class="swal2-input" placeholder="No HP Ortu"><br>
+
+        <label for="email"><strong>Email:</strong></label>
+        <input id="email" type="email" class="swal2-input" placeholder="Email"><br>
+
+        <label for="nik"><strong>NIK:</strong></label>
+        <input id="nik" type="number" class="swal2-input" placeholder="NIK"><br>
+
+        <label for="anak_ke"><strong>Anak Ke:</strong></label>
+        <input id="anak_ke" type="number" class="swal2-input" placeholder="Anak Ke" min="1" step="1"><br>
+
+        <label for="status"><strong>Status:</strong></label>
+        <select id="status" class="swal2-input">
+            <option>Status</option>
+            <option value="Aktif">Aktif</option>
+            <option value="Lulus">Lulus</option>
+            <option value="Cuti">Cuti</option>
+        </select><br>
+
+        <label for="id_kelas"><strong>Kelas:</strong></label>
+        <select id="id_kelas" class="swal2-input">
+            <option value="">Pilih Kelas</option>
+            ${kelasOptions} <!-- Mengisi opsi kelas -->
+        </select><br>   
         `,
         showCancelButton: true,
         confirmButtonText: 'Tambah',

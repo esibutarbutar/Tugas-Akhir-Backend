@@ -75,32 +75,58 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
     Swal.fire({
         title: 'Tambah Data Pegawai',
         html: `
-            <input type="text" id="nip" class="swal2-input" placeholder="NIP">
-            <input type="text" id="nama_pegawai" class="swal2-input" placeholder="Nama Pegawai">
-            <input type="date" id="tanggal_lahir" class="swal2-input">
-            <input type="text" id="tempat_lahir" class="swal2-input" placeholder="Tempat Lahir">
-            <select id="jenis_kelamin" class="swal2-input">
-                <option value="" disabled selected>Pilih Jenis Kelamin</option>
-                <option value="L">Laki-laki</option>
-                <option value="P">Perempuan</option>
-            </select>
-            <input type="text" id="alamat" class="swal2-input" placeholder="Alamat">
-            <input type="text" id="agama" class="swal2-input" placeholder="Agama">
-            <input type="email" id="email" class="swal2-input" placeholder="Email">
-            <input type="text" id="no_hp" class="swal2-input" placeholder="Nomor HP">
-            <input type="password" id="password" class="swal2-input" placeholder="Password">
-            <input type="text" id="nik" class="swal2-input" placeholder="NIK">
-            <input type="date" id="tanggal_mulai_tugas" class="swal2-input">
-            <input type="text" id="jenjang_pendidikan" class="swal2-input" placeholder="Jenjang Pendidikan">
-            <input type="text" id="jurusan" class="swal2-input" placeholder="Jurusan">
-            <label for="role_id">Pilih Role:</label>
-            <select id="role_id" class="swal2-input" multiple>
-                <option value="R1">Guru Mata Pelajaran</option>
-                <option value="R2">Guru Wali Kelas</option>
-                <option value="R3">Admin</option>
-                <option value="R4">Kepala Sekolah</option>
-            </select>
-        `,
+<label for="nip">NIP:</label>
+    <input type="text" id="nip" class="swal2-input" placeholder="NIP">
+    
+    <label for="nama_pegawai">Nama Pegawai:</label>
+    <input type="text" id="nama_pegawai" class="swal2-input" placeholder="Nama Pegawai">
+    
+    <label for="tanggal_lahir">Tanggal Lahir:</label>
+    <input type="date" id="tanggal_lahir" class="swal2-input">
+    
+    <label for="tempat_lahir">Tempat Lahir:</label>
+    <input type="text" id="tempat_lahir" class="swal2-input" placeholder="Tempat Lahir">
+    
+    <label for="jenis_kelamin">Jenis Kelamin:</label>
+    <select id="jenis_kelamin" class="swal2-input">
+        <option value="" disabled selected>Pilih Jenis Kelamin</option>
+        <option value="L">Laki-laki</option>
+        <option value="P">Perempuan</option>
+    </select>
+    
+    <label for="alamat">Alamat:</label>
+    <input type="text" id="alamat" class="swal2-input" placeholder="Alamat">
+    
+    <label for="agama">Agama:</label>
+    <input type="text" id="agama" class="swal2-input" placeholder="Agama">
+    
+    <label for="email">Email:</label>
+    <input type="email" id="email" class="swal2-input" placeholder="Email">
+    
+    <label for="no_hp">Nomor HP:</label>
+    <input type="text" id="no_hp" class="swal2-input" placeholder="Nomor HP">
+    
+    <label for="nik">NIK:</label>
+    <input type="text" id="nik" class="swal2-input" placeholder="NIK">
+    
+    <label for="tanggal_mulai_tugas">Tanggal Mulai Tugas:</label>
+    <input type="date" id="tanggal_mulai_tugas" class="swal2-input">
+    
+    <label for="jenjang_pendidikan">Jenjang Pendidikan:</label>
+    <input type="text" id="jenjang_pendidikan" class="swal2-input" placeholder="Jenjang Pendidikan">
+    
+    <label for="jurusan">Jurusan:</label>
+    <input type="text" id="jurusan" class="swal2-input" placeholder="Jurusan">
+    
+    <label for="role_id">Pilih Role:</label>
+    <select id="role_id" class="swal2-input" multiple>
+        <option value="R1">Guru Mata Pelajaran</option>
+        <option value="R2">Guru Wali Kelas</option>
+        <option value="R3">Admin</option>
+        <option value="R4">Kepala Sekolah</option>
+    </select>
+    <p class="note">Tekan tombol <strong>Ctrl</strong> (Windows) atau <strong>Cmd</strong> (Mac) untuk memilih lebih dari satu role.</p>
+    `,
         confirmButtonText: 'Tambah',
         confirmButtonColor: '#3CB371',
         showCancelButton: true,
@@ -115,18 +141,20 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
             const agama = document.getElementById('agama').value.trim();
             const email = document.getElementById('email').value.trim();
             const noHp = document.getElementById('no_hp').value.trim();
-            const password = document.getElementById('password').value.trim();
             const nik = document.getElementById('nik').value.trim();
             const tanggalMulaiTugas = document.getElementById('tanggal_mulai_tugas').value;
             const jenjangPendidikan = document.getElementById('jenjang_pendidikan').value.trim();
             const jurusan = document.getElementById('jurusan').value.trim();
             const roles = Array.from(document.getElementById('role_id').selectedOptions).map(option => option.value);
 
-            if (!nip || !namaPegawai || !tanggalLahir || !tempatLahir || !jenisKelamin || !alamat || !agama || !email || !noHp || !password || !nik || !tanggalMulaiTugas || !jenjangPendidikan || !jurusan || roles.length === 0) {
+            // Password otomatis diatur sama dengan NIP
+            const password = nip;
+
+            if (!nip || !namaPegawai || !tanggalLahir || !tempatLahir || !jenisKelamin || !alamat || !agama || !email || !noHp || !nik || !tanggalMulaiTugas || !jenjangPendidikan || !jurusan || roles.length === 0) {
                 Swal.showValidationMessage('Harap isi semua kolom wajib dan pilih minimal satu role!');
                 return false;
             }
-            
+
             return {
                 nip,
                 namaPegawai,
@@ -137,7 +165,7 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
                 agama,
                 email,
                 noHp,
-                password,
+                password,  // Password di-set otomatis berdasarkan NIP
                 nik,
                 tanggalMulaiTugas,
                 jenjangPendidikan,
@@ -186,6 +214,7 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
         }
     });
 });
+
 
 async function deletePegawai(nip) {
     // Menampilkan konfirmasi menggunakan SweetAlert2
@@ -249,23 +278,48 @@ async function editPegawai(nip) {
         const result = await Swal.fire({
             title: 'Edit Data Pegawai',
             html: `
+ <label for="nip">NIP:</label>
                 <input type="text" id="nip" class="swal2-input" value="${pegawai.nip}" disabled>
+
+                <label for="nama_pegawai">Nama Pegawai:</label>
                 <input type="text" id="nama_pegawai" class="swal2-input" value="${pegawai.nama_pegawai}">
+
+                <label for="tanggal_lahir">Tanggal Lahir:</label>
                 <input type="date" id="tanggal_lahir" class="swal2-input" value="${formatDateToInput(tanggalLahir)}">
+
+                <label for="tempat_lahir">Tempat Lahir:</label>
                 <input type="text" id="tempat_lahir" class="swal2-input" value="${pegawai.tempat_lahir}">
+
+                <label for="jenis_kelamin">Jenis Kelamin:</label>
                 <select id="jenis_kelamin" class="swal2-input">
                     <option value="L" ${pegawai.jenis_kelamin === 'L' ? 'selected' : ''}>Laki-laki</option>
                     <option value="P" ${pegawai.jenis_kelamin === 'P' ? 'selected' : ''}>Perempuan</option>
                 </select>
+
+                <label for="alamat">Alamat:</label>
                 <input type="text" id="alamat" class="swal2-input" value="${pegawai.alamat}">
+
+                <label for="agama">Agama:</label>
                 <input type="text" id="agama" class="swal2-input" value="${pegawai.agama}">
+
+                <label for="email">Email:</label>
                 <input type="email" id="email" class="swal2-input" value="${pegawai.email}">
+
+                <label for="no_hp">Nomor HP:</label>
                 <input type="text" id="no_hp" class="swal2-input" value="${pegawai.no_hp}">
-                <input type="password" id="password" class="swal2-input" placeholder="Password (kosongkan jika tidak ingin diubah)">
+
+                <label for="nik">NIK:</label>
                 <input type="text" id="nik" class="swal2-input" value="${pegawai.nik}">
+
+                <label for="tanggal_mulai_tugas">Tanggal Mulai Tugas:</label>
                 <input type="date" id="tanggal_mulai_tugas" class="swal2-input" value="${formatDateToInput(tanggalMulaiTugas)}">
+
+                <label for="jenjang_pendidikan">Jenjang Pendidikan:</label>
                 <input type="text" id="jenjang_pendidikan" class="swal2-input" value="${pegawai.jenjang_pendidikan}">
+
+                <label for="jurusan">Jurusan:</label>
                 <input type="text" id="jurusan" class="swal2-input" value="${pegawai.jurusan}">
+
                 <label for="role_id">Pilih Role:</label>
                 <select id="role_id" class="swal2-input" multiple>
                     <option value="R1" ${pegawai.roles && pegawai.roles.includes('R1') ? 'selected' : ''}>Guru Mata Pelajaran</option>
@@ -273,7 +327,8 @@ async function editPegawai(nip) {
                     <option value="R3" ${pegawai.roles && pegawai.roles.includes('R3') ? 'selected' : ''}>Admin</option>
                     <option value="R4" ${pegawai.roles && pegawai.roles.includes('R4') ? 'selected' : ''}>Kepala Sekolah</option>
                 </select>
-            `,
+                <p class="note">Tekan tombol <strong>Ctrl</strong> (Windows) atau <strong>Cmd</strong> (Mac) untuk memilih lebih dari satu role.</p>
+                `,
             confirmButtonText: 'Simpan Perubahan',
             confirmButtonColor: '#3CB371',
             showCancelButton: true,
@@ -288,17 +343,11 @@ async function editPegawai(nip) {
                 const agama = document.getElementById('agama').value.trim();
                 const email = document.getElementById('email').value.trim();
                 const noHp = document.getElementById('no_hp').value.trim();
-                const password = document.getElementById('password').value.trim();
                 const nik = document.getElementById('nik').value.trim();
                 const tanggalMulaiTugas = document.getElementById('tanggal_mulai_tugas').value;
                 const jenjangPendidikan = document.getElementById('jenjang_pendidikan').value.trim();
                 const jurusan = document.getElementById('jurusan').value.trim();
                 const roles = Array.from(document.getElementById('role_id').selectedOptions).map(option => option.value);
-        
-                if (!nip || !namaPegawai || !tanggalLahir || !tempatLahir || !jenisKelamin || !alamat || !agama || !email || !noHp || !nik || !tanggalMulaiTugas || !jenjangPendidikan || !jurusan || roles.length === 0) {
-                    Swal.showValidationMessage('Harap isi semua kolom wajib dan pilih minimal satu role!');
-                    return false;
-                }
         
                 return {
                     nip,
@@ -310,7 +359,6 @@ async function editPegawai(nip) {
                     agama,
                     email,
                     noHp,
-                    password, // Sertakan password jika diubah
                     nik,
                     tanggalMulaiTugas,
                     jenjangPendidikan,
