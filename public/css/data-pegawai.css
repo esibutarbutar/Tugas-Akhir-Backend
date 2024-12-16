@@ -218,3 +218,12 @@ button:nth-child(2) {
     font-weight: bold; /* Menebalkan kata Ctrl dan Cmd */
     color: #3CB371; /* Warna hijau agar lebih mencolok */
 }
+
+.button-container {
+    text-align: center; /* Menyelaraskan tombol secara horizontal ke tengah */
+  }
+  
+  button {
+    margin: 0 5px; /* Memberikan jarak antar tombol */
+  }
+  

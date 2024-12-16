@@ -31,9 +31,9 @@ function loadMatpelData(filterTahunAjaran = '') {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${matpel.id}</td>
-                    <td>${matpel.nama_pelajaran}</td>
+                    <td>${matpel.nama_mata_pelajaran}</td>
                     <td>${matpel.nip} - ${namaPegawai}</td> <!-- Menampilkan NIP dan Nama Pegawai -->
-                    <td>
+                    <td  class="button-container">
                         <button class="edit-button-matpel" data-id-matpel="${matpel.id}">Edit</button>
                         <button class="delete-button-matpel" data-id-matpel="${matpel.id}">Delete</button>
                     </td>
@@ -195,6 +195,19 @@ document.getElementById('add-subject-btn').addEventListener('click', function ()
     });
 });
 
+
+document.getElementById('mata-pelajaran-tbody').addEventListener('click', function(event) {
+    if (event.target.classList.contains('edit-button-matpel')) {
+        const id = event.target.getAttribute('data-id-matpel'); // Mendapatkan ID dari tombol edit
+        editMatpel(id);
+    }
+    if (event.target.classList.contains('delete-button-matpel')) {
+        const id = event.target.getAttribute('data-id-matpel'); // Mendapatkan ID dari tombol delete
+        deleteMatpel(id);
+    }
+});
+
+
 function deleteMatpel(id) {
     console.log('ID yang akan dihapus:', id); // Debugging log
 
@@ -210,22 +223,22 @@ function deleteMatpel(id) {
             fetch(`/api/mata-pelajaran/${id}`, {
                 method: 'DELETE',
             })
-                .then(response => {
-                    console.log('Status response:', response.status); // Debugging log
-                    if (response.ok) {
-                        Swal.fire('Berhasil!', 'Mata pelajaran telah dihapus.', 'success').then(() => {
-                            loadMatpelData(); // Memuat ulang data setelah penghapusan
-                        });
-                    } else {
-                        return response.json().then(data => {
-                            Swal.fire('Error', data.message || 'Gagal menghapus data', 'error');
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire('Error', `Terjadi kesalahan: ${error.message}`, 'error');
-                });
+            .then(response => {
+                console.log('Response status:', response.status); // Cek status respons
+                if (response.ok) {
+                    Swal.fire('Berhasil!', 'Mata pelajaran telah dihapus.', 'success').then(() => {
+                        loadMatpelData(); // Memuat ulang data setelah penghapusan
+                    });
+                } else {
+                    response.json().then(data => {
+                        Swal.fire('Error', data.message || 'Gagal menghapus data', 'error');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', `Terjadi kesalahan: ${error.message}`, 'error');
+            });
         }
     });
 }
@@ -261,7 +274,7 @@ function editMatpel(id) {
                     html: `
                         <div class="form-container">
                             <label for="edit_nama_matpel">Nama Mata Pelajaran</label>
-                            <input type="text" id="edit_nama_matpel" class="swal2-input" value="${matpel.nama_pelajaran}">
+                        <input type="text" id="edit_nama_matpel" class="swal2-input" value="${matpel.nama_mata_pelajaran}">
                             
                             <label for="edit_nip">Guru (NIP + Nama)</label>
                             <select id="edit_nip" class="swal2-select">

@@ -20,7 +20,7 @@ function renderTahunAjaran(data) {
             <td>${formatDate(item.tanggal_mulai)}</td>
             <td>${formatDate(item.tanggal_selesai)}</td>
             <td>${item.semester}</td>
-            <td>
+            <td  class="button-container">
                 <button class="edit-button-TA" data-id-TA="${item.id}">Edit</button>
                 <button class="delete-button-TA" data-id-TA="${item.id}">Delete</button>            
             </td>

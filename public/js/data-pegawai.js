@@ -23,7 +23,7 @@ async function getDataPegawai() {
                 <td>
                     <a href="#" class="view-details-pegawai" data-nip="${pegawai.nip}">Lihat Selengkapnya</a>
                 </td>                
-                <td>
+                <td  class="button-container">
                     <button class="edit-btn" data-nip="${pegawai.nip}">Edit</button>
                     <button onclick="deletePegawai('${pegawai.nip}')">Delete</button>
                 </td>
@@ -75,7 +75,7 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
     Swal.fire({
         title: 'Tambah Data Pegawai',
         html: `
-<label for="nip">NIP:</label>
+    <label for="nip">NIP:</label>
     <input type="text" id="nip" class="swal2-input" placeholder="NIP">
     
     <label for="nama_pegawai">Nama Pegawai:</label>
@@ -98,7 +98,15 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
     <input type="text" id="alamat" class="swal2-input" placeholder="Alamat">
     
     <label for="agama">Agama:</label>
-    <input type="text" id="agama" class="swal2-input" placeholder="Agama">
+    <select id="agama" class="swal2-input">
+        <option value="" disabled selected>Pilih Agama</option>
+        <option value="Islam">Islam</option>
+        <option value="Kristen">Kristen</option>
+        <option value="Katolik">Katolik</option>
+        <option value="Hindu">Hindu</option>
+        <option value="Buddha">Buddha</option>
+        <option value="Konghucu">Konghucu</option>
+    </select>
     
     <label for="email">Email:</label>
     <input type="email" id="email" class="swal2-input" placeholder="Email">
@@ -177,7 +185,6 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
         if (result.isConfirmed) {
             const dataPegawai = result.value;
 
-            // Kirim data ke server
             try {
                 const response = await fetch('/api/pegawai', {
                     method: 'POST',
@@ -278,8 +285,8 @@ async function editPegawai(nip) {
         const result = await Swal.fire({
             title: 'Edit Data Pegawai',
             html: `
- <label for="nip">NIP:</label>
-                <input type="text" id="nip" class="swal2-input" value="${pegawai.nip}" disabled>
+                <label for="nip">NIP:</label>
+                <input type="text" id="nip" class="swal2-input" value="${pegawai.nip}">
 
                 <label for="nama_pegawai">Nama Pegawai:</label>
                 <input type="text" id="nama_pegawai" class="swal2-input" value="${pegawai.nama_pegawai}">
@@ -299,8 +306,14 @@ async function editPegawai(nip) {
                 <label for="alamat">Alamat:</label>
                 <input type="text" id="alamat" class="swal2-input" value="${pegawai.alamat}">
 
-                <label for="agama">Agama:</label>
-                <input type="text" id="agama" class="swal2-input" value="${pegawai.agama}">
+                <label for="agama"><strong>Agama:</strong></label>
+                <select id="agama" class="swal2-input">
+                    <option ${pegawai.agama === 'Islam' ? 'selected' : ''} value="Islam">Islam</option>
+                    <option ${pegawai.agama === 'Kristen' ? 'selected' : ''} value="Kristen">Kristen</option>
+                    <option ${pegawai.agama === 'Hindu' ? 'selected' : ''} value="Hindu">Hindu</option>
+                    <option ${pegawai.agama === 'Buddha' ? 'selected' : ''} value="Buddha">Buddha</option>
+                    <option ${pegawai  .agama === 'Katholik' ? 'selected' : ''} value="Katholik">Katholik</option>
+                </select><br>
 
                 <label for="email">Email:</label>
                 <input type="email" id="email" class="swal2-input" value="${pegawai.email}">
@@ -423,7 +436,8 @@ document.addEventListener('click', async function (event) {
                     <p><strong>Jenjang Pendidikan:</strong> ${pegawai.jenjang_pendidikan || 'Tidak tersedia'}</p>
                     <p><strong>Jurusan:</strong> ${pegawai.jurusan || 'Tidak tersedia'}</p>
                     <p><strong>Tanggal Mulai Tugas:</strong> ${formatTanggal(pegawai.tanggal_mulai_tugas)}</p>
-                `,
+                    <p><strong>Role:</strong> ${Array.isArray(pegawai.roles) ? pegawai.roles.join(', ') : ' tersedia'}</p>
+            `,
                 icon: 'info',
                 confirmButtonText: 'Tutup',
                 confirmButtonColor: '#3CB371'
@@ -440,45 +454,45 @@ document.addEventListener('click', async function (event) {
     }
 });
 
-async function viewDetails(nisn) {
-    try {
-        console.log("Fetching details for NISN:", nisn); // Debug
-        const response = await fetch(`/api/siswa/${nisn}`);
-        if (!response.ok) throw new Error("Gagal mengambil data siswa!");
+// async function viewDetails(nisn) {
+//     try {
+//         console.log("Fetching details for NISN:", nisn); // Debug
+//         const response = await fetch(`/api/siswa/${nisn}`);
+//         if (!response.ok) throw new Error("Gagal mengambil data siswa!");
 
-        const siswa = await response.json();
-        console.log("Detail siswa:", siswa); // Debug untuk melihat data yang diterima
+//         const siswa = await response.json();
+//         console.log("Detail siswa:", siswa); // Debug untuk melihat data yang diterima
 
-        // Tampilkan dengan SweetAlert2
-        Swal.fire({
-            title: `Detail Siswa: ${siswa.nama_siswa}`,
-            html: `
-                <strong>NISN:</strong> ${siswa.nisn}<br>
-                <strong>Nama:</strong> ${siswa.nama_siswa}<br>
-                <strong>Tempat Lahir:</strong> ${siswa.tempat_lahir}<br>
-                <strong>Tanggal Lahir:</strong> ${formatDate(siswa.tanggal_lahir)}<br>
-                <strong>Alamat:</strong> ${siswa.alamat}<br>
-                <strong>Jenis Kelamin:</strong> ${siswa.jenis_kelamin}<br>
-                <strong>Agama:</strong> ${siswa.agama}<br>
-                <strong>NIK:</strong> ${siswa.nik}<br>
-                <strong>Nama Ayah:</strong> ${siswa.nama_ayah}<br>
-                <strong>Nama Ibu:</strong> ${siswa.nama_ibu}<br>
-                <strong>No HP ortu:</strong> ${siswa.no_hp_ortu}<br>
-                <strong>Email:</strong> ${siswa.email}<br>
-                <strong>Anak Ke:</strong> ${siswa.anak_ke}<br>
-                <strong>Status:</strong> ${siswa.status}<br>
-                <strong>Tanggal Masuk:</strong> ${formatDate(siswa.tanggal_masuk)}<br>
-            `,
-            icon: 'info',
-            confirmButtonText: 'Tutup',
-        });
-    } catch (error) {
-        console.error("Error fetching siswa details:", error);
-        Swal.fire({
-            title: 'Error',
-            text: 'Gagal mengambil detail siswa. Silakan coba lagi.',
-            icon: 'error',
-            confirmButtonText: 'Tutup',
-        });
-    }
-}
+//         // Tampilkan dengan SweetAlert2
+//         Swal.fire({
+//             title: `Detail Siswa: ${siswa.nama_siswa}`,
+//             html: `
+//                 <strong>NISN:</strong> ${siswa.nisn}<br>
+//                 <strong>Nama:</strong> ${siswa.nama_siswa}<br>
+//                 <strong>Tempat Lahir:</strong> ${siswa.tempat_lahir}<br>
+//                 <strong>Tanggal Lahir:</strong> ${formatDate(siswa.tanggal_lahir)}<br>
+//                 <strong>Alamat:</strong> ${siswa.alamat}<br>
+//                 <strong>Jenis Kelamin:</strong> ${siswa.jenis_kelamin}<br>
+//                 <strong>Agama:</strong> ${siswa.agama}<br>
+//                 <strong>NIK:</strong> ${siswa.nik}<br>
+//                 <strong>Nama Ayah:</strong> ${siswa.nama_ayah}<br>
+//                 <strong>Nama Ibu:</strong> ${siswa.nama_ibu}<br>
+//                 <strong>No HP ortu:</strong> ${siswa.no_hp_ortu}<br>
+//                 <strong>Email:</strong> ${siswa.email}<br>
+//                 <strong>Anak Ke:</strong> ${siswa.anak_ke}<br>
+//                 <strong>Status:</strong> ${siswa.status}<br>
+//                 <strong>Tanggal Masuk:</strong> ${formatDate(siswa.tanggal_masuk)}<br>
+//             `,
+//             icon: 'info',
+//             confirmButtonText: 'Tutup',
+//         });
+//     } catch (error) {
+//         console.error("Error fetching siswa details:", error);
+//         Swal.fire({
+//             title: 'Error',
+//             text: 'Gagal mengambil detail siswa. Silakan coba lagi.',
+//             icon: 'error',
+//             confirmButtonText: 'Tutup',
+//         });
+//     }
+// }

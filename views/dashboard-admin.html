@@ -25,10 +25,11 @@
     <header>
         <h1>Admin Dashboard</h1>
         <div class="profile">
-            <i class="fas fa-user-circle"></i>
+            <i class="fas fa-user-circle" id="profile-icon"></i>  <!-- ID untuk ikon -->
             <span id="employee-name-header" class="employee-name">Tamu</span>
         </div>
     </header>
+    
     <div class="dashboard">
         <aside class="sidebar">
             <ul>
@@ -40,12 +41,8 @@
                 <li><a href="#" data-target="tahun-ajaran">Tahun Ajaran</a></li>
                 <li><a href="#" data-target="mading">Mading</a></li>
             </ul>
-            <div class="sidebar-settings">
-                <a href="/settings">
-                    <img src="path/to/settings-icon.png" alt="Settings Icon">
-                </a>
-            </div>
-        </aside>
+            
+                    </aside>
         <main>
             <div class="welcome-message">
                 <h2>Selamat Datang, <span id="employee-name-message" class="employee-name">Tamu</span></h2>
@@ -150,7 +147,7 @@
                         <input type="text" id="search-year-input" placeholder="Cari tahun ajaran..." class="search-bar">
                         <i class="fas fa-search search-icon"></i>
                     </div>
-                    <button id="tambah-tahun-ajaran" class="btn btn-primary">Tambah Tahun Ajaran</button>
+                    <button id="tambah-tahun-ajaran" >Tambah Tahun Ajaran</button>
                 </div>
                 <table border="1">
                     <thead>
@@ -190,6 +187,7 @@
                             <th>Nama Kelas</th>
                             <th>Wali Kelas</th>
                             <th>Tingkatan</th>
+                            <th>Detail</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -242,6 +240,15 @@
                     <!-- Cards akan ditambahkan dengan JavaScript -->
                 </div>
             </section>
+            <!-- Modal untuk Detail Kelas -->
+<div id="kelas-detail-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span id="close-detail" class="close">&times;</span>
+        <h2 id="modal-title"></h2>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
         </main>
     </div>
     <script src="/js/dashboard-admin.js"></script>
@@ -252,6 +259,8 @@
     <script src="/js/data-kelas.js"></script>
     <script src="/js/data-mata-pelajaran.js"></script>
     <script src="/js/data-mading.js"></script>
+
+
 </body>
 
 </html>

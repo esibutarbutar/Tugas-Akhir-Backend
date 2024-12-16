@@ -27,6 +27,7 @@ header {
 .profile {
     display: flex;
     align-items: center;
+    cursor: pointer;
 }
 
 .profile .material-icons,
@@ -244,4 +245,87 @@ main {
     margin: 20px 0;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#dropdown-menu {
+    display: none; /* Sembunyikan menu saat pertama kali dimuat */
+    position: absolute;
+    top: 30px; /* Posisi menu dropdown */
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* Pastikan dropdown berada di atas elemen lainnya */
+}
+
+#dropdown-menu a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: black;
+}
+
+#dropdown-menu a:hover {
+    background-color: #f1f1f1;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+    }
+
+    .main {
+        margin-left: 0;
+        padding: 10px;
+    }
+    
+    /* For small screens, we can hide sidebar and make it toggleable */
+    .sidebar ul {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .search-bar {
+        width: 100%;
+    }
+    
+    /* Modify table layouts for small devices */
+    table {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+    }
+    
+    /* Collapse some details for mobile */
+    .content-section {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile {
+        text-align: center;
+    }
+
+    .search-bar {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    .search-icon {
+        font-size: 16px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+    }
 }

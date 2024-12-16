@@ -28,7 +28,7 @@ function renderSiswaTable(data) {
         <td>
             <a href="#" class="view-details-siswa" data-nisn="${siswa.nisn}">Lihat Selengkapnya</a>
         </td>                
-        <td>
+        <td  class="button-container">
             <button class="edit-btn-siswa" data-nisn="${siswa.nisn}">Edit</button>
             <button class="delete-btn-siswa" data-nisn="${siswa.nisn}">Delete</button>
         </td>
@@ -118,6 +118,14 @@ document.addEventListener('click', (event) => {
     }
 });
 
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('view-details-siswa')) {
+        event.preventDefault();
+        const nisn = event.target.getAttribute('data-nisn');
+        viewDetails(nisn);
+    }
+});
+
 async function viewDetails(nisn) {
     try {
         console.log("Fetching details for NISN:", nisn);
@@ -125,7 +133,8 @@ async function viewDetails(nisn) {
         if (!response.ok) throw new Error("Gagal mengambil data siswa!");
 
         const siswa = await response.json();
-        console.log("Detail siswa:", siswa);
+        console.log("Detail siswa:", siswa);  // Cek data siswa yang diterima
+        console.log("Kelas siswa:", siswa.nama_kelas);  // Cek apakah nama_kelas ada
 
         Swal.fire({
             title: `Detail Siswa: ${siswa.nama_siswa}`,
@@ -145,7 +154,7 @@ async function viewDetails(nisn) {
                 <strong>Anak Ke:</strong> ${siswa.anak_ke}<br>
                 <strong>Status:</strong> ${siswa.status}<br>
                 <strong>Tanggal Masuk:</strong> ${formatDate(siswa.tanggal_masuk)}<br>
-
+                <strong>Kelas:</strong> ${siswa.id_kelas} - ${siswa.nama_kelas || 'Tidak tersedia'}<br>
             `,
             icon: 'info',
             confirmButtonText: 'Tutup',
@@ -260,7 +269,9 @@ siswaTbody.addEventListener('click', async (event) => {
             </select><br>
 
             <label for="id_kelas"><strong>Kelas:</strong></label>
+            <label for="id_kelas"><strong>Kelas:</strong></label>
             <select id="id_kelas" class="swal2-input">
+                <option value="" ${!siswaData.id_kelas ? 'selected' : ''}>Tidak Ada Kelas</option>
                 ${kelasData.map(kelas =>
                     `<option value="${kelas.id}" ${siswaData.id_kelas === kelas.id ? 'selected' : ''}>
                         ${kelas.id} - ${kelas.nama_kelas}
@@ -311,7 +322,7 @@ siswaTbody.addEventListener('click', async (event) => {
                     nik: nik.value,
                     anak_ke: anakKe.value,
                     status: status.value,
-                    id_kelas: idKelas.value,  // Mengambil kelas yang dipilih
+                    id_kelas: idKelas.value || null,  // Mengambil kelas yang dipilih
                 };
             },
         });
@@ -471,13 +482,14 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
             const anakKe = document.getElementById('anak_ke');
             const status = document.getElementById('status');
             const idKelas = document.getElementById('id_kelas');
+            const idKelasValue = idKelas.value ? idKelas.value : null
 
             if (!nisn || !namaSiswa || !alamat || !tempatLahir || !tanggalLahir || !jenisKelamin || !agama ||
-                !tanggalMasuk || !namaAyah || !namaIbu || !noHpOrtu || !email || !nik || !anakKe || !status || !idKelas.value) {
+                !tanggalMasuk || !namaAyah || !namaIbu || !noHpOrtu || !email || !nik || !anakKe || !status ) {
                 Swal.showValidationMessage('Semua field harus diisi!');
                 return false;
             }
-
+            
 
             return {
                 nisn: nisn.value,
@@ -495,7 +507,7 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
                 nik: nik.value,
                 anak_ke: anakKe.value,
                 status: status.value,
-                id_kelas: idKelas.value,  // Menambahkan id_kelas
+                id_kelas: idKelasValue,  // Menambahkan id_kelas
             };
         },
     });
