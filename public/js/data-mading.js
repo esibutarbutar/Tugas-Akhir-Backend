@@ -120,112 +120,42 @@ async function viewMading(id) {
 }
 
 async function deleteMading(id) {
-    const result = await Swal.fire({
-        title: 'Apakah Anda yakin?',
-        text: "Data yang dihapus tidak dapat dikembalikan!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal',
-    });
+    try {
+        const response = await fetch(`/api/mading/${id}`);
+        const mading = await response.json();
 
-    if (result.isConfirmed) {
-        try {
-            const response = await fetch(`/api/mading/${id}`, {
+        const result = await Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: `Data mading "${mading.judul}" akan dihapus. Data yang dihapus tidak dapat dikembalikan!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#004D40',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+            cancelButtonColor: '#FF0000',
+        });
+
+        if (result.isConfirmed) {
+            await fetch(`/api/mading/${id}`, {
                 method: 'DELETE',
             });
-
-            if (response.ok) {
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: 'Mading berhasil dihapus.',
-                    icon: 'success',
-                });
-                fetchMading(); // Refresh data
-            } else {
-                const errorMessage = await response.json();
-                Swal.fire({
-                    title: 'Gagal!',
-                    text: errorMessage.message || 'Terjadi kesalahan saat menghapus mading.',
-                    icon: 'error',
-                });
-            }
-        } catch (error) {
-            console.error("Error deleting Mading:", error);
             Swal.fire({
-                title: 'Gagal!',
-                text: 'Tidak dapat menghapus mading.',
-                icon: 'error',
+                title: 'Berhasil!',
+                text: 'Pengumuman berhasil dihapuss.',
+                icon: 'success',
+               confirmButtonColor: '#004D40'
             });
+            fetchMading()
         }
+    } catch (error) {
+        console.error("Error deleting Mading:", error);
+        Swal.fire('Gagal!', 'Tidak dapat menghapus mading.', 'error');
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchMading();
 });
-
-async function addMading() {
-    const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
-
-    Swal.fire({
-        title: "Tambah Pengumuman Baru",
-        html: `
-            <input type="text" id="judul" class="swal2-input" placeholder="Judul Pengumuman">
-            <textarea id="konten" class="swal2-textarea" placeholder="Isi Pengumuman"></textarea>
-            <input type="file" id="image" class="swal2-input" accept="image/*"> <!-- Input gambar -->
-        `,
-        confirmButtonText: "Tambah",
-        showCancelButton: true,
-        preConfirm: () => {
-            const judul = document.getElementById("judul").value.trim();
-            const konten = document.getElementById("konten").value.trim();
-            const image = document.getElementById("image").files[0]; // Mengambil file gambar
-
-            if (!judul || !konten) {
-                Swal.showValidationMessage("Semua kolom harus diisi!");
-                return null;
-            }
-
-            // Return objek dengan tambahan file gambar
-            return { judul, konten, tanggal: today, image };
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const { judul, konten, tanggal, image } = result.value;
-
-            const formData = new FormData();
-            formData.append("judul", judul);
-            formData.append("konten", konten);
-            formData.append("tanggal", tanggal);
-            if (image) {
-                formData.append("image", image); // Menambahkan file gambar ke form data
-            }
-
-            fetch('/api/mading', {
-                method: "POST",
-                body: formData, // Kirim data dengan FormData
-            })
-            .then(async (response) => {
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || "Gagal menambah mading.");
-                }
-                return response.json();
-            })
-            .then(() => {
-                Swal.fire("Berhasil!", "Pengumuman baru telah ditambahkan.", "success");
-                fetchMading(); // Refresh data
-            })
-            .catch((error) => {
-                console.error("Error adding Mading:", error);
-                Swal.fire("Gagal!", "Terjadi kesalahan saat menambah pengumuman.", "error");
-            });
-        }
-    });
-}
 
 // Tambahkan event listener untuk tombol tambah
 document.getElementById("add-mading-btn").addEventListener("click", addMading);
@@ -263,49 +193,7 @@ async function viewMading(id) {
     }
 }
 
-async function deleteMading(id) {
-    const result = await Swal.fire({
-        title: 'Apakah Anda yakin?',
-        text: "Data yang dihapus tidak dapat dikembalikan!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal',
-    });
 
-    if (result.isConfirmed) {
-        try {
-            const response = await fetch(`/api/mading/${id}`, {
-                method: 'DELETE',
-            });
-
-            if (response.ok) {
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: 'Mading berhasil dihapus.',
-                    icon: 'success',
-                });
-                fetchMading(); // Refresh data
-            } else {
-                const errorMessage = await response.json();
-                Swal.fire({
-                    title: 'Gagal!',
-                    text: errorMessage.message || 'Terjadi kesalahan saat menghapus mading.',
-                    icon: 'error',
-                });
-            }
-        } catch (error) {
-            console.error("Error deleting Mading:", error);
-            Swal.fire({
-                title: 'Gagal!',
-                text: 'Tidak dapat menghapus mading.',
-                icon: 'error',
-            });
-        }
-    }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     fetchMading();
@@ -323,6 +211,11 @@ async function addMading() {
         `,
         confirmButtonText: "Tambah",
         showCancelButton: true,
+        cancelButtonText: 'Batal',
+        cancelButtonColor: '#FF0000',
+        confirmButtonColor: '#004D40',
+
+
         preConfirm: () => {
             const judul = document.getElementById("judul").value.trim();
             const konten = document.getElementById("konten").value.trim();
@@ -360,7 +253,12 @@ async function addMading() {
                 return response.json();
             })
             .then(() => {
-                Swal.fire("Berhasil!", "Pengumuman baru telah ditambahkan.", "success");
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Pengumuman berhasil ditambahkan.',
+                    icon: 'success',
+                   confirmButtonColor: '#004D40'
+                });                
                 fetchMading(); // Refresh data
             })
             .catch((error) => {
@@ -389,3 +287,5 @@ document.getElementById('search-mading-input').addEventListener('input', functio
         }
     });
 });
+
+

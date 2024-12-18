@@ -53,7 +53,7 @@ async function deleteSiswa(nisn) {
         text: `Siswa dengan NISN ${nisn} akan dihapus dari sistem.`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3CB371',
+        confirmButtonColor: '#004D40',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Ya, Hapus',
         cancelButtonText: 'Batal',
@@ -70,7 +70,7 @@ async function deleteSiswa(nisn) {
                     title: 'Berhasil!',
                     text: 'Data Siswa berhasil dihapus.',
                     icon: 'success',
-                    confirmButtonColor: '#3CB371',
+                    confirmButtonColor: '#004D40',
                 });
 
                 const row = document.querySelector(`[data-nisn="${nisn}"]`).closest('tr');
@@ -158,7 +158,7 @@ async function viewDetails(nisn) {
             `,
             icon: 'info',
             confirmButtonText: 'Tutup',
-            confirmButtonColor: '#3CB371'
+            confirmButtonColor: '#004D40'
         });
     } catch (error) {
         console.error("Error fetching siswa details:", error);
@@ -300,7 +300,7 @@ siswaTbody.addEventListener('click', async (event) => {
                 const idKelas = document.getElementById('id_kelas');
 
                 if (!nisn || !namaSiswa || !alamat || !tempatLahir || !tanggalLahir || !jenisKelamin || !agama ||
-                    !tanggalMasuk || !namaAyah || !namaIbu || !noHpOrtu || !email || !nik || !anakKe || !status || !idKelas.value) {
+                    !tanggalMasuk || !namaAyah || !namaIbu || !noHpOrtu || !email || !nik || !anakKe || !status) {
                     Swal.showValidationMessage('Semua field harus diisi!');
                     return false;
                 }
@@ -344,6 +344,7 @@ siswaTbody.addEventListener('click', async (event) => {
                         title: 'Berhasil!',
                         text: 'Data siswa berhasil diperbarui.',
                         icon: 'success',
+                        confirmButtonColor: '#004D40'
                     });
                     fetchSiswaData(); // Memuat ulang data siswa
                 } else {
@@ -527,6 +528,7 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
                     title: 'Berhasil!',
                     text: 'Data siswa berhasil ditambahkan.',
                     icon: 'success',
+                    confirmButtonColor: '#004D40'
                 });
                 fetchSiswaData();
             } else {

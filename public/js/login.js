@@ -36,7 +36,7 @@ loginForm.addEventListener("submit", function(event) {
                 text: `Selamat datang, ${user.name}!`,
                 icon: 'success',
                 confirmButtonText: 'Lanjutkan',
-                confirmButtonColor: '#3CB371'
+                confirmButtonColor: '#004D40'
             }).then(() => {
                 // Redirect setelah menutup SweetAlert
                 if (user.role === 'admin') {
@@ -51,7 +51,8 @@ loginForm.addEventListener("submit", function(event) {
                 title: 'Login Gagal!',
                 text: data.message,
                 icon: 'error',
-                confirmButtonText: 'Coba Lagi'
+                confirmButtonText: 'Coba Lagi',
+                confirmButtonColor: '#FF0000' 
             });
         }
     })

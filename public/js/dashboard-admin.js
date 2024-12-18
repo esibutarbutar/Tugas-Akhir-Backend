@@ -4,7 +4,6 @@ const profileImage = document.getElementById('profile-image');
 const uploadForm = document.getElementById('upload-form');
 const fileUploadInput = document.getElementById('file-upload');
 
-
 async function fetchSessionData() {
     try {
         const response = await fetch('/api/session');
@@ -33,6 +32,13 @@ async function fetchSessionData() {
         if (user.profile_image) {
             profileImage.src = user.profile_image;
         }
+
+        // Set the profile initial (first letter of name) in the circle
+        const profileInitial = document.getElementById('profile-initial');
+        if (profileInitial) {
+            profileInitial.textContent = user.name.charAt(0).toUpperCase();
+        }
+
     } catch (error) {
         console.error('Error:', error);
         alert('Gagal memuat data sesi.');
@@ -79,3 +85,4 @@ document.querySelectorAll(".sidebar ul li a").forEach((link) => {
         document.getElementById(target).classList.remove("hidden");
     });
 });
+

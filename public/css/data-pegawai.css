@@ -7,7 +7,7 @@
 
 /* Menghapus background dan menggunakan border untuk header tabel */
 table th {
-   background-color: #3CB371; 
+   background-color: #004D40; 
     padding: 8px; 
     text-align: left; 
     font-size: 12px; 
@@ -70,7 +70,7 @@ button:hover {
 
 /* Styling untuk tombol Edit */
 button:nth-child(1) {
-    background-color: #4CAF50;
+    background-color: #004D40;
     color: white;
     font-size: 12px;
 }
@@ -102,11 +102,11 @@ button:nth-child(2) {
 }
 
 .search-bar:hover {
-    border-color: #3CB371;  
+    border-color: #004D40;  
 }
 
 .search-bar:focus {
-    border-color: #3CB371;  
+    border-color: #004D40;  
     outline: none; 
 }
 .search-icon {
@@ -120,7 +120,7 @@ button:nth-child(2) {
 .add-btn-pegawai {
     padding: 8px 16px;
     font-size: 16px;
-    background-color: #3CB371 !important;
+    background-color: #004D40 !important;
     color: white;
     border: none;
     border-radius: 4px;
@@ -129,7 +129,7 @@ button:nth-child(2) {
 }
 
 .add-btn:hover {
-    background-color: #45a049;
+    background-color: #004D40;
 }
 
 .modal.hidden {
@@ -176,7 +176,7 @@ button:nth-child(2) {
 }
 
 .swal2-input:focus {
-    border-color: #3CB371; /* Border hijau ketika fokus */
+    border-color: #004D40; /* Border hijau ketika fokus */
     outline: none; /* Menghapus outline default */
     background-color: #fff; /* Warna latar belakang putih saat fokus */
 }
@@ -216,7 +216,7 @@ button:nth-child(2) {
 /* Styling tambahan jika ingin note lebih mencolok */
 .note strong {
     font-weight: bold; /* Menebalkan kata Ctrl dan Cmd */
-    color: #3CB371; /* Warna hijau agar lebih mencolok */
+    color: #004D40 /* Warna hijau agar lebih mencolok */
 }
 
 .button-container {
@@ -226,4 +226,3 @@ button:nth-child(2) {
   button {
     margin: 0 5px; /* Memberikan jarak antar tombol */
   }
-  

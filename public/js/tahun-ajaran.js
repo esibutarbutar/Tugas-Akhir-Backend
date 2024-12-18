@@ -95,6 +95,10 @@ async function editTahunAjaran(id) {
             showCancelButton: true,
             cancelButtonText: 'Batal',
             confirmButtonText: 'Simpan',
+            confirmButtonColor: '#004D40',
+            cancelButtonColor: '#FF0000',
+
+            
             preConfirm: () => {
                 return {
                     nama_tahun_ajaran: document.getElementById('nama_TA').value,
@@ -118,6 +122,7 @@ async function editTahunAjaran(id) {
                     title: 'Berhasil!',
                     text: 'Data Tahun Ajaran berhasil diperbarui.',
                     icon: 'success',
+                    confirmButtonColor: '#004D40',
                 });
                 fetchTahunAjaran(); // Refresh data
             } else {
@@ -163,9 +168,9 @@ async function deleteTahunAjaran(id) {
             text: `Data Tahun Ajaran "${TA.nama_tahun_ajaran}" akan dihapus dari sistem dan tidak dapat dikembalikan!`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#004D40',
             confirmButtonText: 'Ya, hapus!',
+            cancelButtonColor: '#FF0000',
             cancelButtonText: 'Batal',
         });
 
@@ -180,6 +185,8 @@ async function deleteTahunAjaran(id) {
                     title: 'Berhasil!',
                     text: `Data Tahun Ajaran "${TA.nama_tahun_ajaran}" berhasil dihapus.`,
                     icon: 'success',
+                    confirmButtonColor: '#004D40',
+
                 });
                 fetchTahunAjaran(); // Memuat ulang data setelah penghapusan
             } else {
@@ -233,7 +240,10 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
             `,
             showCancelButton: true,
             cancelButtonText: 'Batal',
+            cancelButtonColor: '#FF0000',
             confirmButtonText: 'Simpan',
+            confirmButtonColor: '#004D40',
+
             preConfirm: () => {
                 const tanggal_mulai = new Date(document.getElementById('tanggal_mulai').value);
                 const tanggal_selesai = new Date(document.getElementById('tanggal_selesai').value);
@@ -267,6 +277,8 @@ document.getElementById('tambah-tahun-ajaran').addEventListener('click', async (
                     title: 'Berhasil!',
                     text: 'Tahun Ajaran berhasil ditambahkan.',
                     icon: 'success',
+                    confirmButtonColor: '#004D40',
+
                 });
                 fetchTahunAjaran(); // Refresh data
             } else {

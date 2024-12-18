@@ -58,7 +58,7 @@ function loadKelasData(filterTahunAjaran = '') {
                     <td>${kelas.nama_kelas}</td>
                     <td>${kelas.nip} - ${namaPegawai}</td>
                     <td>${kelas.tingkatan}</td>
-                     <td><a href="#" class="detail-link"  data-id-kelas="${kelas.id}">Detail</a></td>
+                     <td><a href="#" class="detail-link"  data-id-kelas="${kelas.id}">Lihat Selengkapnya</a></td>
                     <td  class="button-container">
                         <button class="edit-button-kelas" data-id-kelas="${kelas.id}">Edit</button>
                         <button class="delete-button-kelas" data-id-kelas="${kelas.id}">Delete</button>
@@ -161,7 +161,7 @@ document.getElementById('add-kelas-btn').addEventListener('click', function () {
             }).join('');
 
             const tahunAjaranOptions = tahunAjaranData.map(tahun => {
-                return `<option value="${tahun.id}">${tahun.nama_tahun_ajaran}</option>`;
+                return `<option value="${tahun.id}">${tahun.nama_tahun_ajaran} ${tahun.semester}</option>`;
             }).join('');
 
             const tingkatanOptions = ["VII", "VIII", "IX"].map(tingkatan => {
@@ -187,6 +187,10 @@ document.getElementById('add-kelas-btn').addEventListener('click', function () {
                     </select>
                 `,
                 focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Tambah',
+                confirmButtonColor: '#004D40',
+                cancelButtonText: 'Batal',
                 preConfirm: () => {
                     const kelasName = document.getElementById('kelas-name').value.trim();
                     const pegawaiId = document.getElementById('pegawai-select').value;
@@ -223,7 +227,12 @@ document.getElementById('add-kelas-btn').addEventListener('click', function () {
             }).then(result => {
                 if (result.isConfirmed) {
                     // Tampilkan SweetAlert sukses
-                    Swal.fire('Berhasil!', 'Kelas baru telah ditambahkan.', 'success');
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Data Kelas Baru berhasil ditambahkan.',
+                        icon: 'success',
+                       confirmButtonColor: '#004D40'
+                    });
                     loadKelasData(); // Memuat ulang data kelas
                 }
             }).catch(error => {
@@ -333,7 +342,12 @@ function editKelas(id) {
                         }
                     }).then(result => {
                         if (result.isConfirmed) {
-                            Swal.fire('Berhasil!', 'Kelas telah diperbarui.', 'success');
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: 'Data Kelas berhasil diperbarui.',
+                                icon: 'success',
+                                confirmButtonColor: '#004D40'
+                            });                            
                             loadKelasData(); // Memuat ulang data kelas
                         }
                     }).catch(error => {
@@ -357,6 +371,7 @@ function deleteKelas(id) {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Hapus',
+        confirmButtonColor: '#FF0000',
         cancelButtonText: 'Batal',
         reverseButtons: true
     }).then((result) => {
@@ -372,7 +387,12 @@ function deleteKelas(id) {
                     return response.json();
                 })
                 .then(() => {
-                    Swal.fire('Berhasil!', 'Kelas telah dihapus.', 'success');
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Data Kelas berhasil dihapus.',
+                        icon: 'success',
+                       confirmButtonColor: '#004D40'
+                    });
                     loadKelasData(); // Memuat ulang data kelas
                 })
                 .catch(error => {
@@ -444,11 +464,19 @@ function showDetailKelas(id) {
             Swal.fire({
                 title: `Detail Kelas ${kelas.nama_kelas}`,
                 html: `
-                    <strong>Kode Kelas:</strong> ${kelas.id} <br>
-                    <strong>Nama Kelas:</strong> ${kelas.nama_kelas} <br>
+                    <div style="text-align: left;">
+                        <strong>Kode Kelas\t\t:</strong> ${kelas.id} <br>
+                        <strong>Nama Kelas\t:</strong> ${kelas.nama_kelas} <br>
+                        <strong>Wali Kelas\t\t:</strong> ${kelas.nip} - ${kelas.nama_pegawai} <br>
+
                     <strong>Daftar Siswa:</strong> <br>
-                    ${insertButtonHtml}
+                    <div style="text-align: right; margin-bottom: 10px;">
+                            <button id="insertButton" style="background-color: green; color: white; border: none; padding: 5px 10px; cursor: pointer;">
+                                Insert Siswa
+                            </button>
+                        </div>
                     ${siswaTable}
+                    </div>
                 `,
                 showCloseButton: true,
                 focusConfirm: false,
@@ -494,7 +522,7 @@ function showDetailKelas(id) {
                             text: 'Siswa yang dipilih akan Dihapus.',
                             icon: 'warning',
                             showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
+                            confirmButtonColor: '#004D40',
                             cancelButtonColor: '#d33',
                             confirmButtonText: 'Ya, Hapus!',
                         }).then((result) => {
@@ -642,6 +670,7 @@ function handleInsertButtonClick(kelas) {
                                     icon: 'warning',
                                     showCancelButton: true,
                                     confirmButtonText: 'Ya, Tambahkan',
+                                    confirmButtonColor: '#004D40',
                                     cancelButtonText: 'Batal'
                                 }).then((result) => {
                                     if (result.isConfirmed) {

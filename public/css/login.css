@@ -14,7 +14,10 @@ body {
     background-color: #f9f9f9;
     padding: 20px;
     flex-direction: row;
+    position: relative; 
+    overflow: hidden;
 }
+
 
 .back-button {
     position: absolute;
@@ -47,10 +50,9 @@ body {
 
 .left p {
     font-size: 16px;
-    color: #2e7d32;
+    color: #004D40;
 }
 
-/* Gaya untuk container utama */
 .container {
     display: flex;
     justify-content: center;
@@ -62,7 +64,14 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 400px;
     width: 100%;
+    position: relative;  /* Tambahkan posisi relatif */
+    z-index: 10;         /* Pastikan container tetap berada di atas */
 }
+
+.swal2-container {
+    z-index: 9999 !important; /* Pastikan SweetAlert berada di atas elemen lain */
+}
+
 
 .right {
     text-align: center;
@@ -71,14 +80,14 @@ body {
 
 .right p {
     font-size: 16px;
-    color: #2e7d32;
+    color: #004D40;
 }
 
 #login-title {
     padding: 10px;
     font-size: 24px;
     font-weight: bold;
-    color: #2e7d32;
+    color: #004D40;
     margin-bottom: 5px;
 }
 
@@ -100,17 +109,17 @@ body {
 .login-button {
     width: 200px;
     padding: 10px;
-    border: 2px solid #2e7d32;
+    border: 2px solid #004D40;
     border-radius: 5px;
     background-color: #fff;
-    color: #2e7d32;
+    color: #004D40;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
 }
 
 .login-button:hover {
-    background-color: #2e7d32;
+    background-color: #004D40;
     color: #fff;
 }
 
@@ -134,7 +143,7 @@ body {
 }
 
 #login-form input:focus {
-    border: 2px solid #2e7d32; 
+    border: 2px solid #004D40; 
     box-shadow: 0 0 5px rgba(46, 125, 50, 0.8); 
     outline: none; 
 }
@@ -142,8 +151,8 @@ body {
 #login-form button {
     width: 100%;
     padding: 10px;
-    border: 2px solid #2e7d32;
-    background-color: #2e7d32;
+    border: 2px solid #004D40;
+    background-color: #004D40;
     color: #fff;
     font-size: 16px;
     cursor: pointer;
@@ -152,19 +161,19 @@ body {
 }
 
 #login-form button:hover {
-    background-color: #1b5e20;
+    background-color: #004D40;
 }
 
 #role-text {
     font-weight: bold; 
-    color: green;      
+    color: #004D40;      
 }
 
 #forgot-password {
     display: block;
     margin-top: 10px;
     font-size: 14px;
-    color: #2e7d32;
+    color: #004D40;
     text-decoration: none;
 }
 

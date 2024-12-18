@@ -15,7 +15,7 @@ header {
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #3CB371; 
+    background-color: #004D40; 
     padding: 20px 30px;
     display: flex;
     justify-content: space-between; 
@@ -24,19 +24,57 @@ header {
     z-index: 10; 
 }
 
-.profile {
+
+.profile-container {
     display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    gap: 0px;
+}
+
+.profile-picture {
+    width: 140px;  /* Ukuran bulatan */
+    height: 140px;
+    background-color: #004D40;  /* Warna latar belakang bulatan, bisa diganti */
+    border-radius: 50%;  /* Membuat bulat */
+    display: flex;
+    justify-content: center;
     align-items: center;
-    cursor: pointer;
+    color: white;  /* Warna teks */
+    font-size: 36px;  /* Ukuran huruf */
+    font-weight: bold;  /* Membuat huruf lebih tebal */
+    text-transform: uppercase;  
+    position: relative;  /* Pastikan posisi relatif untuk posisi absolut ikon di dalamnya */
 }
 
-.profile .material-icons,
-.profile .fas {
-    font-size: 24px;
-    margin-right: 8px;
-    color: #555;
+.profile-initial {
+    display: inline-block;
 }
 
+#camera-icon {
+    position: absolute;
+    bottom: 10px;  /* Menempatkan ikon sedikit di bawah */
+    right: 15px;   /* Menempatkan ikon sedikit ke kanan */
+    color: rgb(218, 218, 218);  /* Warna ikon */
+    font-size: 20px;  /* Ukuran ikon kamera */
+    cursor: pointer;  /* Menambahkan cursor pointer saat hover */
+}
+
+
+.profile-details {
+    display: flex;
+    flex-direction: column; 
+    gap: 10px;
+    width: 100%; 
+    max-width: 500px; 
+}
+
+.profile-divider {
+    width: 100%; 
+    height: 1px; 
+    background-color: #ccc; 
+    margin: 20px 0; 
+}
 
 header h1 {
     color: white;
@@ -73,7 +111,7 @@ header .profile .fas {
     margin: 0 0 20px 10px; 
     padding: 8px;
     background-color: #f9f9f9; 
-    border-left: 4px solid #3CB371; 
+    border-left: 4px solid #004D40; 
     font-family: 'Inter', sans-serif;
     font-size: 1rem;
     color: #444;
@@ -89,16 +127,16 @@ header .profile .fas {
 
 .welcome-message .employee-name {
     font-weight: 600;
-    color: #3CB371; 
+    color: #004D40; 
 }
 
 .sidebar {
     position: fixed;
-    top: 58px; 
+    top: 60px; 
     left: 0;
     width: 200px;
     height: calc(100% - 60px); 
-    background-color: #3CB371; 
+    background-color: #004D40; 
     padding-top: 10px;
     z-index: 5; /
 }
@@ -122,7 +160,7 @@ header .profile .fas {
 }
 
 .sidebar ul li a:hover {
-    background-color: #2E8B57;
+    background-color: #107b69;
 }
 
 .sidebar-settings {
@@ -155,44 +193,6 @@ main {
     margin: 20px 0;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.profile-container {
-    display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    gap: 20px;
-}
-
-.profile-picture {
-    position: relative;
-    display: inline-block;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #fff;
-}
-
-.profile-picture img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-details {
-    display: flex;
-    flex-direction: column; 
-    gap: 10px;
-    width: 100%; 
-    max-width: 500px; 
-}
-
-.profile-divider {
-    width: 100%; 
-    height: 1px; 
-    background-color: #ccc; 
-    margin: 20px 0; 
 }
 
 .camera-icon {
@@ -269,63 +269,22 @@ main {
     background-color: #f1f1f1;
 }
 
-@media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: static;
-    }
-
-    .main {
-        margin-left: 0;
-        padding: 10px;
-    }
-    
-    /* For small screens, we can hide sidebar and make it toggleable */
-    .sidebar ul {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .search-bar {
-        width: 100%;
-    }
-    
-    /* Modify table layouts for small devices */
-    table {
-        width: 100%;
-        overflow-x: auto;
-        display: block;
-    }
-    
-    /* Collapse some details for mobile */
-    .content-section {
-        padding: 10px;
-    }
+#add-student-btn{
+    background-color: #004D40;
 }
 
-@media (max-width: 480px) {
-    .profile {
-        text-align: center;
-    }
+#add-kelas-btn{
+    background-color: #004D40;
+}
 
-    .search-bar {
-        width: 100%;
-        font-size: 14px;
-    }
+#add-subject-btn{
+    background-color: #004D40;
+}
 
-    .search-icon {
-        font-size: 16px;
-    }
+#tambah-tahun-ajaran{
+    background-color: #004D40;
+}
 
-    .btn {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-    }
+#add-mading-btn{
+    background-color: #004D40;
 }

@@ -118,8 +118,9 @@ app.post('/api/login', async (req, res) => {
                 });
             } else if (login_sebagai === 'Siswa' && password === user[0].password) {
                 req.session.user = {
-                    id: user[0].id,
-                    name: user[0].name,
+                    id: user[0].id, // Pastikan nama kolom sesuai
+                    name: user[0].name, // Sesuaikan dengan kolom di tabel siswa
+                    role: 'Siswa', // Tambahkan role untuk siswa
                     login_sebagai: login_sebagai
                 };
                 console.log("Session after login (Siswa):", req.session.user);
@@ -128,9 +129,12 @@ app.post('/api/login', async (req, res) => {
                     user: {
                         id: user[0].id,
                         name: user[0].name,
+                        role: 'Siswa', // Tambahkan role untuk siswa
                         login_sebagai: login_sebagai
                     }
                 });
+            
+            
             } else {
                 res.status(401).json({ message: 'Password salah' });
             }
@@ -148,23 +152,32 @@ app.post('/login', (req, res) => {
     console.log("User Role from session:", userRole);
     if (userRole === 'Admin') {
         res.redirect('/dashboard-admin');
-    } else if (userRole === 'Pegawai') {
-        res.redirect('/dashboard');
+    } else if (userRole === 'Guru Mata Pelajaran') {
+        res.redirect('/dashboard-matpel');
+    } else if (userRole === 'Guru Wali Kelas') {
+        res.redirect('/dashboard-walikelas');
     } else {
-        res.redirect('/login');
+        res.redirect('/dashboard-siswa');
     }
 });
 
 
 app.get('/dashboard', (req, res) => {
     if (req.session.user) {
-        if (req.session.user.role === 'Admin') {
+        const { role } = req.session.user;
+        if (role === 'Admin') {
             res.redirect('/dashboard-admin');
+        } else if (role === 'Guru Mata Pelajaran') {
+            res.redirect('/dashboard-matpel');
+        } else if (role === 'Guru Wali Kelas') {
+            res.redirect('/dashboard-walikelas');
+        } else if (role === 'Siswa') {
+            res.redirect('/dashboard-siswa');
         } else {
-            res.send('Welcome to the User Dashboard');
+            res.redirect('/login'); // Jika role tidak dikenali
         }
     } else {
-        res.redirect('/login');
+        res.redirect('/login'); // Jika tidak ada sesi
     }
 });
 
@@ -172,6 +185,31 @@ app.get('/dashboard-admin', (req, res) => {
     if (req.session.user && req.session.user.role === 'Admin') {
         const profileImage = req.session.user.profile_image || '/images/profile/kepsek.png'; // Default image
         res.sendFile(path.join(__dirname, 'views', 'dashboard-admin.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
+app.get('/dashboard-matpel', (req, res) => {
+    if (req.session.user && req.session.user.role === 'Guru Mata Pelajaran') {
+        res.sendFile(path.join(__dirname, 'views', 'dashboard-matpel.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
+app.get('/dashboard-walikelas', (req, res) => {
+    if (req.session.user && req.session.user.role === 'Guru Wali Kelas') {
+        res.sendFile(path.join(__dirname, 'views', 'dashboard-walikelas.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
+
+app.get('/dashboard-siswa', (req, res) => {
+    if (req.session.user && req.session.user.role === 'Siswa') {
+        res.sendFile(path.join(__dirname, 'views', 'dashboard-siswa.html'));
     } else {
         res.redirect('/login');
     }
@@ -219,6 +257,8 @@ app.get('/api/pegawai', async (req, res) => {
 
 app.delete('/api/pegawai/:nip', async (req, res) => {
     const { nip } = req.params;
+    console.log(`Deleting pegawai with NIP: ${nip}`);  // Log NIP yang diterima
+
     try {
         const deleteQuery = 'DELETE FROM pegawai WHERE nip = ?';
         const [result] = await db.query(deleteQuery, [nip]);
@@ -233,6 +273,7 @@ app.delete('/api/pegawai/:nip', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
     }
 });
+
 
 
 app.post('/api/pegawai', (req, res, next) => {
@@ -944,8 +985,8 @@ app.get('/api/mata-pelajaran/:id', async (req, res) => {
 app.get('/api/mata-pelajaran', async (req, res) => {
     try {
         const filterTahunAjaran = req.query.tahun_ajaran || null;
+        const search = req.query.search ? `%${req.query.search.toLowerCase()}%` : null;
 
-        // Query dasar: ambil data mata pelajaran dan nama pegawai
         let query = `
             SELECT mp.id, mp.nama_mata_pelajaran, mp.nip, 
                    IFNULL(p.nama_pegawai, 'Nama Pegawai Tidak Ada') AS nama_pegawai
@@ -954,26 +995,26 @@ app.get('/api/mata-pelajaran', async (req, res) => {
         `;
 
         const params = [];
+        const conditions = [];
 
-        // Tambahkan filter hanya jika tahun ajaran disediakan
         if (filterTahunAjaran) {
-            query += ` WHERE mp.id_tahun_ajaran = ?`;
+            conditions.push(`mp.id_tahun_ajaran = ?`);
             params.push(filterTahunAjaran);
         }
 
-        // Eksekusi query
-        const [rows] = await db.query(query, params);
-
-        // Kirimkan hasil ke frontend
-        if (rows.length > 0) {
-            console.log('Data mata pelajaran yang dikirimkan:', rows);
-            res.json(rows);
-        } else {
-            console.log('Tidak ada data mata pelajaran yang ditemukan.');
-            res.json([]); // Kirim array kosong jika tidak ada data
+        if (search) {
+            conditions.push(`LOWER(mp.nama_mata_pelajaran) LIKE ? OR LOWER(mp.nip) LIKE ? OR mp.id = ?`);
+            params.push(search, search, parseInt(search) || 0);
         }
+
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+
+        const [rows] = await db.query(query, params);
+        res.json(rows);
     } catch (error) {
-        console.error('Terjadi kesalahan:', error);
+        console.error('Error:', error);
         res.status(500).json({ error: 'Terjadi kesalahan saat memproses data.' });
     }
 });

@@ -2,13 +2,9 @@ const pegawaiTbody = document.getElementById('pegawai-tbody');
 
 async function getDataPegawai() {
     try {
-        // Bersihkan tabel sebelum menambahkan data baru
         pegawaiTbody.innerHTML = '';
-
         const response = await fetch('/api/pegawai');
         const pegawaiData = await response.json();
-
-        // Tambahkan data pegawai ke dalam tabel
         pegawaiData.forEach(pegawai => {
             const row = document.createElement('tr');
             const tanggalLahir = formatDate(pegawai.tanggal_lahir);
@@ -199,6 +195,7 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
                         title: 'Berhasil!',
                         text: 'Data pegawai berhasil ditambahkan.',
                         icon: 'success',
+                       confirmButtonColor: '#004D40'
                     });
 
                     pegawaiTbody.innerHTML = '';
@@ -220,6 +217,7 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
             }
         }
     });
+    
 });
 
 
@@ -230,7 +228,7 @@ async function deletePegawai(nip) {
         text: `Pegawai dengan NIP ${nip} akan dihapus dari sistem.`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3CB371', // Warna tombol konfirmasi
+        confirmButtonColor: '#004D40',
         cancelButtonColor: '#d33',    // Warna tombol batal (merah)
         confirmButtonText: 'Ya, Hapus',
         cancelButtonText: 'Batal',
@@ -248,7 +246,7 @@ async function deletePegawai(nip) {
                     title: 'Berhasil!',
                     text: 'Data pegawai berhasil dihapus.',
                     icon: 'success',
-                    confirmButtonColor: '#3CB371', // Warna tombol sukses
+                    confirmButtonColor: '#004D40'
                 });
 
                 // Hapus baris dari tabel
@@ -394,7 +392,12 @@ async function editPegawai(nip) {
             });
 
             // Beri feedback bahwa data berhasil diperbarui
-            Swal.fire('Data berhasil diperbarui', '', 'success');
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Data pegawai berhasil dihapus.',
+                icon: 'success',
+                confirmButtonColor: '#004D40'
+            });
             getDataPegawai();
         }
     } catch (error) {
@@ -436,11 +439,11 @@ document.addEventListener('click', async function (event) {
                     <p><strong>Jenjang Pendidikan:</strong> ${pegawai.jenjang_pendidikan || 'Tidak tersedia'}</p>
                     <p><strong>Jurusan:</strong> ${pegawai.jurusan || 'Tidak tersedia'}</p>
                     <p><strong>Tanggal Mulai Tugas:</strong> ${formatTanggal(pegawai.tanggal_mulai_tugas)}</p>
-                    <p><strong>Role:</strong> ${Array.isArray(pegawai.roles) ? pegawai.roles.join(', ') : ' tersedia'}</p>
             `,
                 icon: 'info',
                 confirmButtonText: 'Tutup',
-                confirmButtonColor: '#3CB371'
+                confirmButtonColor: '#004D40'
+
             });
             
         } catch (error) {
