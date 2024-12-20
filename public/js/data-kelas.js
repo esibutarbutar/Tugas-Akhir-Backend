@@ -284,7 +284,7 @@ function editKelas(id) {
                     }).join('');
 
                     const tahunAjaranOptions = tahunAjaranData.map(tahun => {
-                        return `<option value="${tahun.id}" ${tahun.id === kelasData.tahun_ajaran_id ? 'selected' : ''}>${tahun.nama_tahun_ajaran}</option>`;
+                        return `<option value="${tahun.id}" ${tahun.id === kelasData.tahun_ajaran_id ? 'selected' : ''}>${tahun.nama_tahun_ajaran} ${tahun.semester}</option>`;
                     }).join('');
 
                     const tingkatanOptions = ["VII", "VIII", "IX"].map(tingkatan => {

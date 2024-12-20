@@ -1,0 +1,40 @@
+/* Menata wrapper filter kelas */
+.filter-wrapper-kelas {
+    display: flex;
+    flex-direction: column; /* Menyusun elemen dalam kolom */
+    gap: 10px; /* Memberikan jarak antar elemen di dalam wrapper */
+    margin-bottom: 20px; /* Menambahkan jarak bawah untuk memberikan ruang */
+    max-width: 300px; /* Membatasi lebar maksimal wrapper */
+}
+
+/* Menata label filter kelas */
+.filter-wrapper-kelas label {
+    font-size: 16px; /* Ukuran font pada label */
+    font-weight: bold; /* Membuat label lebih tebal */
+    color: #333; /* Warna teks label */
+    margin-bottom: 5px; /* Memberikan jarak antara label dan dropdown */
+}
+
+/* Menata elemen select (dropdown) */
+.filter-wrapper-kelas select {
+    padding: 8px 12px; /* Memberikan ruang dalam dropdown */
+    font-size: 14px; /* Ukuran font pada select */
+    border: 1px solid #ccc; /* Border tipis dengan warna abu-abu */
+    border-radius: 5px; /* Membulatkan sudut dropdown */
+    outline: none; /* Menghapus outline default ketika elemen dipilih */
+    background-color: #f9f9f9; /* Warna latar belakang select */
+    transition: border-color 0.3s ease; /* Transisi saat border berubah */
+}
+
+/* Efek saat select fokus */
+.filter-wrapper-kelas select:focus {
+    border-color: #5b9bd5; /* Ubah border menjadi biru saat fokus */
+    background-color: #e0f1ff; /* Ubah latar belakang menjadi biru muda saat fokus */
+}
+
+/* Menambah responsif untuk layar kecil */
+@media (max-width: 600px) {
+    .filter-wrapper-kelas {
+        max-width: 100%; /* Pastikan wrapper mengambil lebar penuh pada layar kecil */
+    }
+}

@@ -1165,6 +1165,28 @@ app.delete('/api/mading/:id', async (req, res) => {
     }
 });
 
+app.get('/api/siswa/kelas/:kelasId', async (req, res) => {
+    try {
+        const { kelasId } = req.params; // Ambil kelasId dari URL
+
+        if (!kelasId) {
+            return res.status(400).json({ message: 'Parameter kelas diperlukan.' });
+        }
+
+        // Query untuk mencari siswa berdasarkan kelas
+        const query = 'SELECT * FROM siswa WHERE id_kelas = ?';
+        const [rows] = await db.query(query, [kelasId]); // Gunakan kelasId yang diambil dari URL
+
+        if (rows.length > 0) {
+            res.status(200).json(rows); // Kirim data siswa jika ditemukan
+        } else {
+            res.status(404).json(`{ message: Tidak ada data siswa ditemukan untuk kelas ${kelasId}. }`);
+        }
+    } catch (error) {
+        console.error('Error mengambil data siswa berdasarkan kelas:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
