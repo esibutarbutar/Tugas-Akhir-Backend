@@ -1188,6 +1188,51 @@ app.get('/api/siswa/kelas/:kelasId', async (req, res) => {
     }
 });
 
+app.get('/api/kelas-by-tahun-ajaran', async (req, res) => {
+    const { tahun_ajaran_id } = req.query;
+    try {
+        let query = 'SELECT * FROM kelas';
+        const params = [];
+        if (tahun_ajaran_id) {
+            query += ' WHERE id_tahun_ajaran = ?';
+            params.push(tahun_ajaran_id);
+        }
+        const [rows] = await db.query(query, params);
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error mengambil data kelas berdasarkan tahun ajaran:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+// Endpoint untuk mengambil data mata pelajaran berdasarkan tahun ajaran
+app.get('/api/data-mapel', async (req, res) => {
+    const { tahun_ajaran_id } = req.query;
+
+    try {
+        let query = 'SELECT * FROM mata_pelajaran';
+        const params = [];
+
+        // Jika tahun ajaran dipilih, tambahkan kondisi WHERE
+        if (tahun_ajaran_id) {
+            query += ' WHERE id_tahun_ajaran = ?';
+            params.push(tahun_ajaran_id);
+        }
+
+        const [rows] = await db.query(query, params);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Mata pelajaran tidak ditemukan.' });
+        }
+
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error saat mengambil data mata pelajaran:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });
