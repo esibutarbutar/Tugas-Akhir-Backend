@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guru Wali Kelas</title>
+    <title>Guru Matpel</title>
 </head>
 <body>
     <!DOCTYPE html>
@@ -14,12 +14,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <title>Admin Dashboard</title>
+    <title>Guru Wali Kelas</title>
     <link rel="stylesheet" href="/css/dashboard-admin.css">
     <link rel="stylesheet" href="/css/data-pegawai.css">
     <link rel="stylesheet" href="/css/mading.css">
     <link rel="stylesheet" href="/css/mata-pelajaran.css">
     <link rel="stylesheet" href="/css/kelas.css">
+    <link rel="stylesheet" href="/css/dataNilai.css">
+
 
 
     <!-- SweetAlert2 CSS -->
@@ -31,7 +33,7 @@
 
 <body>
     <header>
-        <h1>Wali Kelas</h1>
+        <h1>Guru Wali Kelas</h1>
         <div class="profile">
             <i class="fas fa-user-circle" id="profile-icon"></i>  <!-- ID untuk ikon -->
             <span id="employee-name-header" class="employee-name">Tamu</span>
@@ -41,18 +43,17 @@
     <div class="dashboard">
         <aside class="sidebar">
             <ul>
-                <li><a href="#" data-target="admin-profile">Profil</a></li>
-                <li><a href="#" data-target="data-nilai">Persetujuan Nilai</a></li>
-                <li><a href="#" data-target="absensi-siswa">Absensi Siswa</a></li>
+                <li><a href="#" data-target="guru-matpel-profile">Profil</a></li>
+                <li><a href="#" data-target="persetujuan-nilai">Data Nilai Siswa</a></li>
+                <li><a href="#" data-target="absensi-siswa">Data Absen Siswa</a></li>
 
             </ul>
-            
-                    </aside>
+                </aside>
         <main>
             <div class="welcome-message">
                 <h2>Selamat Datang, <span id="employee-name-message" class="employee-name">Tamu</span></h2>
             </div>
-            <section id="admin-profile" class="content-section hidden">
+            <section id="guru-matpel-profile" class="content-section hidden">
                 <div class="profile-container">
                     <div class="profile-picture">
                         <!-- Menampilkan huruf pertama dari nama pengguna -->
@@ -93,37 +94,53 @@
                     </div>
                 </div>
             </section>
-            <section id="data-pegawai" class="content-section hidden">
-                <h2>Data Pegawai</h2>
+            <section id="data-nilai-siswa" class="content-section hidden">
+                <h2>Data Nilai Siswa</h2>
+                <div class="filter-wrapper">
+                    <select id="tahun-ajaran-filter">
+                        <option value="">Pilih Tahun Ajaran</option>
+                    </select>
+                </div>
+                <div class="filter-wrapper">
+                    <select id="kelas-filter">
+                        <option value="">Pilih Kelas</option>
+                    </select>
+                </div>
+                <div class="filter-wrapper">
+                    <select id="mapel-filter">
+                        <option value="">Pilih Mata Pelajaran</option>
+                    </select>
+                </div>
                 <div class="search-add-container">
                     <div class="search-wrapper">
-                        <input type="text" id="search-input" placeholder="Cari pegawai..." class="search-bar">
+                        <input type="text" id="search-student-input" placeholder="Cari siswa..." class="search-bar">
                         <i class="fas fa-search search-icon"></i> <!-- Ikon Search -->
                     </div>
-                    <button id="add-data-btn" class="add-btn-pegawai"> Tambah Data</button>
                 </div>
                 <table border="1">
                     <thead>
                         <tr>
-                            <th>NIP</th>
+                            <th>NISN</th>
                             <th>Nama</th>
-                            <th>Tempat Lahir</th>
-                            <th>Tanggal Lahir</th>
-                            <th>Jenjang Pendidikan</th>
-                            <th>Jurusan</th>
-                            <th>Detail</th>
+                            <th>UTS</th>
+                            <th>UAS</th>
+                            <th>Tugas</th>
+                            <th>Nilai Final</th>
                             <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
                         </tr>
                     </thead>
-                    <tbody id="pegawai-tbody">                       
+                    <tbody id="siswa-tbody">
+                        <!-- Data Siswa akan diisi dengan JavaScript -->
                     </tbody>
                 </table>
             </section>
-            
            
         </main>
     </div>
-    <script src="/js/dashboard-admin.js"></script>
+    <script src="/js/dashboardWaliKelas.js"></script>
+    <script src="/js/persetujuanNilai.js"></script>
+
+
 </body>
 
 </html>
