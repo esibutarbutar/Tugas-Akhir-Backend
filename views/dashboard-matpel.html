@@ -109,6 +109,15 @@
                         <option value="">Pilih Mata Pelajaran</option>
                     </select>
                 </div>
+                <div class="filter-wrapper">
+                    <select id="jenis-nilai-filter" disabled>
+                        <option value="">Pilih Jenis Nilai</option>
+                        <option value="uts">UTS</option>
+                        <option value="uas">UAS</option>
+                        <option value="tugas">Tugas</option>
+                        <option value="nilai-Akhir">Nilai Akhir</option>
+                    </select>
+                </div>                             
                 <div class="search-add-container">
                     <div class="search-wrapper">
                         <input type="text" id="search-student-input" placeholder="Cari siswa..." class="search-bar">
@@ -116,15 +125,11 @@
                     </div>
                 </div>
                 <table border="1">
+                    <caption id="button-container" style="text-align: right;"></caption>
                     <thead>
                         <tr>
                             <th>NISN</th>
                             <th>Nama</th>
-                            <th>UTS</th>
-                            <th>UAS</th>
-                            <th>Tugas</th>
-                            <th>Nilai Final</th>
-                            <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
                         </tr>
                     </thead>
                     <tbody id="siswa-tbody">

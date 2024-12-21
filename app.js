@@ -1233,6 +1233,27 @@ app.get('/api/data-mapel', async (req, res) => {
 });
 
 
+app.post('/update-nilai', async (req, res) => {
+    const { nilaiData, jenisNilai, tahunAjaranId, kelasId, mapelId } = req.body;
+
+    if (!nilaiData || !jenisNilai || !tahunAjaranId || !kelasId || !mapelId) {
+        return res.status(400).json({ message: 'Data yang diperlukan tidak lengkap' });
+    }
+
+    try {
+        // Simpan nilai ke database
+        for (const nisn in nilaiData) {
+            const nilai = nilaiData[nisn];
+            await db.query('INSERT INTO nilai_siswa (nisn, nilai, jenis_nilai, tahun_ajaran_id, kelas_id, mapel_id) VALUES (?, ?, ?, ?, ?, ?)', 
+                [nisn, nilai, jenisNilai, tahunAjaranId, kelasId, mapelId]);
+        }
+
+        res.status(200).json({ message: 'Nilai berhasil diperbarui' });
+    } catch (error) {
+        console.error('Terjadi kesalahan saat menyimpan nilai:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan nilai' });
+    }
+});
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });

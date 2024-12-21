@@ -45,3 +45,48 @@ label {
     margin-bottom: 5px;
 }
 
+#jenis-nilai-filter {
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 200px;
+    transition: all 0.3s ease;
+}
+
+/* Gaya hover pada select */
+#jenis-nilai-filter:hover {
+    border-color: #007bff;
+    background-color: #e9f7ff;
+}
+
+/* Gaya ketika select dalam fokus */
+#jenis-nilai-filter:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #fff;
+}
+
+#button-container button {
+    background-color: transparent;
+    color: #004D40;
+    border: 2px solid #004D40;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#button-container button:hover {
+    background-color: #004D40;
+    color: white;
+}
+
+#button-container {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
