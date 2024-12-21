@@ -137,20 +137,19 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchSiswaData(); // Muat semua siswa secara default
     loadMapelFilter(); // Memuat filter mata pelajaran (dengan default kosong dan nonaktif)
 });
-document.getElementById('search-student-input').addEventListener('input', function() {
-    const searchQuery = this.value.toLowerCase(); // Ambil input pencarian dan ubah ke lowercase
-    filterSiswa(searchQuery); // Panggil fungsi filter siswa
-});
+
 
 // Event listener untuk filter Mata Pelajaran
 document.getElementById('mapel-filter').addEventListener('change', function () {
     const jenisNilaiFilter = document.getElementById('jenis-nilai-filter');
+    console.log("Mapel Filter Value:", this.value); // Debugging
     if (this.value) {
         jenisNilaiFilter.disabled = false; // Aktifkan filter Jenis Nilai
     } else {
         jenisNilaiFilter.disabled = true; // Nonaktifkan filter Jenis Nilai jika Mata Pelajaran tidak dipilih
     }
 });
+;
 
 document.getElementById('jenis-nilai-filter').addEventListener('change', function () {
     const jenisNilai = this.value; // Ambil nilai yang dipilih
@@ -210,6 +209,29 @@ document.getElementById('jenis-nilai-filter').addEventListener('change', functio
             }
         });
 
+        fetch(`/api/get-nilai?jenisNilai=${jenisNilai}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Data yang diterima:', data);
+            if (data && data.nilai) {
+                data.nilai.forEach(nilai => {
+                    const row = siswaTbody.querySelector(`tr[data-nisn="${nilai.nisn}"]`);
+                    if (row) {
+                        const cell = row.querySelector(`.column-${jenisNilai}`);
+                        if (cell) {
+                            if (!cell.textContent) { // Cegah input ulang jika cell sudah terisi
+                                cell.textContent = nilai.nilai;
+                            }
+                        }
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Gagal mengambil data nilai:', error);
+        });
+    
+
         // Event listener untuk tombol input nilai
         inputButton.addEventListener('click', function() {
             // Ambil data siswa dari tabel
@@ -249,25 +271,16 @@ document.getElementById('jenis-nilai-filter').addEventListener('change', functio
                         cancelButtonText: 'Batal'
                     }).then((publishResult) => {
                         if (publishResult.isConfirmed) {
-                            // Mengambil nilai yang dimasukkan
-                            const inputValues = {};
-                            siswaData.forEach(siswa => {
-                                const nilai = document.getElementById(`nilai-${siswa.nisn}`).value;
-                                if (nilai) {
-                                    inputValues[siswa.nisn] = nilai;
-                                }
-                            });
-                            
-                            // Kirim nilai ke server dan update dashboard
+                            // Update nilai di tabel utama
                             updateDashboardWithValues(inputValues, jenisNilai);
                         }
                     });
-                    
                 }
             });
         });
     }
 });
+
 
 // Fungsi untuk menghasilkan HTML tabel siswa dengan kolom jenis nilai
 function generateSiswaTable(data, jenisNilai) {
@@ -360,9 +373,14 @@ function updateDashboardWithValues(inputValues, jenisNilai) {
     });
 }
 
-// Event listener untuk tombol Publish
-document.getElementById('publish-button').addEventListener('click', () => {
-    const inputValues = {}; // Ambil nilai yang diinputkan
-    // Misalnya, inputValues berisi data nilai siswa berdasarkan NISN
-    updateDashboardWithValues(inputValues, 'uts'); // Gantilah 'uts' dengan jenis nilai yang sesuai
+document.addEventListener('DOMContentLoaded', () => {
+    const jenisNilai = document.getElementById('jenis-nilai-filter').value;
+    if (jenisNilai) {
+        fetch(`/api/get-nilai?jenisNilai=${jenisNilai}`)
+            .then(response => response.json())
+            .then(data => {
+                // Masukkan logika untuk menampilkan data nilai di tabel
+            })
+            .catch(error => console.error('Gagal memuat data:', error));
+    }
 });

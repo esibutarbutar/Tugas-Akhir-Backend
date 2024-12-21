@@ -1233,27 +1233,87 @@ app.get('/api/data-mapel', async (req, res) => {
 });
 
 
-app.post('/update-nilai', async (req, res) => {
+app.post('/api/update-nilai', async (req, res) => {
     const { nilaiData, jenisNilai, tahunAjaranId, kelasId, mapelId } = req.body;
 
-    if (!nilaiData || !jenisNilai || !tahunAjaranId || !kelasId || !mapelId) {
-        return res.status(400).json({ message: 'Data yang diperlukan tidak lengkap' });
+    // Ambil nip dari session
+    const nip = req.session.user?.id; // Atau ambil dari JWT jika menggunakan token
+
+    if (!nip) {
+        return res.status(401).json({ message: 'User tidak terautentikasi.' });
     }
 
+    // Validasi input
+    if (!nilaiData || !jenisNilai || !tahunAjaranId || !kelasId || !mapelId || !nip) {
+        return res.status(400).json({ message: 'Data tidak lengkap.' });
+    }
+
+    const valuesToInsert = [];
     try {
-        // Simpan nilai ke database
+        // Proses untuk memasukkan nilai
         for (const nisn in nilaiData) {
-            const nilai = nilaiData[nisn];
-            await db.query('INSERT INTO nilai_siswa (nisn, nilai, jenis_nilai, tahun_ajaran_id, kelas_id, mapel_id) VALUES (?, ?, ?, ?, ?, ?)', 
-                [nisn, nilai, jenisNilai, tahunAjaranId, kelasId, mapelId]);
+            const grade = nilaiData[nisn];
+            const query = `
+                INSERT INTO grades (gradesType, grade, id_tahun_ajaran, nip, id_kelas, id_matpel, nisn) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+            valuesToInsert.push([jenisNilai, grade, tahunAjaranId, nip, kelasId, mapelId, nisn]);
         }
 
-        res.status(200).json({ message: 'Nilai berhasil diperbarui' });
-    } catch (error) {
-        console.error('Terjadi kesalahan saat menyimpan nilai:', error);
-        res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan nilai' });
+        // Eksekusi query insert untuk semua data nilai
+        const [result] = await db.query(
+            'INSERT INTO grades (gradesType, grade, id_tahun_ajaran, nip, id_kelas, id_matpel, nisn) VALUES ?',
+            [valuesToInsert]
+        );
+
+        res.status(200).json({ message: 'Nilai berhasil diperbarui.', result });
+    } catch (err) {
+        console.error('Error inserting grades:', err);
+        res.status(500).json({ message: 'Gagal memperbarui nilai.' });
     }
 });
+
+// Get all mading
+app.get('/api/getNilai', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM grades'; // Pastikan tabel 'siswa' ada
+        const [rows] = await db.query(query);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Tidak ada data siswa ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data siswa:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+app.get('/api/get-nilai', async (req, res) => {
+    console.log('GET /api/get-nilai dipanggil');
+    const jenisNilai = req.query.jenisNilai; // Mengambil jenisNilai dari query string
+    
+    if (!jenisNilai) {
+        return res.status(400).json({ message: 'Jenis nilai tidak diberikan' });
+    }
+    
+    try {
+        const query = 'SELECT * FROM grades WHERE gradesType = ?'; // Menyesuaikan query
+        const [rows] = await db.query(query, [jenisNilai]);
+
+        if (rows.length > 0) {
+            res.status(200).json(rows);
+        } else {
+            res.status(404).json({ message: 'Tidak ada data nilai ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data nilai:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
+
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });
