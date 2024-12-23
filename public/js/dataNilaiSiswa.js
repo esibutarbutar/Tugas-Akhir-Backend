@@ -14,9 +14,6 @@ async function fetchSiswaData(kelas = '') {
         alert('Terjadi kesalahan saat memuat data siswa.');
     }
 }
-// Fungsi untuk menampilkan tabel siswa
-
-// Fungsi untuk menampilkan tabel siswa
 function renderSiswaTable(data) {
     const siswaTbody = document.getElementById("siswa-tbody");
     siswaTbody.innerHTML = "";
@@ -80,7 +77,7 @@ function loadKelasFilter(tahunAjaranId = '') {
 // Memuat data mata pelajaran berdasarkan tahun ajaran
 async function loadMapelFilter(tahunAjaranId = '') {
     const filterSelect = document.getElementById('mapel-filter');
-    
+
     // Kosongkan dropdown mata pelajaran
     filterSelect.innerHTML = '<option value="">Pilih Mata Pelajaran</option>';
 
@@ -131,13 +128,6 @@ document.getElementById('kelas-filter').addEventListener('change', function () {
     fetchSiswaData(selectedKelas); // Memuat data siswa berdasarkan kelas yang dipilih
 });
 
-// Memuat data saat halaman dimuat
-document.addEventListener('DOMContentLoaded', () => {
-    loadTahunAjaranFilter(); // Muat opsi filter tahun ajaran
-    fetchSiswaData(); // Muat semua siswa secara default
-    loadMapelFilter(); // Memuat filter mata pelajaran (dengan default kosong dan nonaktif)
-});
-
 
 // Event listener untuk filter Mata Pelajaran
 document.getElementById('mapel-filter').addEventListener('change', function () {
@@ -149,48 +139,40 @@ document.getElementById('mapel-filter').addEventListener('change', function () {
         jenisNilaiFilter.disabled = true; // Nonaktifkan filter Jenis Nilai jika Mata Pelajaran tidak dipilih
     }
 });
-;
 
 document.getElementById('jenis-nilai-filter').addEventListener('change', function () {
-    const jenisNilai = this.value; // Ambil nilai yang dipilih
+    const jenisNilai = this.value; // Ambil nilai yang dipilih dari dropdown filter
     const siswaTbody = document.getElementById('siswa-tbody');
-    const buttonContainer = document.getElementById('button-container');
-    
+    let simpanButtonContainer = document.getElementById('simpan-button-container'); // Kontainer untuk tombol simpan
+
     // Pastikan ada jenis nilai yang dipilih
     if (jenisNilai) {
-        // Tambahkan tombol ke dalam caption
-        buttonContainer.innerHTML = ''; // Hapus tombol lama
-        const inputButton = document.createElement('button');
-        inputButton.textContent = 'Input Nilai ' + jenisNilai;
-        inputButton.className = 'btn btn-primary';
-        buttonContainer.appendChild(inputButton);
-        
-        // Tambahkan kolom ke header tabel jika belum ada
+        // Tambahkan kolom header untuk jenis nilai yang dipilih
         const tableHeader = document.querySelector('table thead tr');
         const existingHeader = document.getElementById(`header-${jenisNilai}`);
         
-        // Sembunyikan kolom jenis nilai sebelumnya jika ada
+        // Hapus semua header lainnya yang tidak sesuai dengan jenis nilai
         const previousHeaders = tableHeader.querySelectorAll('th');
         previousHeaders.forEach(header => {
             if (header.id && header.id !== `header-${jenisNilai}`) {
-                header.style.display = 'none'; // Sembunyikan header sebelumnya
+                header.style.display = 'none'; // Sembunyikan header yang tidak dipilih
             }
         });
-        
-        // Tampilkan header untuk jenis nilai baru
+
+        // Jika header jenis nilai baru belum ada, buat dan tambahkan ke header
         if (!existingHeader) {
             const newHeader = document.createElement('th');
             newHeader.id = `header-${jenisNilai}`;
             newHeader.textContent = `${jenisNilai.toUpperCase()}`;
             tableHeader.appendChild(newHeader);
         }
-        
-        // Tambahkan kolom kosong ke setiap baris siswa jika belum ada
+
+        // Loop melalui setiap baris siswa untuk memeriksa dan menampilkan nilai
         const rows = siswaTbody.querySelectorAll('tr');
         rows.forEach(row => {
             const existingCell = row.querySelector(`.column-${jenisNilai}`);
             
-            // Sembunyikan kolom nilai yang lama jika ada
+            // Sembunyikan kolom yang tidak sesuai dengan jenis nilai yang dipilih
             const previousCells = row.querySelectorAll('td');
             previousCells.forEach(cell => {
                 if (cell.classList.contains('column-uts') && jenisNilai !== 'uts') {
@@ -201,186 +183,126 @@ document.getElementById('jenis-nilai-filter').addEventListener('change', functio
                 }
             });
 
-            // Tampilkan kolom untuk jenis nilai yang baru
+            // Jika cell untuk jenis nilai ini belum ada, buat dan tambahkannya
             if (!existingCell) {
                 const newCell = document.createElement('td');
                 newCell.className = `column-${jenisNilai}`;
-                row.appendChild(newCell);
+
+                // Ambil NISN dari baris untuk digunakan dalam API call
+                const tahunAjaran = document.getElementById('tahun-ajaran-filter').value;
+                const kelas = document.getElementById('kelas-filter').value;
+                const mapel = document.getElementById('mapel-filter').value;
+                const nisn = row.querySelector('td').textContent.trim(); // Ambil NISN
+                
+                // Pastikan nilai tahunAjaran dan lainnya sudah ada sebelum digunakan
+                if (!tahunAjaran || !kelas || !mapel || !nisn) {
+                    console.error('Parameter tidak lengkap');
+                    return;
+                }
+                // Ambil nilai dari database
+                fetch(`/api/get-nilai/${nisn}?jenisNilai=${jenisNilai}&tahunAjaran=${tahunAjaran}&kelas=${kelas}&mapel=${mapel}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Data dari API:", data); // Untuk memeriksa semua data yang diterima
+                    const siswaData = data.find(siswa => siswa.nisn === nisn); // Mencocokkan data berdasarkan nisn
+                    if (siswaData && siswaData.nilai !== undefined) { // Jika nilai ditemukan
+                        newCell.textContent = siswaData.nilai; // Menampilkan nilai
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.className = `input-${jenisNilai}`;
+                        input.placeholder = `Input ${jenisNilai}`;
+                        newCell.appendChild(input);
+                    }
+                    row.appendChild(newCell); // Menambahkan cell ke dalam baris
+                })
+                .catch(error => {
+                    console.error('Gagal mengambil data nilai:', error);
+                });
+            
+
+            
             }
         });
 
-        fetch(`/api/get-nilai?jenisNilai=${jenisNilai}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log('Data yang diterima:', data);
-            if (data && data.nilai) {
-                data.nilai.forEach(nilai => {
-                    const row = siswaTbody.querySelector(`tr[data-nisn="${nilai.nisn}"]`);
-                    if (row) {
-                        const cell = row.querySelector(`.column-${jenisNilai}`);
-                        if (cell) {
-                            if (!cell.textContent) { // Cegah input ulang jika cell sudah terisi
-                                cell.textContent = nilai.nilai;
+        // Cek apakah tombol "Simpan Nilai" sudah ada
+        if (!simpanButtonContainer) {
+            simpanButtonContainer = document.createElement('div');
+            simpanButtonContainer.id = 'simpan-button-container';
+            simpanButtonContainer.style.marginTop = '20px';
+
+            const simpanButton = document.createElement('button');
+            simpanButton.textContent = 'Simpan Nilai';
+            simpanButton.className = 'btn-simpan';
+            simpanButton.addEventListener('click', function () {
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: 'Apakah Anda yakin ingin menyimpan nilai?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, simpan',
+                    confirmButtonColor : '#004D40',
+                    cancelButtonText: 'Batal'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        const rows = siswaTbody.querySelectorAll('tr');
+                        rows.forEach(row => {
+                            const input = row.querySelector(`.input-${jenisNilai}`);
+                            if (input && input.value) {
+                                const nilaiInput = input.value;
+                                const nisn = row.querySelector('td').textContent.trim();
+                                fetch(`/api/update-nilai`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        gradestype: jenisNilai,
+                                        grade: nilaiInput,
+                                        id_tahun_ajaran: document.getElementById('tahun-ajaran-filter').value,
+                                        id_kelas: document.getElementById('kelas-filter').value,
+                                        id_matpel: document.getElementById('mapel-filter').value,
+                                        nisn: nisn
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('Data berhasil disimpan:', data);
+                                    const cell = row.querySelector(`.column-${jenisNilai}`);
+                                    cell.textContent = nilaiInput; // Update nilai di tabel
+                                    input.disabled = true;
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil!',
+                                        text: `Nilai ${jenisNilai.toUpperCase()} telah berhasil disimpan.`,
+                                        confirmButtonText: 'OK',
+                                        confirmButtonColor : '#004D40'
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Gagal menyimpan data nilai:', error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal!',
+                                        text: 'Terjadi kesalahan saat menyimpan nilai.',
+                                        confirmButtonText: 'OK'
+                                    });
+                                });
                             }
-                        }
+                        });
                     }
                 });
-            }
-        })
-        .catch(error => {
-            console.error('Gagal mengambil data nilai:', error);
-        });
-    
-
-        // Event listener untuk tombol input nilai
-        inputButton.addEventListener('click', function() {
-            // Ambil data siswa dari tabel
-            const siswaData = [];
-            const rows = siswaTbody.querySelectorAll('tr');
-            rows.forEach(row => {
-                const nisn = row.querySelector('td').textContent;
-                const namaSiswa = row.querySelectorAll('td')[1].textContent;
-                siswaData.push({ nisn, nama_siswa: namaSiswa });
             });
 
-            // Tampilkan SweetAlert dengan data siswa dan jenis nilai
-            Swal.fire({
-                title: 'Input Nilai untuk ' + jenisNilai,
-                html: generateSiswaTable(siswaData, jenisNilai),
-                showCancelButton: true,
-                confirmButtonText: 'Simpan',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Ambil nilai yang dimasukkan pada input SweetAlert
-                    const inputValues = {};
-                    siswaData.forEach(siswa => {
-                        const nilai = document.getElementById(`nilai-${siswa.nisn}`).value;
-                        if (nilai) {
-                            inputValues[siswa.nisn] = nilai;
-                        }
-                    });
-
-                    // Tampilkan konfirmasi publish
-                    Swal.fire({
-                        title: 'Konfirmasi Publish Nilai',
-                        text: 'Apakah Anda yakin ingin mempublikasikan nilai-nilai ini ke dashboard?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Publish',
-                        cancelButtonText: 'Batal'
-                    }).then((publishResult) => {
-                        if (publishResult.isConfirmed) {
-                            // Update nilai di tabel utama
-                            updateDashboardWithValues(inputValues, jenisNilai);
-                        }
-                    });
-                }
-            });
-        });
+            simpanButtonContainer.appendChild(simpanButton);
+            const tableContainer = document.querySelector('table');
+            tableContainer.insertAdjacentElement('afterend', simpanButtonContainer);
+        }
     }
 });
-
-
-// Fungsi untuk menghasilkan HTML tabel siswa dengan kolom jenis nilai
-function generateSiswaTable(data, jenisNilai) {
-    let tableHTML = `
-     <style>
-            .swal2-popup input[type="text"] {
-                width: 100%;
-                padding: 10px;
-                font-size: 14px;
-                border-radius: 5px;
-                border: 1px solid #ddd;
-                margin-top: 5px;
-                box-sizing: border-box;
-            }
-
-            .swal2-popup input[type="text"]:focus {
-                border-color: #4CAF50;
-                outline: none;
-            }
-
-            .swal2-popup input[type="text"]::placeholder {
-                color: #999;
-            }
-        </style>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>NO</th>
-                    <th>NISN</th>
-                    <th>Nama Siswa</th>
-                    <th>${jenisNilai.toUpperCase()}</th> <!-- Kolom untuk jenis nilai -->
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    data.forEach((siswa, index) => {
-        tableHTML += `
-            <tr>
-                <td>${index + 1}</td> <!-- Menampilkan nomor urut -->
-                <td>${siswa.nisn}</td>
-                <td>${siswa.nama_siswa}</td>
-                <td><input type="text" id="nilai-${siswa.nisn}" placeholder="Masukkan nilai"></td>
-            </tr>
-        `;
-    });
-
-    tableHTML += '</tbody></table>';
-    return tableHTML;
-}
-
-function updateDashboardWithValues(inputValues, jenisNilai) {
-    const siswaTbody = document.getElementById('siswa-tbody');
-    const rows = siswaTbody.querySelectorAll('tr');
-
-    // Update nilai di tabel dashboard
-    rows.forEach(row => {
-        const nisn = row.querySelector('td').textContent;
-        const nilai = inputValues[nisn];
-        
-        if (nilai) {
-            const cell = row.querySelector(`.column-${jenisNilai}`);
-            cell.textContent = nilai; // Masukkan nilai ke kolom yang sesuai
-        }
-    });
-
-    // Kirim data nilai ke server menggunakan fetch
-    fetch('/api/update-nilai', { // Sesuaikan URL endpoint dengan server Anda
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            nilaiData: inputValues,
-            jenisNilai: jenisNilai,
-            tahunAjaranId: document.getElementById('tahun-ajaran-filter').value, 
-            kelasId: document.getElementById('kelas-filter').value,
-            mapelId: document.getElementById('mapel-filter').value
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            Swal.fire('Sukses', data.message, 'success');
-        }
-    })
-    .catch(error => {
-        console.error('Gagal mengirim data nilai:', error);
-        Swal.fire('Gagal', 'Terjadi kesalahan saat menyimpan nilai.', 'error');
-    });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    const jenisNilai = document.getElementById('jenis-nilai-filter').value;
-    if (jenisNilai) {
-        fetch(`/api/get-nilai?jenisNilai=${jenisNilai}`)
-            .then(response => response.json())
-            .then(data => {
-                // Masukkan logika untuk menampilkan data nilai di tabel
-            })
-            .catch(error => console.error('Gagal memuat data:', error));
-    }
+    loadTahunAjaranFilter();
+    fetchSiswaData(); // Muat data siswa
+    loadMapelFilter();
 });

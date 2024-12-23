@@ -90,3 +90,40 @@ label {
     margin-bottom: 10px;
 }
 
+
+/* Menata kolom berdasarkan jenis nilai */
+td[class^="column-"] {
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+/* Menata input di dalam sel */
+input[type="number"] {
+    padding: 3px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: center;
+    width: auto; /* Mengikuti ukuran sel secara otomatis */
+    transition: all 0.2s ease; /* Transisi untuk efek hover dan focus */
+}
+
+/* Efek hover pada input */
+input[type="number"]:hover {
+    border-color: #66afe9;
+    background-color: #f4faff;
+}
+
+/* Efek focus pada input */
+input[type="number"]:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background-color: #e8f5e9;
+}
+
+/* Placeholder input */
+input[type="number"]::placeholder {
+    color: #888;
+    font-style: italic;
+}
