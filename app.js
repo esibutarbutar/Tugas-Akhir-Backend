@@ -982,6 +982,41 @@ app.get('/api/mata-pelajaran/:id', async (req, res) => {
     }
 });
 
+app.get('/api/mapel', async (req, res) => {
+    try {
+        const filterTahunAjaran = req.query.tahun_ajaran || null;
+
+        // Mengambil nip dari session pengguna yang sedang login
+        const nipGuru = req.session.user?.id;  // Mengambil NIP dari session
+
+        if (!nipGuru) {
+            return res.status(400).json({ error: 'NIP pengguna tidak ditemukan dalam session' });
+        }
+
+        // Menyusun query untuk mengambil mata pelajaran berdasarkan nipGuru dan tahun ajaran
+        let query = `
+            SELECT mp.id, mp.nama_mata_pelajaran, mp.nip, 
+                   IFNULL(p.nama_pegawai, 'Nama Pegawai Tidak Ada') AS nama_pegawai
+            FROM mata_pelajaran mp
+            LEFT JOIN pegawai p ON mp.nip = p.nip
+            WHERE mp.nip = ?
+        `;
+        
+        const params = [nipGuru];
+
+        if (filterTahunAjaran) {
+            query += ' AND mp.id_tahun_ajaran = ?';
+            params.push(filterTahunAjaran);
+        }
+
+        const [rows] = await db.execute(query, params);
+        res.json(rows);  // Mengirimkan mata pelajaran yang sesuai dengan NIP pengguna dan filter lainnya
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Terjadi kesalahan saat memproses data.' });
+    }
+});
+
 app.get('/api/mata-pelajaran', async (req, res) => {
     try {
         const filterTahunAjaran = req.query.tahun_ajaran || null;
@@ -1081,37 +1116,6 @@ app.delete('/api/mata-pelajaran/:id', async (req, res) => {
         }
     } catch (error) {
         console.error("Error deleting Mata Pelajaran:", error);
-        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
-    }
-});
-
-app.get('/api/mata-pelajaran-nip', async (req, res) => {
-    const { tahun_ajaran_id } = req.query;
-    const nip = req.session.user?.nip; // Ambil NIP dari sesi pengguna
-
-    if (!nip) {
-        return res.status(401).json({ message: 'NIP pengguna tidak ditemukan.' });
-    }
-
-    try {
-        // Query untuk mendapatkan mata pelajaran berdasarkan NIP dan Tahun Ajaran
-        let query = 'SELECT * FROM mata_pelajaran WHERE nip = ?';
-        const params = [nip];
-
-        if (tahun_ajaran_id) {
-            query += ' AND tahun_ajaran_id = ?';
-            params.push(tahun_ajaran_id);
-        }
-
-        const [rows] = await db.query(query, params);
-
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Mata pelajaran tidak ditemukan.' });
-        }
-
-        res.status(200).json(rows); // Kirimkan data mata pelajaran
-    } catch (error) {
-        console.error('Error saat mengambil data mata pelajaran:', error);
         res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
     }
 });
@@ -1296,12 +1300,13 @@ app.get('/api/data-mapel', async (req, res) => {
 // });
 
 app.post('/api/update-nilai', async (req, res) => {
-    const { gradestype, grade, id_tahun_ajaran, id_kelas, id_matpel, nisn } = req.body;
+    const { gradestype, grade, id_tahun_ajaran, id_kelas, id_matpel, nisn, status, catatan } = req.body;
     const nip = req.session.user?.id; // Atau ambil dari JWT jika menggunakan token
 
     if (!nip) {
         return res.status(401).json({ message: 'User tidak terautentikasi.' });
     }
+
     // Validasi input
     if (!gradestype || !grade || !id_tahun_ajaran || !id_kelas || !id_matpel || !nisn || !nip) {
         return res.status(400).json({ error: 'Data tidak lengkap' });
@@ -1316,22 +1321,22 @@ app.post('/api/update-nilai', async (req, res) => {
         const [existingData] = await db.query(checkQuery, [id_tahun_ajaran, id_kelas, id_matpel, gradestype, nisn]);
 
         if (existingData.length > 0) {
-            // Jika nilai sudah ada, update nilai
+            // Jika nilai sudah ada, update nilai, status, dan catatan
             const updateQuery = `
                 UPDATE grades
-                SET grade = ?, nip = ?
+                SET grade = ?, status = ?, catatan = ?, nip = ?
                 WHERE id_tahun_ajaran = ? AND id_kelas = ? AND id_matpel = ? AND gradesType = ? AND nisn = ?
             `;
-            await db.query(updateQuery, [grade, nip, id_tahun_ajaran, id_kelas, id_matpel, gradestype, nisn]);
+            await db.query(updateQuery, [grade, status, catatan, nip, id_tahun_ajaran, id_kelas, id_matpel, gradestype, nisn]);
 
             return res.status(200).json({ message: 'Nilai berhasil diupdate' });
         } else {
-            // Jika nilai belum ada, simpan nilai baru
+            // Jika nilai belum ada, simpan nilai baru, status dan catatan akan NULL secara default
             const insertQuery = `
-                INSERT INTO grades (id_tahun_ajaran, id_kelas, id_matpel, gradesType, grade, nisn, nip)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO grades (id_tahun_ajaran, id_kelas, id_matpel, gradesType, grade, nisn, nip, gradeStatus, catatan)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
-            await db.query(insertQuery, [id_tahun_ajaran, id_kelas, id_matpel, gradestype, grade, nisn, nip]);
+            await db.query(insertQuery, [id_tahun_ajaran, id_kelas, id_matpel, gradestype, grade, nisn, nip, status || null, catatan || null]);
 
             return res.status(200).json({ message: 'Nilai berhasil disimpan' });
         }

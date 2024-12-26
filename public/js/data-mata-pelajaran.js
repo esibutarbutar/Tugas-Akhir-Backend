@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function generateSubjectId(namaMatpel) {
     const prefixMap = {
         'pendidikan agama': 'PA',
-        'bahasa indonesia': 'BIND',
+        'bahasa indonesia': 'IND',
         'matematika': 'MTK',
         'ipa': 'IPA',
         'ips': 'IPS',
