@@ -934,20 +934,48 @@ app.get('/kelas/detail/:id', (req, res) => {
 
 
 app.post('/api/mata-pelajaran', async (req, res) => {
-    const { id, nama_pelajaran, nip, id_tahun_ajaran } = req.body;
+    const { id, nama_pelajaran, nip, id_tahun_ajaran, id_kelas } = req.body;
 
     console.log('Received data:', req.body);
-    const query = 'INSERT INTO mata_pelajaran (id, nama_mata_pelajaran, nip, id_tahun_ajaran) VALUES (?, ?, ?, ?)';
+
+    // Cek apakah sudah ada mata pelajaran dengan nama_pelajaran di kelas yang sama dan tahun ajaran yang sama
+    const checkQuery = `
+        SELECT mp.*, p.nama_pegawai FROM mata_pelajaran mp
+        JOIN pegawai p ON mp.nip = p.nip
+        WHERE mp.nama_mata_pelajaran = ? 
+        AND mp.id_kelas = ? 
+        AND mp.id_tahun_ajaran = ? 
+        AND mp.nip != ? 
+    `;
 
     try {
-        await db.query(query, [id, nama_pelajaran, nip, id_tahun_ajaran]);
+        // Cek apakah mata pelajaran sudah ada di kelas dan tahun ajaran yang sama
+        const [existingMatpel] = await db.query(checkQuery, [nama_pelajaran, id_kelas, id_tahun_ajaran, nip]);
+        
+        if (existingMatpel.length > 0) {
+            const existingTeacherName = existingMatpel[0].nama_pegawai;  // Nama guru yang sudah ada
+            return res.status(400).json({
+                success: false,
+                message: `Mata pelajaran ini sudah diajarkan oleh guru ${existingTeacherName} di kelas ini.`
+            });
+        }
+
+        // Jika tidak ada duplikasi, lanjutkan untuk memasukkan data
+        const query = `
+            INSERT INTO mata_pelajaran (id, nama_mata_pelajaran, nip, id_tahun_ajaran, id_kelas) 
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        await db.query(query, [id, nama_pelajaran, nip, id_tahun_ajaran, id_kelas]);
         console.log('Data successfully inserted');
         return res.status(201).json({ success: true, message: 'Mata Pelajaran berhasil ditambahkan' });
+
     } catch (err) {
         console.error('Error inserting data:', err);
         return res.status(500).json({ success: false, message: 'Error inserting data', error: err.message });
     }
 });
+
 
 // app.get('/api/mata-pelajaran', async (req, res) => {
 //     try {
@@ -1023,10 +1051,14 @@ app.get('/api/mata-pelajaran', async (req, res) => {
         const search = req.query.search ? `%${req.query.search.toLowerCase()}%` : null;
 
         let query = `
-            SELECT mp.id, mp.nama_mata_pelajaran, mp.nip, 
-                   IFNULL(p.nama_pegawai, 'Nama Pegawai Tidak Ada') AS nama_pegawai
-            FROM mata_pelajaran mp
-            LEFT JOIN pegawai p ON mp.nip = p.nip
+        SELECT mp.id, mp.nama_mata_pelajaran, mp.nip, mp.id_kelas, 
+            IFNULL(p.nama_pegawai, 'Nama Pegawai Tidak Ada') AS nama_pegawai,
+            IFNULL(k.nama_kelas, 'Nama Kelas Tidak Ada') AS nama_kelas
+        FROM mata_pelajaran mp
+        LEFT JOIN pegawai p ON mp.nip = p.nip
+        LEFT JOIN kelas k ON mp.id_kelas = k.id  -- Misalnya id_kelas menghubungkan dengan id di tabel kelas
+
+
         `;
 
         const params = [];
@@ -1053,7 +1085,6 @@ app.get('/api/mata-pelajaran', async (req, res) => {
         res.status(500).json({ error: 'Terjadi kesalahan saat memproses data.' });
     }
 });
-
 
 
 // app.get('/api/mata-pelajaran', (req, res) => {

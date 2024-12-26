@@ -9,6 +9,7 @@ function loadMatpelData(filterTahunAjaran = '', searchValue = '') {
         : `/api/mata-pelajaran`;
 
     console.log('Memuat data mata pelajaran dari:', url);
+
     fetch(url)
         .then(response => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -41,7 +42,8 @@ function loadMatpelData(filterTahunAjaran = '', searchValue = '') {
                 row.innerHTML = `
                     <td>${matpel.id}</td>
                     <td>${matpel.nama_mata_pelajaran}</td>
-                    <td>${matpel.nip} - ${namaPegawai}</td> <!-- Menampilkan NIP dan Nama Pegawai -->
+                    <td>${matpel.nip} - ${namaPegawai}</td>
+                    <td>${matpel.id_kelas} - ${matpel.nama_kelas}</td>
                     <td class="button-container">
                         <button class="edit-button-matpel" data-id-matpel="${matpel.id}">Edit</button>
                         <button class="delete-button-matpel" data-id-matpel="${matpel.id}">Delete</button>
@@ -55,7 +57,6 @@ function loadMatpelData(filterTahunAjaran = '', searchValue = '') {
             alert('Terjadi kesalahan saat memuat data mata pelajaran.');
         });
 }
-
 function loadTahunAjaranOptions() {
     fetch('/api/tahun-ajaran')
         .then(response => {
@@ -107,25 +108,26 @@ function generateSubjectId(namaMatpel) {
 document.getElementById('add-subject-btn').addEventListener('click', function () {
     Promise.all([
         fetch('/api/pegawai'),
-        fetch('/api/tahun-ajaran')
+        fetch('/api/tahun-ajaran'),
+        fetch('/api/kelas') // Ambil data kelas
     ])
-        .then(responses => Promise.all(responses.map(response => response.json())))
-        .then(([guruData, tahunAjaranData]) => {
-            // Debug: Periksa data yang diterima
-            console.log('Data Guru:', guruData);
-            console.log('Data Tahun Ajaran:', tahunAjaranData);
+    .then(responses => Promise.all(responses.map(response => response.json())))
+    .then(([guruData, tahunAjaranData, kelasData]) => {
+        let guruOptions = guruData.map(guru => {
+            return `<option value="${guru.nip}">${guru.nip} - ${guru.nama_pegawai}</option>`;
+        }).join('');
 
-            let guruOptions = guruData.map(guru => {
-                return `<option value="${guru.nip}">${guru.nip} - ${guru.nama_pegawai}</option>`;
-            }).join('');
+        let tahunAjaranOptions = tahunAjaranData.map(tahun => {
+            return `<option value="${tahun.id}">${tahun.id} - ${tahun.nama_tahun_ajaran} - ${tahun.semester}</option>`;
+        }).join('');
 
-            let tahunAjaranOptions = tahunAjaranData.map(tahun => {
-                return `<option value="${tahun.id}">${tahun.id} - ${tahun.nama_tahun_ajaran} -${tahun.semester} </option>`;
-            }).join('');
+        let kelasOptions = kelasData.map(kelas => {
+            return `<option value="${kelas.id}">${kelas.nama_kelas}</option>`;
+        }).join('');
 
-            Swal.fire({
-                title: 'Tambah Mata Pelajaran',
-                html: `
+        Swal.fire({
+            title: 'Tambah Mata Pelajaran',
+            html: `
                 <div class="form-container">
                     <label for="nama_matpel">Nama Mata Pelajaran</label>
                     <input type="text" id="nama_matpel" class="swal2-input">
@@ -141,69 +143,69 @@ document.getElementById('add-subject-btn').addEventListener('click', function ()
                         <option value="">Pilih Tahun Ajaran</option>
                         ${tahunAjaranOptions}
                     </select>
+
+                    <label for="id_kelas">Kelas</label>
+                    <select id="id_kelas" class="swal2-select">
+                        <option value="">Pilih Kelas</option>
+                        ${kelasOptions}
+                    </select>
                 </div>
             `,
-                focusConfirm: false,
-                showCancelButton: true,
-                confirmButtonText: 'Tambah',
-                confirmButtonColor: '#004D40',
-                cancelButtonText: 'Batal',
-                cancelButtonColor: '#FF0000',
-                preConfirm: async () => {
-                    const namaMatpel = document.getElementById('nama_matpel').value;
-                    const nip = document.getElementById('nip').value;
-                    const idTahunAjaran = document.getElementById('id_tahun_ajaran').value;
-                    const idMataPelajaran = generateSubjectId(namaMatpel);
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 2000); // Timeout 5 detik
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Tambah',
+            confirmButtonColor: '#004D40',
+            cancelButtonText: 'Batal',
+            cancelButtonColor: '#FF0000',
+            preConfirm: async () => {
+                const namaMatpel = document.getElementById('nama_matpel').value;
+                const nip = document.getElementById('nip').value;
+                const idTahunAjaran = document.getElementById('id_tahun_ajaran').value;
+                const idKelas = document.getElementById('id_kelas').value;
+                const idMataPelajaran = generateSubjectId(namaMatpel);
 
-                    // Debug: Periksa nilai yang dipilih
-                    console.log('Nama Mata Pelajaran:', namaMatpel);
-                    console.log('NIP:', nip);
-                    console.log('ID Tahun Ajaran:', idTahunAjaran);
+                if (!namaMatpel || !nip || !idTahunAjaran || !idKelas) {
+                    Swal.showValidationMessage('Semua field harus diisi');
+                    return false;
+                }
 
-                    if (!namaMatpel || !nip || !idTahunAjaran) {
-                        Swal.showValidationMessage('Semua field harus diisi');
-                        return false;
-                    }
-                    try {
-                        const response = await fetch('/api/mata-pelajaran', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                id: idMataPelajaran,
-                                nama_pelajaran: namaMatpel,
-                                nip,
-                                id_tahun_ajaran: idTahunAjaran
-                            }),
-                            signal: controller.signal,
+                try {
+                    const response = await fetch('/api/mata-pelajaran', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: idMataPelajaran,
+                            nama_pelajaran: namaMatpel,
+                            nip: nip,
+                            id_tahun_ajaran: idTahunAjaran,
+                            id_kelas: idKelas
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire('Berhasil!', result.message, 'success').then(() => {
+                            loadMatpelData(); // Memuat ulang data mata pelajaran jika berhasil
                         });
-                        clearTimeout(timeoutId);
-                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                        const data = await response.json();
-                        console.log('Response from server:', data);
-                    } catch (error) {
-                        if (error.name === 'AbortError') {
-                            console.error('Request timed out');
+                    } else {
+                        if (result.nama_guru) {
+                            Swal.fire('Gagal!', `${result.message} (Guru: ${result.nama_guru})`, 'error');
                         } else {
-                            console.error('Error during fetch operation:', error);
+                            Swal.fire('Gagal!', result.message, 'error');
                         }
                     }
-                },
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('Berhasil!', 'Mata Pelajaran berhasil ditambahkan', 'success').then(() => {
-                        loadMatpelData();
-                    });
+                } catch (error) {
+                    Swal.fire('Error!', 'Terjadi masalah saat menghubungi server', 'error');
+                    console.error('Error:', error);
                 }
-            });
-        })
-        .catch(error => {
-            Swal.fire('Error!', 'Terjadi masalah saat memuat data guru atau tahun ajaran', 'error');
-            console.error('Error:', error);
+            }
         });
+    })
+    .catch(error => {
+        Swal.fire('Error!', 'Terjadi masalah saat memuat data guru, tahun ajaran, atau kelas', 'error');
+        console.error('Error:', error);
+    });
 });
 
 
@@ -272,10 +274,11 @@ function editMatpel(id) {
             console.log('Data mata pelajaran yang akan diedit:', matpel);
             Promise.all([
                 fetch('/api/pegawai'),
-                fetch('/api/tahun-ajaran')
+                fetch('/api/tahun-ajaran'),
+                fetch('/api/kelas') // Ambil data kelas
             ])
                 .then(responses => Promise.all(responses.map(response => response.json())))
-                .then(([guruData, tahunAjaranData]) => {
+                .then(([guruData, tahunAjaranData, kelasData]) => {
                     let guruOptions = guruData.map(guru => {
                         const selected = guru.nip === matpel.nip ? 'selected' : '';
                         return `<option value="${guru.nip}" ${selected}>${guru.nip} - ${guru.nama_pegawai}</option>`;
@@ -286,12 +289,17 @@ function editMatpel(id) {
                         return `<option value="${tahun.id}" ${selected}>${tahun.id} - ${tahun.nama_tahun_ajaran}</option>`;
                     }).join('');
 
+                    let kelasOptions = kelasData.map(kelas => {
+                        const selected = kelas.id_kelas === matpel.id_kelas ? 'selected' : '';
+                        return `<option value="${kelas.id_kelas}" ${selected}>${kelas.nama_kelas}</option>`;
+                    }).join('');
+
                     Swal.fire({
                         title: 'Edit Mata Pelajaran',
                         html: `
                         <div class="form-container">
                             <label for="edit_nama_matpel">Nama Mata Pelajaran</label>
-                        <input type="text" id="edit_nama_matpel" class="swal2-input" value="${matpel.nama_mata_pelajaran}">
+                            <input type="text" id="edit_nama_matpel" class="swal2-input" value="${matpel.nama_mata_pelajaran}">
                             
                             <label for="edit_nip">Guru (NIP + Nama)</label>
                             <select id="edit_nip" class="swal2-select">
@@ -301,6 +309,11 @@ function editMatpel(id) {
                             <label for="edit_id_tahun_ajaran">Tahun Ajaran</label>
                             <select id="edit_id_tahun_ajaran" class="swal2-select">
                                 ${tahunAjaranOptions}
+                            </select>
+
+                            <label for="edit_id_kelas">Kelas</label>
+                            <select id="edit_id_kelas" class="swal2-select">
+                                ${kelasOptions}
                             </select>
                         </div>
                     `,
@@ -315,10 +328,11 @@ function editMatpel(id) {
                                 nama_pelajaran: document.getElementById('edit_nama_matpel').value,
                                 nip: document.getElementById('edit_nip').value,
                                 id_tahun_ajaran: document.getElementById('edit_id_tahun_ajaran').value,
+                                id_kelas: document.getElementById('edit_id_kelas').value // Menambahkan ID kelas
                             };
 
                             // Validasi data
-                            if (!editedMatpel.nama_pelajaran || !editedMatpel.nip || !editedMatpel.id_tahun_ajaran) {
+                            if (!editedMatpel.nama_pelajaran || !editedMatpel.nip || !editedMatpel.id_tahun_ajaran || !editedMatpel.id_kelas) {
                                 Swal.showValidationMessage('Semua field harus diisi');
                                 return false;
                             }
@@ -342,19 +356,17 @@ function editMatpel(id) {
                         if (result.isConfirmed) {
                             Swal.fire({
                                 title: 'Berhasil!',
-                                text: 'Data Mata Pelajaran berhasil dihapus.',
+                                text: 'Data Mata Pelajaran berhasil disimpan.',
                                 icon: 'success',
-                               confirmButtonColor: '#004D40'
+                                confirmButtonColor: '#004D40'
                             });
-                           
-                                loadMatpelData(); // Refresh data
-
+                            loadMatpelData(); // Refresh data
                         }
                     });
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    Swal.fire('Error!', 'Gagal memuat data guru atau tahun ajaran.', 'error');
+                    Swal.fire('Error!', 'Gagal memuat data guru, tahun ajaran, atau kelas.', 'error');
                 });
         })
         .catch(error => {
