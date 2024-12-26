@@ -1019,6 +1019,8 @@ app.get('/api/mata-pelajaran', async (req, res) => {
     }
 });
 
+
+
 // app.get('/api/mata-pelajaran', (req, res) => {
 //     const tahunAjaran = req.query.tahun_ajaran;
 
@@ -1082,6 +1084,38 @@ app.delete('/api/mata-pelajaran/:id', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
     }
 });
+
+app.get('/api/mata-pelajaran-nip', async (req, res) => {
+    const { tahun_ajaran_id } = req.query;
+    const nip = req.session.user?.nip; // Ambil NIP dari sesi pengguna
+
+    if (!nip) {
+        return res.status(401).json({ message: 'NIP pengguna tidak ditemukan.' });
+    }
+
+    try {
+        // Query untuk mendapatkan mata pelajaran berdasarkan NIP dan Tahun Ajaran
+        let query = 'SELECT * FROM mata_pelajaran WHERE nip = ?';
+        const params = [nip];
+
+        if (tahun_ajaran_id) {
+            query += ' AND tahun_ajaran_id = ?';
+            params.push(tahun_ajaran_id);
+        }
+
+        const [rows] = await db.query(query, params);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Mata pelajaran tidak ditemukan.' });
+        }
+
+        res.status(200).json(rows); // Kirimkan data mata pelajaran
+    } catch (error) {
+        console.error('Error saat mengambil data mata pelajaran:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+    }
+});
+
 
 app.post('/api/mading', upload.single('image'), async (req, res) => {
     const { judul, konten, tanggal } = req.body;
@@ -1329,6 +1363,36 @@ app.get('/api/get-nilai/:nisn', async (req, res) => {
         res.status(500).json({ error: 'Terjadi kesalahan pada server' });
     }
 });
+
+// Misal menggunakan Express.js
+// Misal menggunakan Express.js
+app.get('/api/dataMapel/:nip', async (req, res) => {
+    const { nip } = req.params;  // Mengambil nip dari path parameter
+    const { tahun_ajaran_id } = req.query;  // Mendapatkan tahun ajaran dari query parameter
+
+    if (!tahun_ajaran_id || !nip) {
+        return res.status(400).json({ message: 'Tahun ajaran atau NIP tidak valid' });
+    }
+
+    try {
+        // Query untuk mendapatkan mata pelajaran berdasarkan nip dan tahun ajaran
+        const query = `
+            SELECT * FROM mapel
+            WHERE nip = ? AND id_tahun_ajaran = ?
+        `;
+        const [rows] = await db.execute(query, [nip, tahun_ajaran_id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Tidak ada mata pelajaran ditemukan' });
+        }
+
+        res.json(rows);  // Mengirimkan data mata pelajaran
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan saat mengambil data' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });
