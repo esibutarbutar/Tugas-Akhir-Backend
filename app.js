@@ -1468,67 +1468,74 @@ app.get('/api/dataMapel/:nip', async (req, res) => {
 app.get('/api/grades/:kelasId/:matpelId', async (req, res) => {
     const { kelasId, matpelId } = req.params;
 
-    // Validasi apakah kelasId dan matpelId valid
     if (!kelasId || !matpelId) {
         return res.status(400).json({ error: 'Kelas ID dan Mata Pelajaran ID harus disertakan.' });
     }
 
     const query = `
-        SELECT g.nisn, s.nama_siswa, g.gradesType, g.grade
-        FROM grades g
-        JOIN siswa s ON g.nisn = s.nisn
-        WHERE g.id_kelas = ? AND g.id_matpel = ?;
+    SELECT g.nisn, s.nama_siswa, g.gradesType, g.grade
+    FROM grades g
+    JOIN siswa s ON g.nisn = s.nisn
+    WHERE g.id_kelas = ? AND g.id_matpel = ? AND g.gradesType IN ('uts', 'uas', 'tugas');
     `;
 
     try {
-        // Menjalankan query dengan parameter kelasId dan matpelId
         const [results] = await db.execute(query, [kelasId, matpelId]);
 
-        // Mengelompokkan nilai berdasarkan NISN dan menghitung nilai akhir
+        console.log('Hasil Query:', results);
+
         const nilaiAkhir = results.reduce((acc, row) => {
             const { nisn, nama_siswa, gradesType, grade } = row;
 
-            // Pastikan ada data untuk nisn dan siswa, jika tidak, buatkan entry baru
+            console.log(`NISN: ${nisn}, GradesType: ${gradesType}, Grade: ${grade}`);
+
             if (!acc[nisn]) {
                 acc[nisn] = {
                     nisn,
                     nama_siswa,
-                    uts: null,
-                    uas: null,
-                    tugas: null,
+                    uts: 0,
+                    uas: 0,
+                    tugas: 0,
                     nilai_akhir: 0,
                 };
             }
 
-            // Tentukan nilai berdasarkan jenis ujian (gradesType)
-            if (gradesType === 'uts') acc[nisn].uts = grade;
-            if (gradesType === 'uas') acc[nisn].uas = grade;
-            if (gradesType === 'tugas') acc[nisn].tugas = grade;
+            // Pastikan grade adalah angka yang valid
+            if (gradesType.toLowerCase() === 'uts') {
+                acc[nisn].uts = grade ? Number(grade) : 0;
+            } else if (gradesType.toLowerCase() === 'uas') {
+                acc[nisn].uas = grade ? Number(grade) : 0;
+            } else if (gradesType.toLowerCase() === 'tugas') {
+                acc[nisn].tugas = grade ? Number(grade) : 0;
+            }
 
             return acc;
         }, {});
 
-        // Menghitung nilai akhir untuk setiap siswa
+        console.log('Nilai Setelah Pengelompokan:', nilaiAkhir);
+
         const finalResults = Object.values(nilaiAkhir).map(siswa => {
+            console.log(`Menghitung nilai akhir untuk ${siswa.nisn}: UTS=${siswa.uts}, UAS=${siswa.uas}, Tugas=${siswa.tugas}`);
+            
             // Pastikan ada nilai untuk uts, uas, dan tugas
             if (siswa.uts !== null && siswa.uas !== null && siswa.tugas !== null) {
-                // Misalnya, bobot 40% untuk UTS dan UAS, 20% untuk Tugas
-                const nilaiAkhir = (siswa.uts * 0.4) + (siswa.uas * 0.4) + (siswa.tugas * 0.2);
-                siswa.nilai_akhir = nilaiAkhir;
+                siswa.nilai_akhir = (siswa.uts * 0.4) + (siswa.uas * 0.4) + (siswa.tugas * 0.2);
             } else {
-                siswa.nilai_akhir = 0; // Jika ada nilai yang hilang
+                siswa.nilai_akhir = 0;
             }
 
+            console.log(`Nilai akhir untuk ${siswa.nisn}: ${siswa.nilai_akhir}`);
             return siswa;
         });
 
-        // Mengirimkan data sebagai response JSON
         res.json(finalResults);
     } catch (err) {
         console.error("Error executing query:", err);
         res.status(500).json({ error: 'Gagal memuat data nilai' });
     }
 });
+
+
 app.get("api/matpel", async (req, res) => {
     const { id_kelas } = req.query;
 

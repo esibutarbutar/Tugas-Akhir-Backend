@@ -159,15 +159,15 @@ function displayGrades(gradesData) {
 
             // Nilai UTS, UAS, dan Tugas
             const utsCell = document.createElement("td");
-            utsCell.textContent = grade.gradesType === 'uts' ? grade.grade : '-';
+            utsCell.textContent = grade.uts || '-';
             row.appendChild(utsCell);
 
             const uasCell = document.createElement("td");
-            uasCell.textContent = grade.gradesType === 'uas' ? grade.grade : '-';
+            uasCell.textContent = grade.uas || '-';
             row.appendChild(uasCell);
 
             const tugasCell = document.createElement("td");
-            tugasCell.textContent = grade.gradesType === 'tugas' ? grade.grade : '-';
+            tugasCell.textContent = grade.tugas || '-';
             row.appendChild(tugasCell);
 
             // Nilai Akhir
