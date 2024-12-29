@@ -136,7 +136,6 @@ async function fetchGrades(kelasId, mapelId) {
     }
 }
 
-// Fungsi untuk menampilkan data nilai di tabel
 function displayGrades(gradesData) {
     const tbody = document.getElementById("nilai-tbody");
     tbody.innerHTML = ''; // Bersihkan tabel sebelumnya
@@ -144,6 +143,9 @@ function displayGrades(gradesData) {
     // Pastikan gradesData adalah array dan tidak kosong
     if (Array.isArray(gradesData) && gradesData.length > 0) {
         gradesData.forEach(grade => {
+            // Menghitung nilai akhir
+            const nilaiAkhir = (grade.uts * 0.3) + (grade.uas * 0.4) + (grade.tugas * 0.3);
+
             // Membuat baris untuk setiap data nilai
             const row = document.createElement("tr");
 
@@ -172,8 +174,43 @@ function displayGrades(gradesData) {
 
             // Nilai Akhir
             const nilaiAkhirCell = document.createElement("td");
-            nilaiAkhirCell.textContent = grade.nilai_akhir || 'Tidak tersedia';
+            nilaiAkhirCell.textContent = nilaiAkhir.toFixed(2); // Menampilkan nilai akhir yang sudah dihitung
             row.appendChild(nilaiAkhirCell);
+
+            // Status (Centang dan X)
+            const statusCell = document.createElement("td");
+
+            // Menambahkan ikon centang (✅) dan X (❌)
+            statusCell.innerHTML = `
+                <i class="fas fa-check-circle" style="color: green; cursor: pointer;" title="Lulus"></i>
+                <i class="fas fa-times-circle" style="color: red; cursor: pointer; margin-left: 10px;" title="Tidak Lulus"></i>
+            `;
+            row.appendChild(statusCell);
+
+            // Catatan (kosongkan dulu)
+            const catatanCell = document.createElement("td");
+            catatanCell.textContent = ''; // Kosongkan untuk saat ini
+            row.appendChild(catatanCell);
+
+            // Menambahkan event listener untuk ikon centang
+            const checkIcon = statusCell.querySelector('.fa-check-circle');
+            checkIcon.addEventListener('click', () => {
+                catatanCell.textContent = "Lulus"; // Set Catatan menjadi "Lulus"
+                statusCell.innerHTML = `<i class="fas fa-check-circle" style="color: green;"></i> Setuju`; // Update status jadi "Setuju"
+
+                // Kirim data ke server untuk disimpan di database
+                updateStatusInDB(grade.nisn, "Lulus", "Setuju", grade);
+            });
+
+            // Menambahkan event listener untuk ikon X
+            const timesIcon = statusCell.querySelector('.fa-times-circle');
+            timesIcon.addEventListener('click', () => {
+                catatanCell.textContent = "Tidak Lulus"; // Set Catatan menjadi "Tidak Lulus"
+                statusCell.innerHTML = `<i class="fas fa-times-circle" style="color: red;"></i> Tolak`; // Update status jadi "Tolak"
+
+                // Kirim data ke server untuk disimpan di database
+                updateStatusInDB(grade.nisn, "Tidak Lulus", "Tolak", grade);
+            });
 
             // Menambahkan baris ke tabel
             tbody.appendChild(row);
@@ -182,10 +219,40 @@ function displayGrades(gradesData) {
         // Jika tidak ada nilai
         const noDataRow = document.createElement("tr");
         const noDataCell = document.createElement("td");
-        noDataCell.colSpan = 6;
+        noDataCell.colSpan = 8; // Perhatikan, sekarang ada 8 kolom
         noDataCell.textContent = "Tidak ada data nilai.";
         noDataRow.appendChild(noDataCell);
         tbody.appendChild(noDataRow);
+    }
+}
+
+// Fungsi untuk mengirim data status dan catatan ke server
+async function updateStatusInDB(nisn, catatan, status, gradesType) {
+    const data = {
+        nisn: nisn,
+        catatan: catatan,
+        status: status,
+        grades_type: gradesType // Mengirimkan gradesType yang mencakup uts, uas, dan tugas
+    };
+
+    try {
+        const response = await fetch('/api/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log("Status berhasil diperbarui:", result);
+        } else {
+            console.error("Gagal memperbarui status:", result);
+        }
+    } catch (error) {
+        console.error("Terjadi kesalahan saat mengirim data:", error);
     }
 }
 

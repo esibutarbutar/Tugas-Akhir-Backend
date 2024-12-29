@@ -1519,14 +1519,19 @@ app.get('/api/grades/:kelasId/:matpelId', async (req, res) => {
             
             // Pastikan ada nilai untuk uts, uas, dan tugas
             if (siswa.uts !== null && siswa.uas !== null && siswa.tugas !== null) {
-                siswa.nilai_akhir = (siswa.uts * 0.4) + (siswa.uas * 0.4) + (siswa.tugas * 0.2);
+                siswa.nilai_akhir = ((siswa.uts * 0.4) + (siswa.uas * 0.4) + (siswa.tugas * 0.2)).toFixed(1);
             } else {
                 siswa.nilai_akhir = 0;
             }
-
+        
+            // Mengosongkan status dan catatan terlebih dahulu
+            siswa.status = ''; // Status kosong
+            siswa.catatan = ''; // Catatan kosong
+            
             console.log(`Nilai akhir untuk ${siswa.nisn}: ${siswa.nilai_akhir}`);
             return siswa;
         });
+        
 
         res.json(finalResults);
     } catch (err) {
@@ -1579,6 +1584,29 @@ app.get('/api/mapel/:idKelas', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan server' });
     }
 });
+app.post('/api/update-status', async (req, res) => {
+    const { nisn, catatan, status, grades_type } = req.body;
+
+    if (!nisn || !catatan || !status || !grades_type) {
+        return res.status(400).json({ error: 'Data tidak lengkap' });
+    }
+
+    // Query untuk memperbarui status dan catatan di database
+    const query = `
+        UPDATE grades
+        SET gradeStatus = ?, catatan = ?, gradesType = ?
+        WHERE nisn = ?
+    `;
+
+    try {
+        await db.execute(query, [status, catatan, JSON.stringify(grades_type), nisn]);
+        res.status(200).json({ message: 'Status berhasil diperbarui' });
+    } catch (err) {
+        console.error("Error executing query:", err);
+        res.status(500).json({ error: 'Gagal memperbarui data status' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });
