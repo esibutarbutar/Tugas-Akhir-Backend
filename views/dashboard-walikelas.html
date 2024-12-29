@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="/css/mading.css">
     <link rel="stylesheet" href="/css/mata-pelajaran.css">
     <link rel="stylesheet" href="/css/kelas.css">
-    <link rel="stylesheet" href="/css/dataNilai.css">
+    <link rel="stylesheet" href="/css/dataWaliKelas.css">
 
 
 
@@ -94,51 +94,43 @@
                     </div>
                 </div>
             </section>
-            <section id="data-nilai-siswa" class="content-section hidden">
-                <h2>Data Nilai Siswa</h2>
-                <div class="filter-wrapper">
-                    <select id="tahun-ajaran-filter">
-                        <option value="">Pilih Tahun Ajaran</option>
-                    </select>
-                </div>
-                <div class="filter-wrapper">
-                    <select id="kelas-filter">
-                        <option value="">Pilih Kelas</option>
-                    </select>
+            <section id="persetujuan-nilai" class="content-section hidden">
+                <h2>Persetujuan Nilai Siswa</h2>
+            
+                <!-- Menampilkan Info Kelas -->
+                <div id="info-kelas">
+                    <!-- Data kelas akan ditampilkan di sini -->
                 </div>
                 <div class="filter-wrapper">
                     <select id="mapel-filter">
                         <option value="">Pilih Mata Pelajaran</option>
                     </select>
                 </div>
-                <div class="search-add-container">
-                    <div class="search-wrapper">
-                        <input type="text" id="search-student-input" placeholder="Cari siswa..." class="search-bar">
-                        <i class="fas fa-search search-icon"></i> <!-- Ikon Search -->
-                    </div>
-                </div>
-                <table border="1">
+                <table id="nilaiTable">
                     <thead>
                         <tr>
                             <th>NISN</th>
-                            <th>Nama</th>
+                            <th>Nama Siswa</th>
                             <th>UTS</th>
                             <th>UAS</th>
                             <th>Tugas</th>
-                            <th>Nilai Final</th>
-                            <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
+                            <th>Nilai Akhir</th>
                         </tr>
                     </thead>
-                    <tbody id="siswa-tbody">
-                        <!-- Data Siswa akan diisi dengan JavaScript -->
+                    <tbody id="nilai-tbody">
+                        <!-- Data akan ditambahkan di sini -->
                     </tbody>
                 </table>
+                 
+                
+                
             </section>
+            
            
         </main>
     </div>
     <script src="/js/dashboardWaliKelas.js"></script>
-    <script src="/js/persetujuanNilai.js"></script>
+    <script src="/js/persetujuanNilaiSiswa.js"></script>
 
 
 </body>

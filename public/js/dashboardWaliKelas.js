@@ -49,38 +49,44 @@ document.addEventListener('DOMContentLoaded', fetchSessionData);
 
 // Navigasi antara profil dan data nilai siswa
 document.addEventListener('DOMContentLoaded', () => {
-    const links = document.querySelectorAll('.sidebar a');
-    const sections = document.querySelectorAll('.content-section');
+  const links = document.querySelectorAll('.sidebar a');
+  const sections = document.querySelectorAll('.content-section');
 
-    function hideAllSections() {
-        sections.forEach(section => section.classList.add('hidden'));
-    }
+  console.log('Links:', links); // Debugging
+  console.log('Sections:', sections); // Debugging
 
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
+  function hideAllSections() {
+      sections.forEach(section => {
+          console.log('Hiding section:', section.id); // Debugging
+          section.classList.add('hidden');
+      });
+  }
 
-            links.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            hideAllSections();
+  links.forEach(link => {
+      link.addEventListener('click', (e) => {
+          e.preventDefault();
+          hideAllSections();
+          const target = link.getAttribute('data-target');
+          console.log('Trying to show section:', target); // Debugging
 
-            const target = link.getAttribute('data-target');
-            const targetSection = document.getElementById(target);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
+          const targetSection = document.getElementById(target);
+          if (targetSection) {
+              console.log('Showing section:', targetSection.id); // Debugging
+              targetSection.classList.remove('hidden');
+          } else {
+              console.error('Target section not found:', target); // Debugging
+              alert(`Target section not found: ${target}`); // Error handling
+          }
+      });
+  });
 
-                // Jika target adalah data siswa, panggil fungsi fetchSiswaData()
-                if (target === 'data-nilai-siswa') {
-                    fetchSiswaData();
-                }
-            }
-        });
-    });
-
-    hideAllSections();
-    const defaultLink = document.querySelector('[data-target="guru-matpel-profile"]');
-    if (defaultLink) {
-        defaultLink.classList.add('active');
-        document.getElementById('guru-matpel-profile').classList.remove('hidden');
-    }
+  // Default to show the profile section
+  hideAllSections();
+  const defaultSection = document.getElementById('guru-matpel-profile');
+  if (defaultSection) {
+      console.log('Default section shown:', defaultSection.id); // Debugging
+      defaultSection.classList.remove('hidden');
+  } else {
+      console.error('Default section not found!'); // Debugging
+  }
 });

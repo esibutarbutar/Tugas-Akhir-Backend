@@ -1,0 +1,68 @@
+.hidden {
+    display: none;
+}
+/* Container utama untuk menampilkan data kelas */
+#info-kelas {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+/* Gaya untuk setiap informasi kelas */
+#info-kelas p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Menambahkan penekanan pada label (Nama Kelas, Tingkatan, ID Tahun Ajaran) */
+#info-kelas p strong {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Pesan ketika tidak ada kelas yang dikelola */
+#info-kelas p.no-kelas {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-top: 20px;
+}
+#mapel-filter {
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 200px;
+    transition: all 0.3s ease;
+}
+
+/* Gaya hover pada select */
+#mapel-filter:hover {
+    border-color: #007bff;
+    background-color: #e9f7ff;
+}
+
+/* Gaya ketika select dalam fokus */
+#mapel-filter:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #fff;
+}
+
+
+/* Membuat container kelas menjadi lebih responsif */
+@media (max-width: 768px) {
+    #info-kelas {
+        padding: 15px;
+    }
+
+    #info-kelas p {
+        font-size: 14px;
+    }
+}
