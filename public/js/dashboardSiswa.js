@@ -28,24 +28,94 @@ async function fetchSessionData() {
         } else {
             console.error("Elemen dengan ID 'employee-name-message' tidak ditemukan.");
         }
+         // Update nama pengguna
         const biodataName = document.getElementById('biodata-name');
-        console.log(biodataName);  // Debugging log
         if (biodataName) {
             biodataName.textContent = user.name || 'Tidak tersedia';
         }
 
+        // Update tempat dan tanggal lahir
         const biodataTtl = document.getElementById('biodata-ttl');
-        console.log(biodataTtl);  // Debugging log
         if (biodataTtl) {
-            biodataTtl.textContent = `${user.tempat_lahir}, ${user.tanggal_lahir}` || 'Tidak tersedia';
+            biodataTtl.textContent = `${user.tempat_lahir || 'Tidak tersedia'}, ${user.tanggal_lahir || 'Tidak tersedia'}`;
         }
 
-       
+        // Update jenis kelamin
+        const biodataJenisKelamin = document.getElementById('biodata-jenis-kelamin');
+        if (biodataJenisKelamin) {
+            biodataJenisKelamin.textContent = user.jenis_kelamin || 'Tidak tersedia';
+        }
 
+        // Update NISN
         const biodataNisn = document.getElementById('biodata-nisn');
-        console.log(biodataNisn);  // Debugging log
         if (biodataNisn) {
             biodataNisn.textContent = user.nisn || 'Tidak tersedia';
+        }
+
+        // Update agama
+        const biodataAgama = document.getElementById('biodata-agama');
+        if (biodataAgama) {
+            biodataAgama.textContent = user.agama || 'Tidak tersedia';
+        }
+
+        // Update nama ayah
+        const biodataNamaAyah = document.getElementById('biodata-nama-ayah');
+        if (biodataNamaAyah) {
+            biodataNamaAyah.textContent = user.nama_ayah || 'Tidak tersedia';
+        }
+
+        // Update nama ibu
+        const biodataNamaIbu = document.getElementById('biodata-nama-ibu');
+        if (biodataNamaIbu) {
+            biodataNamaIbu.textContent = user.nama_ibu || 'Tidak tersedia';
+        }
+
+        // Update nomor HP orang tua
+        const biodataNoHpOrtu = document.getElementById('biodata-no-hp-ortu');
+        if (biodataNoHpOrtu) {
+            biodataNoHpOrtu.textContent = user.no_hp_ortu || 'Tidak tersedia';
+        }
+
+        // Update email
+        const biodataEmail = document.getElementById('biodata-email');
+        if (biodataEmail) {
+            biodataEmail.textContent = user.email || 'Tidak tersedia';
+        }
+
+        // Update NIK
+        const biodataNik = document.getElementById('biodata-nik');
+        if (biodataNik) {
+            biodataNik.textContent = user.nik || 'Tidak tersedia';
+        }
+
+        // Update anak ke
+        const biodataAnakKe = document.getElementById('biodata-anak-ke');
+        if (biodataAnakKe) {
+            biodataAnakKe.textContent = user.anak_ke || 'Tidak tersedia';
+        }
+
+        // Update status
+        const biodataStatus = document.getElementById('biodata-status');
+        if (biodataStatus) {
+            biodataStatus.textContent = user.status || 'Tidak tersedia';
+        }
+
+        // Update tanggal masuk
+        const biodataTanggalMasuk = document.getElementById('biodata-tanggal-masuk');
+        if (biodataTanggalMasuk) {
+            biodataTanggalMasuk.textContent = user.tanggal_masuk || 'Tidak tersedia';
+        }
+
+        // Update last password update
+        const biodataLastPasswordUpdate = document.getElementById('biodata-last-password-update');
+        if (biodataLastPasswordUpdate) {
+            biodataLastPasswordUpdate.textContent = user.last_password_update || 'Tidak tersedia';
+        }
+
+        // Update ID Kelas
+        const biodataIdKelas = document.getElementById('biodata-id-kelas');
+        if (biodataIdKelas) {
+            biodataIdKelas.textContent = user.id_kelas || 'Tidak tersedia';
         }
         const profileInitial = document.getElementById('profile-initial');
         if (profileInitial) {
@@ -62,31 +132,42 @@ document.addEventListener('DOMContentLoaded', fetchSessionData);
 document.addEventListener('DOMContentLoaded', () => {
     const links = document.querySelectorAll('.sidebar a');
     const sections = document.querySelectorAll('.content-section');
-
+  
+    console.log('Links:', links); // Debugging
+    console.log('Sections:', sections); // Debugging
+  
     function hideAllSections() {
-        sections.forEach(section => section.classList.add('hidden'));
+        sections.forEach(section => {
+            console.log('Hiding section:', section.id); // Debugging
+            section.classList.add('hidden');
+        });
     }
-
+  
     links.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-
-            links.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
             hideAllSections();
-
             const target = link.getAttribute('data-target');
+            console.log('Trying to show section:', target); // Debugging
+  
             const targetSection = document.getElementById(target);
             if (targetSection) {
+                console.log('Showing section:', targetSection.id); // Debugging
                 targetSection.classList.remove('hidden');
+            } else {
+                console.error('Target section not found:', target); // Debugging
+                alert(`Target section not found: ${target}`); // Error handling
             }
         });
     });
-
-    hideAllSections(); // Menyembunyikan semua konten
-    const defaultLink = document.querySelector('[data-target="siswa-profil"]'); // Memastikan Profil adalah default
-    if (defaultLink) {
-        defaultLink.classList.add('active');
-        document.getElementById('siswa-profile').classList.remove('hidden'); // Menampilkan Profil
+  
+    // Default to show the profile section
+    hideAllSections();
+    const defaultSection = document.getElementById('siswa-profile'); // Pastikan nama ID sama dengan di HTML
+    if (defaultSection) {
+        console.log('Default section shown:', defaultSection.id); // Debugging
+        defaultSection.classList.remove('hidden');
+    } else {
+        console.error('Default section not found!'); // Debugging
     }
 });
