@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guru Wali Kelas</title>
+    <title>Siswa</title>
 </head>
 <body>
     <!DOCTYPE html>
@@ -112,6 +112,11 @@
                 </section>
                 <section id="nilai" class="content-section hidden">
                     <h2>Data Nilai </h2>
+                    <div class="filter-wrapper">
+                        <select id="tahun-ajaran-filter">
+                            <option value="">Pilih Tahun Ajaran</option>
+                        </select>
+                    </div>
                     
                 </section>
                 <section id="absensi" class="content-section hidden">
@@ -123,6 +128,8 @@
             </main>
     </div>
     <script src="/js/dashboardSiswa.js"></script>
+    <script src="/js/viewNilaiSiswa.js"></script>
+
 </body>
 
 </html>

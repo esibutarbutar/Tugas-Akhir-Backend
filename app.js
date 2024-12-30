@@ -54,6 +54,10 @@ app.get('/detail-pegawai', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'detail-pegawai.html'));
 });
 
+app.get('/lupapassword', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'lupapassword.html'));
+});
+
 app.get('/guru', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'guru.html'));
 });
