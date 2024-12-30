@@ -1,19 +1,17 @@
-// Mendapatkan elemen-elemen yang diperlukan
 const pegawaiBtn = document.getElementById("pegawai-btn");
 const siswaBtn = document.getElementById("siswa-btn");
 const loginForm = document.getElementById("login-form");
 const buttonGroup = document.getElementById("button-group");
 const backButton = document.querySelector(".back-button");
-const roleText = document.getElementById("role-text"); // Elemen untuk menampilkan role (Siswa/Pegawai)
+const roleText = document.getElementById("role-text"); 
 
 loginForm.addEventListener("submit", function(event) {
-    event.preventDefault();  // Mencegah form dikirim secara default
+    event.preventDefault();  
 
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const login_sebagai = document.getElementById("login_sebagai").value;
 
-    // Mengirim data login ke server dengan fetch
     fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -30,7 +28,6 @@ loginForm.addEventListener("submit", function(event) {
         if (data.message === 'Login berhasil') {
             const user = data.user;
 
-            // Tampilkan SweetAlert
             Swal.fire({
                 title: 'Selamat Datang!',
                 text: `Selamat datang, ${user.name}!`,
@@ -38,9 +35,8 @@ loginForm.addEventListener("submit", function(event) {
                 confirmButtonText: 'Lanjutkan',
                 confirmButtonColor: '#004D40'
             }).then(() => {
-                // Redirect setelah menutup SweetAlert
                 if (user.role === 'admin') {
-                    window.location.href = '/dashboard-admin';  // Redirect to admin dashboard
+                    window.location.href = '/dashboard-admin'; 
                 } else {
                     window.location.href = '/dashboard';  // Redirect to general dashboard
                 }

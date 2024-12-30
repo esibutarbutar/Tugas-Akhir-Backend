@@ -298,12 +298,14 @@ siswaTbody.addEventListener('click', async (event) => {
                 const anakKe = document.getElementById('anak_ke');
                 const status = document.getElementById('status');
                 const idKelas = document.getElementById('id_kelas');
+                const password = nisn;
 
                 if (!nisn || !namaSiswa || !alamat || !tempatLahir || !tanggalLahir || !jenisKelamin || !agama ||
                     !tanggalMasuk || !namaAyah || !namaIbu || !noHpOrtu || !email || !nik || !anakKe || !status) {
                     Swal.showValidationMessage('Semua field harus diisi!');
                     return false;
                 }
+               
 
                 return {
                     id: siswaId, // ID siswa untuk update
@@ -322,7 +324,8 @@ siswaTbody.addEventListener('click', async (event) => {
                     nik: nik.value,
                     anak_ke: anakKe.value,
                     status: status.value,
-                    id_kelas: idKelas.value || null,  // Mengambil kelas yang dipilih
+                    id_kelas: idKelas.value || null,
+                    password : password  // Mengambil kelas yang dipilih
                 };
             },
         });

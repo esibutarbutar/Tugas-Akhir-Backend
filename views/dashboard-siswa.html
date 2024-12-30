@@ -41,89 +41,80 @@
     <div class="dashboard">
         <aside class="sidebar">
             <ul>
-                <li><a href="#" data-target="admin-profile">Profil</a></li>
-                <li><a href="#" data-target="data-nilai">Data Nilai</a></li>
-                <li><a href="#" data-target="absensi-siswa">Absensi</a></li>
+                <li><a href="#" data-target="siswa-profil" class="active">Profil</a></li>
+                <li><a href="#" data-target="nilai"> Nilai</a></li>
+                <li><a href="#" data-target="absensi">Absensi</a></li>
 
             </ul>
             
-                    </aside>
-        <main>
-            <div class="welcome-message">
-                <h2>Selamat Datang, <span id="employee-name-message" class="employee-name">Tamu</span></h2>
-            </div>
-            <section id="admin-profile" class="content-section hidden">
-                <div class="profile-container">
-                    <div class="profile-picture">
-                        <!-- Menampilkan huruf pertama dari nama pengguna -->
-                        <span id="profile-initial">T</span>
-                        <i id="camera-icon" class="fas fa-camera"></i>                    </div>
-                    <hr class="profile-divider">
-                    <div class="profile-details">
-                        <div class="bio-item">
-                            <strong>Nama</strong> <span id="biodata-name">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>Tempat, Tanggal Lahir</strong> <span id="biodata-ttl">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>NIP</strong> <span id="biodata-nip">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>Jabatan</strong> <span id="biodata-role">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>NIK</strong> <span id="biodata-nik">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>Tanggal Mulai Tugas</strong> <span id="biodata-tmt">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>Jenjang Pendidikan</strong> <span id="biodata-jp">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>Jurusan</strong> <span id="biodata-jurusan">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>Golongan</strong> <span id="biodata-golongan">Tidak tersedia</span>
-                        </div>
-                        <div class="bio-item">
-                            <strong>NUPTK</strong> <span id="biodata-nuptk">Tidak tersedia</span>
-                        </div>
-                    </div>
+            </aside>
+            <main>
+                <div class="welcome-message">
+                    <h2>Selamat Datang, <span id="employee-name-message" class="employee-name">Tamu</span></h2>
                 </div>
-            </section>
-            <section id="data-pegawai" class="content-section hidden">
-                <h2>Data Pegawai</h2>
-                <div class="search-add-container">
-                    <div class="search-wrapper">
-                        <input type="text" id="search-input" placeholder="Cari pegawai..." class="search-bar">
-                        <i class="fas fa-search search-icon"></i> <!-- Ikon Search -->
+                
+                <section id="siswa-profile" class="content-section hidden">
+                    <div class="profile-container">
+                        <div class="profile-picture">
+                            <!-- Menampilkan huruf pertama dari nama pengguna -->
+                            <span id="profile-initial">T</span>
+                            <i id="camera-icon" class="fas fa-camera"></i>                    </div>
+                        <hr class="profile-divider">
+                        <div class="profile-details">
+                            <div class="bio-item">
+                                <strong>Nama</strong> <span id="biodata-name">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Tempat, Tanggal Lahir</strong> <span id="biodata-ttl">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Jenis Kelamin</strong> <span id="biodata-jenis-kelamin">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Alamat</strong> <span id="biodata-alamat">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Agama</strong> <span id="biodata-agama">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Nama Ayah</strong> <span id="biodata-nama-ayah">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Nama Ibu</strong> <span id="biodata-nama-ibu">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>No. HP Orang Tua</strong> <span id="biodata-no-hp-ortu">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Email</strong> <span id="biodata-email">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>NIK</strong> <span id="biodata-nik">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Anak Ke</strong> <span id="biodata-anak-ke">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Status</strong> <span id="biodata-status">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Tanggal Masuk</strong> <span id="biodata-tanggal-masuk">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>Last Password Update</strong> <span id="biodata-last-password-update">Tidak tersedia</span>
+                            </div>
+                            <div class="bio-item">
+                                <strong>ID Kelas</strong> <span id="biodata-id-kelas">Tidak tersedia</span>
+                            </div>
+                        </div>
+                        
                     </div>
-                    <button id="add-data-btn" class="add-btn-pegawai"> Tambah Data</button>
-                </div>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>NIP</th>
-                            <th>Nama</th>
-                            <th>Tempat Lahir</th>
-                            <th>Tanggal Lahir</th>
-                            <th>Jenjang Pendidikan</th>
-                            <th>Jurusan</th>
-                            <th>Detail</th>
-                            <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
-                        </tr>
-                    </thead>
-                    <tbody id="pegawai-tbody">                       
-                    </tbody>
-                </table>
-            </section>
-            
-           
-        </main>
+                </section>
+                
+               
+            </main>
     </div>
-    <script src="/js/dashboard-admin.js"></script>
+    <script src="/js/dashboardSiswa.js"></script>
 </body>
 
 </html>

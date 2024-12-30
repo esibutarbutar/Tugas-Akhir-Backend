@@ -118,19 +118,27 @@ app.post('/api/login', async (req, res) => {
                 });
             } else if (login_sebagai === 'Siswa' && password === user[0].password) {
                 req.session.user = {
-                    id: user[0].id, // Pastikan nama kolom sesuai
-                    name: user[0].name, // Sesuaikan dengan kolom di tabel siswa
+                    id: user[0].nisn, // Pastikan nama kolom sesuai
+                    name: user[0].nama_siswa, // Sesuaikan dengan kolom di tabel siswa
                     role: 'Siswa', // Tambahkan role untuk siswa
-                    login_sebagai: login_sebagai
+                    login_sebagai: login_sebagai,
+                    tempat_lahir: user[0].tempat_lahir,
+                    tanggal_lahir: user[0].tanggal_lahir,
+                    nik: user[0].nik,
+
                 };
                 console.log("Session after login (Siswa):", req.session.user);
                 res.status(200).json({
                     message: 'Login berhasil',
                     user: {
                         id: user[0].id,
-                        name: user[0].name,
+                        name: user[0].nama_siswa,
                         role: 'Siswa', // Tambahkan role untuk siswa
-                        login_sebagai: login_sebagai
+                        login_sebagai: login_sebagai,
+                        tempat_lahir: user[0].tempat_lahir,
+                        tanggal_lahir: user[0].tanggal_lahir,
+                        nik: user[0].nik,
+
                     }
                 });
             
@@ -243,6 +251,27 @@ app.get('/api/session', (req, res) => {
         res.status(401).json({ message: 'User not logged in' });
     }
 });
+
+app.get('/api/session-siswa', (req, res) => {
+    console.log("Session Data:", req.session.user);  // Debug log untuk memastikan sesi ada
+
+    if (req.session.user) {
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID');
+        };
+
+        res.json({
+            name: req.session.user.name || 'Tidak tersedia',
+            tempat_lahir: req.session.user.tempat_lahir || 'Tidak tersedia',
+            tanggal_lahir: req.session.user.tanggal_lahir ? formatDate(req.session.user.tanggal_lahir) : 'Tidak tersedia',
+            nisn: req.session.user.id || 'Tidak tersedia',
+        });
+    } else {
+        res.status(401).json({ message: 'User not logged in' });  // Pastikan sesi benar-benar ada
+    }
+});
+
 
 app.get('/api/pegawai', async (req, res) => {
     try {
