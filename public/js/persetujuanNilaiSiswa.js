@@ -1,12 +1,12 @@
 async function getUserSession() {
     try {
-        const response = await fetch("api/session"); 
+        const response = await fetch("api/session");
         if (!response.ok) throw new Error("Gagal memuat data session");
 
         const sessionData = await response.json();
         console.log("Data session pengguna:", sessionData);
 
-        return sessionData.nip; 
+        return sessionData.nip;
     } catch (error) {
         console.error("Error:", error);
         alert("Gagal memuat data session.");
@@ -16,9 +16,9 @@ async function getUserSession() {
 
 
 function displayKelas(kelasData) {
-    console.log("kelasData:", kelasData); 
+    console.log("kelasData:", kelasData);
     const kelasInfoDiv = document.getElementById("info-kelas");
-    kelasInfoDiv.innerHTML = ''; 
+    kelasInfoDiv.innerHTML = '';
     if (Array.isArray(kelasData) && kelasData.length > 0) {
         kelasData.forEach(kelas => {
             const namaKelas = document.createElement("p");
@@ -36,7 +36,7 @@ function displayKelas(kelasData) {
             kelasInfoDiv.appendChild(namaKelas);
             kelasInfoDiv.appendChild(tingkatan);
             kelasInfoDiv.appendChild(tahunAjaran);
-            kelasInfoDiv.appendChild(namaTahunAjaran); 
+            kelasInfoDiv.appendChild(namaTahunAjaran);
         });
     } else {
         const noKelasMessage = document.createElement("p");
@@ -53,7 +53,7 @@ async function fetchKelas() {
         const nip = await getUserSession();
         if (!nip) throw new Error("NIP pengguna tidak ditemukan.");
 
-        const response = await fetch("/api/kelas"); 
+        const response = await fetch("/api/kelas");
         if (!response.ok) throw new Error("Gagal memuat data kelas");
 
         const kelasData = await response.json();
@@ -65,8 +65,8 @@ async function fetchKelas() {
         displayKelas(filteredKelas);
 
         if (filteredKelas.length > 0) {
-            const kelasId = filteredKelas[0].id; 
-            await fetchMataPelajaran(kelasId); 
+            const kelasId = filteredKelas[0].id;
+            await fetchMataPelajaran(kelasId);
         }
 
     } catch (error) {
@@ -77,7 +77,7 @@ async function fetchKelas() {
 
 async function fetchMataPelajaran(kelasId) {
     try {
-        const response = await fetch(`/api/mapel/${kelasId}`); 
+        const response = await fetch(`/api/mapel/${kelasId}`);
         if (!response.ok) throw new Error("Gagal memuat mata pelajaran");
 
         const mataPelajaranData = await response.json();
@@ -93,13 +93,13 @@ async function fetchMataPelajaran(kelasId) {
 
 function displayMataPelajaran(mataPelajaranData) {
     const mapelSelect = document.getElementById("mapel-filter");
-    mapelSelect.innerHTML = '<option value="">Pilih Mata Pelajaran</option>'; 
+    mapelSelect.innerHTML = '<option value="">Pilih Mata Pelajaran</option>';
 
     if (Array.isArray(mataPelajaranData) && mataPelajaranData.length > 0) {
         mataPelajaranData.forEach(mapel => {
             const option = document.createElement("option");
-            option.value = mapel.id; 
-            option.textContent = mapel.nama_mata_pelajaran; 
+            option.value = mapel.id;
+            option.textContent = mapel.nama_mata_pelajaran;
             mapelSelect.appendChild(option);
         });
     }
@@ -107,7 +107,7 @@ function displayMataPelajaran(mataPelajaranData) {
 
 async function fetchGrades(kelasId, mapelId) {
     try {
-        const response = await fetch(`/api/grades/${kelasId}/${mapelId}`); 
+        const response = await fetch(`/api/grades/${kelasId}/${mapelId}`);
         if (!response.ok) throw new Error("Gagal memuat data nilai");
 
         const gradesData = await response.json();
@@ -162,14 +162,15 @@ function displayGrades(gradesData) {
             const statusCell = document.createElement("td");
             let checkIcon, timesIcon;
 
-            if (grade.gradeStatus === "Setuju") {
+            // Mengupdate ikon berdasarkan gradeStatus
+            if (grade.gradeStatus === "setuju") {
                 statusCell.innerHTML = `<i class="fas fa-check-circle" style="color: green; cursor: pointer;" title="Lulus"></i>`;
                 checkIcon = statusCell.querySelector('.fa-check-circle');
-            } else if (grade.gradeStatus === "Tolak") {
+            } else if (grade.gradeStatus === "tolak") {
                 statusCell.innerHTML = `<i class="fas fa-times-circle" style="color: red; cursor: pointer;" title="Tidak Lulus"></i>`;
                 timesIcon = statusCell.querySelector('.fa-times-circle');
             } else {
-                statusCell.innerHTML = ` 
+                statusCell.innerHTML = `
                     <i class="fas fa-check-circle" style="color: green; cursor: pointer;" title="Lulus"></i>
                     <i class="fas fa-times-circle" style="color: red; cursor: pointer; margin-left: 10px;" title="Tidak Lulus"></i>`;
                 checkIcon = statusCell.querySelector('.fa-check-circle');
@@ -207,16 +208,25 @@ function displayGrades(gradesData) {
                     saveButton.style.marginLeft = "5px";
                     saveButton.style.cursor = "pointer";
 
+                    // Tombol Batal
+                    const cancelButton = document.createElement("button");
+                    cancelButton.textContent = "Batal";
+                    cancelButton.style.marginLeft = "5px";
+                    cancelButton.style.cursor = "pointer";
+
+                    // Menyusun elemen input dan tombol
                     catatanCell.innerHTML = '';
                     catatanCell.appendChild(inputField);
                     catatanCell.appendChild(saveButton);
+                    catatanCell.appendChild(cancelButton);
 
+                    // Event listener untuk tombol Simpan
                     saveButton.addEventListener('click', () => {
                         const note = inputField.value.trim();
 
                         if (note) {
-                            catatanCell.textContent = note; 
-                            statusCell.innerHTML = `<i class="fas fa-times-circle" style="color: red;"></i> Tolak`; 
+                            catatanCell.textContent = note;
+                            statusCell.innerHTML = `<i class="fas fa-times-circle" style="color: red;"></i> Tolak`;
                             // Sembunyikan ikon centang
                             if (checkIcon) checkIcon.style.display = "none";
                             updateStatusInDB(grade.nisn, note, "Tolak", grade);
@@ -224,11 +234,130 @@ function displayGrades(gradesData) {
                             alert("Catatan tidak boleh kosong!");
                         }
                     });
+
+                    cancelButton.addEventListener('click', () => {
+                        // Mengembalikan catatan dan status seperti semula
+                        catatanCell.textContent = grade.catatan || ''; // Kembalikan catatan sebelumnya
+                        statusCell.innerHTML = `
+                            <i class="fas fa-check-circle" style="color: green; cursor: pointer;" title="Setujui"></i>
+                            <i class="fas fa-times-circle" style="color: red; cursor: pointer;" title="Tolak"></i>
+                        `;
+                        // Menampilkan ikon centang lagi jika perlu
+                        if (checkIcon) checkIcon.style.display = "inline";
+                    });
                 });
             }
 
             tbody.appendChild(row);
         });
+        const approveAllButton = document.createElement("button");
+        approveAllButton.textContent = "Setujui Semua";
+        approveAllButton.style.marginTop = "20px";
+        approveAllButton.style.cursor = "pointer";
+        approveAllButton.style.position = "absolute";
+        approveAllButton.style.right = "20px";
+        approveAllButton.style.backgroundColor = "#004D40";
+        approveAllButton.style.color = "white";
+        approveAllButton.style.padding = "8px 10px";
+        approveAllButton.style.border = "none";
+        approveAllButton.style.borderRadius = "5px";
+        approveAllButton.style.fontSize = "12px";
+        approveAllButton.style.transition = "background-color 0.3s";
+        approveAllButton.addEventListener('mouseover', () => {
+            approveAllButton.style.backgroundColor = "#45a049";
+        });
+        approveAllButton.addEventListener('mouseout', () => {
+            approveAllButton.style.backgroundColor = "#004D40";
+        }); 
+        approveAllButton.addEventListener('click', () => {
+            const allRows = Array.from(tbody.querySelectorAll("tr"));
+            let allComplete = true; // Menyimpan status apakah semua nilai lengkap
+            let updateSuccessful = true; // Menandakan apakah pembaruan status berhasil
+        
+            allRows.forEach(row => {
+                const uts = row.cells[2].textContent; // Nilai UTS
+                const uas = row.cells[3].textContent; // Nilai UAS
+                const tugas = row.cells[4].textContent; // Nilai Tugas
+        
+                // Cek jika ada nilai yang kosong
+                if (uts === '-' || uas === '-' || tugas === '-') {
+                    allComplete = false; // Menandakan ada nilai yang belum lengkap
+                }
+            });
+        
+            // Jika ada nilai yang belum lengkap, tampilkan SweetAlert
+            if (!allComplete) {
+                Swal.fire({
+                    title: 'Peringatan!',
+                    text: 'Beberapa nilai belum lengkap! Periksa semua nilai sebelum melanjutkan.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                // Jika semua nilai lengkap, lanjutkan dengan menyetujui semua
+                allRows.forEach(row => {
+                    const statusCell = row.cells[5]; // Kolom Status
+                    const catatanCell = row.cells[6]; // Kolom Catatan
+                    const nisn = row.cells[0].textContent; // Ambil NISN
+        
+                    if (statusCell && catatanCell) {
+                        // Update UI dengan status "Setuju"
+                        statusCell.innerHTML = `<i class="fas fa-check-circle" style="color: green;"></i> Setuju`;
+                        catatanCell.textContent = "Lulus";
+        
+                        // Kirim permintaan untuk memperbarui status ke backend
+                        fetch('/api/update-grade-status', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                nisn: nisn,
+                                catatan: 'Lulus',
+                                status: 'Setuju',
+                                mapel_id: row.cells[7].textContent // Assuming the mapel_id is stored in column 7
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message === 'Status berhasil diperbarui.') {
+                                // Status berhasil diperbarui, lanjutkan
+                                updateStatusInDB(nisn, "Lulus", "Setuju");
+                            } else {
+                                updateSuccessful = false;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error:', err);
+                            updateSuccessful = false;
+                        });
+                    }
+                });
+        
+                // Tampilkan SweetAlert hanya jika semua update berhasil
+                if (updateSuccessful) {
+                    Swal.fire({
+                        title: 'Sukses!',
+                        text: 'Semua nilai berhasil disetujui!',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Sembunyikan tombol setelah berhasil
+                        approveAllButton.style.display = 'none'; // Menyembunyikan tombol
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Terjadi kesalahan dalam memperbarui status nilai. Silakan coba lagi.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        });
+        
+        
+        document.getElementById("nilaiTable").appendChild(approveAllButton);
     } else {
         const noDataRow = document.createElement("tr");
         const noDataCell = document.createElement("td");
@@ -258,7 +387,7 @@ async function updateStatusInDB(nisn, catatan, status) {
                 nisn: nisn,
                 catatan: catatan,
                 status: status,
-                mapel_id: mapelId,  
+                mapel_id: mapelId,
             }),
         });
 
@@ -275,26 +404,26 @@ async function updateStatusInDB(nisn, catatan, status) {
     }
 }
 
-document.getElementById("mapel-filter").addEventListener("change", async function() {
-    const kelasId = await getSelectedKelasId(); 
-    const mapelId = this.value; 
+document.getElementById("mapel-filter").addEventListener("change", async function () {
+    const kelasId = await getSelectedKelasId();
+    const mapelId = this.value;
 
     if (kelasId && mapelId) {
-        await fetchGrades(kelasId, mapelId); 
+        await fetchGrades(kelasId, mapelId);
     }
 });
 
 async function getSelectedKelasId() {
     const nip = await getUserSession();
-    const response = await fetch("/api/kelas"); 
+    const response = await fetch("/api/kelas");
     const kelasData = await response.json();
-    const kelas = kelasData.find(k => k.nip === nip); 
+    const kelas = kelasData.find(k => k.nip === nip);
     return kelas ? kelas.id : null;
 }
 
 
 
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     fetchKelas();
 });
