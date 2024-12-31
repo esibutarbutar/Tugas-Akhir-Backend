@@ -272,7 +272,8 @@ app.get('/api/session-siswa', (req, res) => {
             tanggal_masuk: req.session.user.tanggal_masuk ? formatDate(req.session.user.tanggal_masuk) : 'Tidak tersedia',
             last_password_update: req.session.user.last_password_update ? formatDate(req.session.user.last_password_update) : 'Tidak tersedia',
             profile_image: req.session.user.profile_image || 'Tidak tersedia',
-            id_kelas: req.session.user.id_kelas || 'Tidak tersedia'        });
+            id_kelas: req.session.user.id_kelas || 'Tidak tersedia'
+        });
     } else {
         res.status(401).json({ message: 'User not logged in' });  // Pastikan sesi benar-benar ada
     }
@@ -1000,7 +1001,7 @@ app.post('/api/mata-pelajaran', async (req, res) => {
     try {
         // Cek apakah mata pelajaran sudah ada di kelas dan tahun ajaran yang sama
         const [existingMatpel] = await db.query(checkQuery, [nama_pelajaran, id_kelas, id_tahun_ajaran, nip]);
-        
+
         if (existingMatpel.length > 0) {
             const existingTeacherName = existingMatpel[0].nama_pegawai;  // Nama guru yang sudah ada
             return res.status(400).json({
@@ -1558,7 +1559,7 @@ app.get('/api/grades/:kelasId/:matpelId', async (req, res) => {
 
         const finalResults = Object.values(nilaiAkhir).map(siswa => {
             console.log(`Menghitung nilai akhir untuk ${siswa.nisn}: UTS=${siswa.uts}, UAS=${siswa.uas}, Tugas=${siswa.tugas}`);
-            
+
             // Pastikan ada nilai untuk uts, uas, dan tugas
             if (siswa.uts !== null && siswa.uas !== null && siswa.tugas !== null) {
                 siswa.nilai_akhir = ((siswa.uts * 0.4) + (siswa.uas * 0.4) + (siswa.tugas * 0.2)).toFixed(1);
@@ -1617,7 +1618,7 @@ app.post('/api/update-grade-status', async (req, res) => {
             SET gradeStatus = ?, catatan = ?
             WHERE nisn = ? AND id_matpel = ?
         `;
-        
+
         // Menjalankan query dengan db.execute()
         const [result] = await db.execute(query, [status, catatan || null, nisn, mapel_id]);
 
@@ -1683,6 +1684,76 @@ app.get('/api/get-grades', async (req, res) => {
     } catch (err) {
         console.error('Error saat mengeksekusi query:', err);
         res.status(500).json({ error: 'Gagal memuat data status dan catatan.' });
+    }
+});
+
+
+app.get('/api/grades/:tahunAjaran', async (req, res) => {
+    const { tahunAjaran } = req.params;
+    const nisn = req.session.user?.id; // Pastikan ini mengambil NISN dari sesi pengguna
+
+    if (!tahunAjaran) {
+        return res.status(400).json({ error: 'Tahun ajaran harus disertakan.' });
+    }
+
+    if (!nisn) {
+        return res.status(401).json({ error: 'Anda belum login.' });
+    }
+
+    const query = `
+        SELECT g.nisn, s.nama_siswa, g.gradesType, g.grade, g.gradeStatus, g.catatan, m.nama_mata_pelajaran
+        FROM grades g
+        JOIN siswa s ON g.nisn = s.nisn
+        JOIN mata_pelajaran m ON g.id_matpel = m.id
+        WHERE g.id_tahun_ajaran = ? AND g.nisn = ? AND g.gradesType IN ('uts', 'uas', 'tugas');
+    `;
+
+    try {
+        const [results] = await db.execute(query, [tahunAjaran, nisn]);
+
+        // Transformasi hasil
+        const nilaiAkhir = results.reduce((acc, row) => {
+            const { gradesType, grade, nama_mata_pelajaran, gradeStatus } = row;
+
+            // Inisialisasi data jika belum ada untuk mata pelajaran tersebut
+            if (!acc[nama_mata_pelajaran]) {
+                acc[nama_mata_pelajaran] = {
+                    matpel: nama_mata_pelajaran,
+                    uts: null,
+                    uas: null,
+                    tugas: null,
+                    nilai_akhir: null, // Kosongkan jika belum disetujui
+                };
+            }
+
+            // Mengelompokkan nilai berdasarkan gradeType
+            if (gradesType.toLowerCase() === 'uts') {
+                acc[nama_mata_pelajaran].uts = grade ? Number(grade) : null;
+            } else if (gradesType.toLowerCase() === 'uas') {
+                acc[nama_mata_pelajaran].uas = grade ? Number(grade) : null;
+            } else if (gradesType.toLowerCase() === 'tugas') {
+                acc[nama_mata_pelajaran].tugas = grade ? Number(grade) : null;
+            }
+
+            // Hanya hitung nilai akhir jika gradeStatus "setuju"
+            if (gradeStatus?.toLowerCase() === 'setuju') {
+                const { uts, uas, tugas } = acc[nama_mata_pelajaran];
+                // Hitung nilai akhir jika semua nilai ada dan status "setuju"
+                if (uts !== null && uas !== null && tugas !== null) {
+                    acc[nama_mata_pelajaran].nilai_akhir = ((uts * 0.4) + (uas * 0.4) + (tugas * 0.2)).toFixed(1);
+                }
+            }
+
+            return acc;
+        }, {});
+
+        // Transformasi objek menjadi array untuk respons JSON
+        const finalResults = Object.values(nilaiAkhir);
+
+        res.json(finalResults);
+    } catch (err) {
+        console.error("Error executing query:", err);
+        res.status(500).json({ error: 'Gagal memuat data nilai' });
     }
 });
 
