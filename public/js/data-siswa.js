@@ -298,7 +298,7 @@ siswaTbody.addEventListener('click', async (event) => {
                 const anakKe = document.getElementById('anak_ke');
                 const status = document.getElementById('status');
                 const idKelas = document.getElementById('id_kelas');
-                const password = nisn;
+                
 
                 if (!nisn || !namaSiswa || !alamat || !tempatLahir || !tanggalLahir || !jenisKelamin || !agama ||
                     !tanggalMasuk || !namaAyah || !namaIbu || !noHpOrtu || !email || !nik || !anakKe || !status) {
@@ -325,7 +325,7 @@ siswaTbody.addEventListener('click', async (event) => {
                     anak_ke: anakKe.value,
                     status: status.value,
                     id_kelas: idKelas.value || null,
-                    password : password  // Mengambil kelas yang dipilih
+                     // Mengambil kelas yang dipilih
                 };
             },
         });
@@ -511,12 +511,14 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
                 nik: nik.value,
                 anak_ke: anakKe.value,
                 status: status.value,
-                id_kelas: idKelasValue,  // Menambahkan id_kelas
+                id_kelas: idKelasValue, 
+                password: nisn.value, // Menambahkan id_kelas
             };
         },
     });
 
     if (formValues) {
+        formValues.password = formValues.nisn;
         try {
             const response = await fetch('/api/siswa', {
                 method: 'POST',
@@ -526,7 +528,14 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
                 body: JSON.stringify(formValues),
             });
 
-            if (response.ok) {
+            if (response.status === 400) {
+                const data = await response.json();
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: data.message || 'Terjadi kesalahan pada data yang dimasukkan.',
+                    icon: 'error',
+                });
+            } else if (response.ok) {
                 Swal.fire({
                     title: 'Berhasil!',
                     text: 'Data siswa berhasil ditambahkan.',
@@ -541,6 +550,8 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
                     icon: 'error',
                 });
             }
+            
+            
         } catch (error) {
             console.error("Error adding siswa:", error);
             Swal.fire({

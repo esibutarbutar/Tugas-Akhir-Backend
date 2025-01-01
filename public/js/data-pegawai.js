@@ -189,15 +189,22 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
                     },
                     body: JSON.stringify(dataPegawai),
                 });
-
-                if (response.ok) {
+            
+                if (response.status === 409) {
+                    const result = await response.json();
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: result.message, // Menampilkan pesan error dari server
+                        icon: 'error',
+                    });
+                } else if (response.ok) {
                     Swal.fire({
                         title: 'Berhasil!',
                         text: 'Data pegawai berhasil ditambahkan.',
                         icon: 'success',
-                       confirmButtonColor: '#004D40'
+                        confirmButtonColor: '#004D40',
                     });
-
+            
                     pegawaiTbody.innerHTML = '';
                     getDataPegawai();
                 } else {
@@ -215,6 +222,7 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
                     icon: 'error',
                 });
             }
+            
         }
     });
     
@@ -272,14 +280,13 @@ async function deletePegawai(nip) {
 
 async function editPegawai(nip) {
     try {
-        // Ambil data pegawai berdasarkan nip
-        const response = await fetch(`/api/pegawai/${nip}`);
-        const pegawai = await response.json();
-
-        // Format tanggal
+        const response = await fetch(`/api/pegawai-edit/${nip}`);
+        const pegawai  = await response.json();
+        console.log(pegawai);
+        const roleIds = (pegawai.roles?.map(role => role.id) || []);
+        console.log('Roles:', roleIds);
         const tanggalLahir = pegawai.tanggal_lahir; // Pastikan tanggal dalam format yyyy-mm-dd
         const tanggalMulaiTugas = pegawai.tanggal_mulai_tugas;
-        // Tampilkan form edit dengan data pegawai
         const result = await Swal.fire({
             title: 'Edit Data Pegawai',
             html: `
@@ -310,7 +317,7 @@ async function editPegawai(nip) {
                     <option ${pegawai.agama === 'Kristen' ? 'selected' : ''} value="Kristen">Kristen</option>
                     <option ${pegawai.agama === 'Hindu' ? 'selected' : ''} value="Hindu">Hindu</option>
                     <option ${pegawai.agama === 'Buddha' ? 'selected' : ''} value="Buddha">Buddha</option>
-                    <option ${pegawai  .agama === 'Katholik' ? 'selected' : ''} value="Katholik">Katholik</option>
+                    <option ${pegawai.agama === 'Katholik' ? 'selected' : ''} value="Katholik">Katholik</option>
                 </select><br>
 
                 <label for="email">Email:</label>
@@ -333,13 +340,13 @@ async function editPegawai(nip) {
 
                 <label for="role_id">Pilih Role:</label>
                 <select id="role_id" class="swal2-input" multiple>
-                    <option value="R1" ${pegawai.roles && pegawai.roles.includes('R1') ? 'selected' : ''}>Guru Mata Pelajaran</option>
-                    <option value="R2" ${pegawai.roles && pegawai.roles.includes('R2') ? 'selected' : ''}>Guru Wali Kelas</option>
-                    <option value="R3" ${pegawai.roles && pegawai.roles.includes('R3') ? 'selected' : ''}>Admin</option>
-                    <option value="R4" ${pegawai.roles && pegawai.roles.includes('R4') ? 'selected' : ''}>Kepala Sekolah</option>
-                </select>
+                    <option value="R1" ${roleIds.includes('R1') ? 'selected' : ''}>Guru Mata Pelajaran</option>
+                    <option value="R2" ${roleIds.includes('R2') ? 'selected' : ''}>Guru Wali Kelas</option>
+                    <option value="R3" ${roleIds.includes('R3') ? 'selected' : ''}>Admin</option>
+                    <option value="R4" ${roleIds.includes('R4') ? 'selected' : ''}>Kepala Sekolah</option>
+                </select>                
                 <p class="note">Tekan tombol <strong>Ctrl</strong> (Windows) atau <strong>Cmd</strong> (Mac) untuk memilih lebih dari satu role.</p>
-                `,
+            `,
             confirmButtonText: 'Simpan Perubahan',
             confirmButtonColor: '#3CB371',
             showCancelButton: true,
@@ -378,11 +385,8 @@ async function editPegawai(nip) {
                 };
             },
         });
-        // Jika konfirmasi berhasil, kirim data pegawai yang sudah diubah
         if (result.isConfirmed) {
             const dataPegawai = result.value;
-
-            // Kirim data ke server untuk diupdate
             await fetch(`/api/pegawai/${nip}`, {
                 method: 'PUT',
                 headers: {
@@ -390,11 +394,9 @@ async function editPegawai(nip) {
                 },
                 body: JSON.stringify(dataPegawai),
             });
-
-            // Beri feedback bahwa data berhasil diperbarui
             Swal.fire({
                 title: 'Berhasil!',
-                text: 'Data pegawai berhasil dihapus.',
+                text: 'Data pegawai berhasil disimpan.',
                 icon: 'success',
                 confirmButtonColor: '#004D40'
             });
@@ -411,20 +413,15 @@ document.addEventListener('click', async function (event) {
         const nip = event.target.getAttribute('data-nip');
 
         try {
-            // Ambil data pegawai berdasarkan NIP
             const response = await fetch(`/api/pegawai/${nip}`);
             const pegawai = await response.json();
 
-            // Fungsi untuk memformat tanggal
             const formatTanggal = (tanggal) => {
                 if (!tanggal) return 'Tidak tersedia';
                 const date = new Date(tanggal);
                 return date.toLocaleDateString('id-ID'); // Format Indonesia
             };
 
-            // Pastikan roles adalah array
-
-            // Tampilkan detail pegawai menggunakan SweetAlert2
             Swal.fire({
                 title: `Detail Pegawai: ${pegawai.nama_pegawai}`,
                 html: `
@@ -457,45 +454,3 @@ document.addEventListener('click', async function (event) {
     }
 });
 
-// async function viewDetails(nisn) {
-//     try {
-//         console.log("Fetching details for NISN:", nisn); // Debug
-//         const response = await fetch(`/api/siswa/${nisn}`);
-//         if (!response.ok) throw new Error("Gagal mengambil data siswa!");
-
-//         const siswa = await response.json();
-//         console.log("Detail siswa:", siswa); // Debug untuk melihat data yang diterima
-
-//         // Tampilkan dengan SweetAlert2
-//         Swal.fire({
-//             title: `Detail Siswa: ${siswa.nama_siswa}`,
-//             html: `
-//                 <strong>NISN:</strong> ${siswa.nisn}<br>
-//                 <strong>Nama:</strong> ${siswa.nama_siswa}<br>
-//                 <strong>Tempat Lahir:</strong> ${siswa.tempat_lahir}<br>
-//                 <strong>Tanggal Lahir:</strong> ${formatDate(siswa.tanggal_lahir)}<br>
-//                 <strong>Alamat:</strong> ${siswa.alamat}<br>
-//                 <strong>Jenis Kelamin:</strong> ${siswa.jenis_kelamin}<br>
-//                 <strong>Agama:</strong> ${siswa.agama}<br>
-//                 <strong>NIK:</strong> ${siswa.nik}<br>
-//                 <strong>Nama Ayah:</strong> ${siswa.nama_ayah}<br>
-//                 <strong>Nama Ibu:</strong> ${siswa.nama_ibu}<br>
-//                 <strong>No HP ortu:</strong> ${siswa.no_hp_ortu}<br>
-//                 <strong>Email:</strong> ${siswa.email}<br>
-//                 <strong>Anak Ke:</strong> ${siswa.anak_ke}<br>
-//                 <strong>Status:</strong> ${siswa.status}<br>
-//                 <strong>Tanggal Masuk:</strong> ${formatDate(siswa.tanggal_masuk)}<br>
-//             `,
-//             icon: 'info',
-//             confirmButtonText: 'Tutup',
-//         });
-//     } catch (error) {
-//         console.error("Error fetching siswa details:", error);
-//         Swal.fire({
-//             title: 'Error',
-//             text: 'Gagal mengambil detail siswa. Silakan coba lagi.',
-//             icon: 'error',
-//             confirmButtonText: 'Tutup',
-//         });
-//     }
-// }

@@ -8,6 +8,8 @@ const PORT = 3000;
 const multer = require('multer');
 const cors = require('cors');
 app.use(cors({ origin: '*' }));
+const nodemailer = require('nodemailer');
+const { v4: uuidv4 } = require('uuid');
 
 
 app.use(session({
@@ -330,10 +332,7 @@ app.post('/api/pegawai', (req, res, next) => {
         } = req.body;
 
         console.log('Data diterima:', req.body);
-        console.log('Roles:', roles);
-        console.log('Selected roles:', roles);
 
-        // Validasi roleId harus berupa array
         if (!Array.isArray(roles)) {
             return res.status(400).json({ message: 'roleId harus berupa array!' });
         }
@@ -358,31 +357,51 @@ app.post('/api/pegawai', (req, res, next) => {
 
         res.status(201).json({ message: 'Data pegawai dan role berhasil ditambahkan!' });
     } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            console.error('Duplicate Entry Error:', error);
+            return res.status(409).json({ message: 'NIP sudah terdaftar!' });
+        }
+
         console.error('Error menyimpan data:', error);
         res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
     }
 });
-
-app.get('/api/pegawai/:nip', async (req, res) => {
+app.get('/api/pegawai-edit/:nip', async (req, res) => {
     const { nip } = req.params;
 
     try {
-        const query = 'SELECT * FROM pegawai WHERE nip = ?';
-        const [result] = await db.execute(query, [nip]);
+        // Query untuk mendapatkan data pegawai
+        const queryPegawai = 'SELECT * FROM pegawai WHERE nip = ?';
+        const [pegawaiResult] = await db.execute(queryPegawai, [nip]);
 
-        if (result.length > 0) {
-            res.status(200).json(result[0]);
+        if (pegawaiResult.length > 0) {
+            // Query untuk mendapatkan role yang dimiliki oleh pegawai
+            const queryRoles = `
+                SELECT pr.role_id
+                FROM pegawai_roles pr
+                WHERE pr.nip = ?
+            `;
+            const [rolesResult] = await db.execute(queryRoles, [nip]);
+
+            // Ambil hanya array role_id
+            const roleIds = rolesResult.map(role => role.role_id);
+
+            // Menambahkan role pada data pegawai
+            const pegawaiData = {
+                ...pegawaiResult[0],
+                roles: roleIds // Hanya berisi daftar id role
+            };
+
+            res.status(200).json(pegawaiData);
         } else {
             res.status(404).json({ message: 'Pegawai tidak ditemukan.' });
         }
     } catch (error) {
-        console.error('Error mengambil data pegawai:', error);
+        console.error('Error mengambil data pegawai dan roles:', error);
         res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
     }
 });
 
-
-// Endpoint PUT untuk update data pegawai
 app.put('/api/pegawai/:nip', async (req, res) => {
     const { nip } = req.params;
     const {
@@ -506,36 +525,40 @@ app.get('/api/siswa', async (req, res) => {
 app.post('/api/siswa', async (req, res) => {
     const {
         nisn, nama_siswa, alamat, tempat_lahir, tanggal_lahir, jenis_kelamin,
-        agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas
+        agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas, password
     } = req.body;
 
-    // Validasi input (pastikan hanya field wajib yang diisi)
     if (!nisn || !nama_siswa || !alamat || !tempat_lahir || !tanggal_lahir || !jenis_kelamin ||
         !agama || !tanggal_masuk || !nama_ayah || !nama_ibu || !no_hp_ortu || !email || !nik || !anak_ke || !status) {
         return res.status(400).json({ message: 'Field wajib harus diisi!' });
     }
 
-
     const query = `
-INSERT INTO siswa (nisn, nama_siswa, alamat, tempat_lahir, tanggal_lahir, jenis_kelamin,
-    agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`;
+    INSERT INTO siswa (nisn, nama_siswa, alamat, tempat_lahir, tanggal_lahir, jenis_kelamin,
+        agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, id_kelas, password)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-    // Ganti id_kelas dengan null jika tidak ada
     const idKelasValue = id_kelas ? id_kelas : null;
 
     try {
         await db.query(query, [
             nisn, nama_siswa, alamat, tempat_lahir, tanggal_lahir, jenis_kelamin,
-            agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, idKelasValue
+            agama, tanggal_masuk, nama_ayah, nama_ibu, no_hp_ortu, email, nik, anak_ke, status, idKelasValue, password
         ]);
         res.status(201).json({ message: 'Data siswa berhasil ditambahkan.' });
     } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            // Menangani error duplikasi primary key
+            return res.status(400).json({
+                message: 'NISN sudah terdaftar. Silakan gunakan NISN yang berbeda.',
+                detail: err.sqlMessage
+            });
+        }
+
         console.error('Error inserting siswa:', err);
         res.status(500).json({ message: 'Terjadi kesalahan saat menambahkan data siswa.' });
     }
-
 });
 
 app.delete('/api/siswa/:nisn', async (req, res) => {
@@ -1754,6 +1777,105 @@ app.get('/api/grades/:tahunAjaran', async (req, res) => {
     } catch (err) {
         console.error("Error executing query:", err);
         res.status(500).json({ error: 'Gagal memuat data nilai' });
+    }
+});
+const users = [
+    { email: 'user@example.com', username: 'user123' }
+];
+
+app.post('/api/reset-password', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Validasi format email
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Format email tidak valid' });
+        }
+
+        // Generate token unik untuk reset password
+        const resetToken = uuidv4();
+
+        // Simulasi menyimpan token di database (ganti dengan penyimpanan yang aman)
+        // Anda bisa menyimpan token untuk email ini di database atau array, misalnya:
+        const resetTokens = [];  // Menyimpan token reset sesuai email
+        resetTokens.push({ email, resetToken });
+
+        // Konfigurasi transporter untuk mengirim email
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'your-email@gmail.com',  // Ganti dengan email pengirim
+                pass: 'your-email-password'    // Ganti dengan password aplikasi atau autentikasi OAuth2
+            }
+        });
+
+        const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+        const mailOptions = {
+            from: 'your-email@gmail.com',
+            to: email,
+            subject: 'Reset Password',
+            text: `Klik link ini untuk mereset password Anda: ${resetLink}`
+        };
+
+        // Kirim email menggunakan await untuk menangani pengiriman email secara async
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: 'Link reset password telah dikirim ke email Anda' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Gagal mengirim email' });
+    }
+});
+
+// Endpoint untuk halaman reset password
+app.get('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        // Cek token di database (simulasi)
+        const user = users.find(user => user.resetToken === token);
+        if (!user) {
+            return res.status(400).json({ message: 'Token tidak valid' });
+        }
+
+        res.send(`
+            <h3>Atur Kata Sandi Baru</h3>
+            <form action="/api/confirm-reset-password" method="POST">
+                <input type="password" name="new-password" placeholder="Kata Sandi Baru" required><br>
+                <input type="password" name="confirm-password" placeholder="Konfirmasi Kata Sandi Baru" required><br>
+                <button type="submit">Atur Kata Sandi</button>
+            </form>
+        `);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan' });
+    }
+});
+
+// Endpoint untuk mengonfirmasi reset password dan update kata sandi
+app.post('/api/confirm-reset-password', async (req, res) => {
+    const { newPassword, confirmPassword, token } = req.body;
+
+    try {
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ message: 'Kata sandi tidak cocok' });
+        }
+
+        // Update password di database (simulasi)
+        const user = users.find(user => user.resetToken === token);
+        if (user) {
+            user.password = newPassword;  // Ganti dengan hashing password di aplikasi nyata
+            user.resetToken = null;  // Menghapus token reset setelah sukses
+            return res.status(200).json({ message: 'Kata sandi berhasil diperbarui' });
+        }
+
+        res.status(400).json({ message: 'Token tidak valid' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan' });
     }
 });
 
