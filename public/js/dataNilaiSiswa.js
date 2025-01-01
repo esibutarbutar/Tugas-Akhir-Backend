@@ -445,7 +445,7 @@ if (jenisNilai !== 'nilai-akhir') {
 
 function resetNilaiColumns() {
     const siswaTbody = document.getElementById("siswa-tbody");
-    const allColumns = ['uts', 'uas', 'tugas', 'nilai-akhir'];
+    const allColumns = ['uts', 'uas', 'tugas', 'nilai-akhir', 'status', 'catatan'];
 
     // Hapus kolom nilai yang ada
     const rows = siswaTbody.querySelectorAll('tr');
@@ -467,7 +467,6 @@ function resetNilaiColumns() {
         }
     });
 }
-
 document.getElementById('kelas-filter').addEventListener('change', async (event) => {
     const kelasId = event.target.value;
 
@@ -545,34 +544,44 @@ document.getElementById('jenis-nilai-filter').addEventListener('change', functio
 
 document.getElementById('mapel-filter').addEventListener('change', function () {
     const jenisNilaiFilter = document.getElementById('jenis-nilai-filter');
-    const jenisNilai = jenisNilaiFilter.value;  // Nilai jenisNilai yang sedang aktif
+    const jenisNilai = jenisNilaiFilter.value;
     const siswaTbody = document.getElementById('siswa-tbody');
     const tableHeader = document.querySelector('table thead tr');
     const allColumns = siswaTbody.querySelectorAll('[class^="column-"]:not(.column-nilai-akhir):not(.column-status):not(.column-catatan)');
     const allHeaders = tableHeader.querySelectorAll('[id^="header-"]:not(#header-nilai-akhir):not(#header-status):not(#header-catatan)');
     
+    // Menyembunyikan semua kolom yang ada, termasuk nilai akhir, status, dan catatan
     allColumns.forEach(cell => {
-        cell.style.display = 'none';  
+        cell.style.display = 'none';
     });
-
     allHeaders.forEach(header => {
-        header.style.display = 'none';  
+        header.style.display = 'none';
     });
 
-    jenisNilaiFilter.selectedIndex = 0;  
+    const additionalColumns = ['nilai-akhir', 'status', 'catatan'];
+    additionalColumns.forEach(column => {
+        siswaTbody.querySelectorAll(`.column-${column}`).forEach(cell => {
+            cell.style.display = 'none';
+        });
+
+        const header = document.getElementById(`header-${column}`);
+        if (header) {
+            header.style.display = 'none';
+        }
+    });
 
     if (jenisNilai && jenisNilai !== 'nilai-akhir') {
         siswaTbody.querySelectorAll(`.column-${jenisNilai}`).forEach(cell => {
-            cell.style.display = 'none';  
+            cell.style.display = '';
         });
-        
+
         const header = document.getElementById(`header-${jenisNilai}`);
         if (header) {
-            header.style.display = 'none';  
+            header.style.display = '';
         }
     }
 
-    jenisNilaiFilter.disabled = false;  
+    jenisNilaiFilter.disabled = false;
 });
 
     
