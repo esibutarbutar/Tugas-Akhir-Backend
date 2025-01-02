@@ -155,15 +155,15 @@ app.post('/login', (req, res) => {
     const userRole = req.session.user?.role;
     console.log("User Role from session:", userRole);
 
-    if (userRole.includes('Guru Mata Pelajaran') && userRole.includes('Guru Wali Kelas')) {
-        // Jika guru memiliki kedua role, arahkan ke dashboard gabungan
-        res.redirect('/dashboard-gabungan');
-    } else if (userRole === 'Admin') {
+    if (userRole === 'Admin') {
         res.redirect('/dashboard-admin');
     } else if (userRole === 'Guru Mata Pelajaran') {
         res.redirect('/dashboard-matpel');
     } else if (userRole === 'Guru Wali Kelas') {
         res.redirect('/dashboard-walikelas');
+    } else if (userRole === 'Guru Mata Pelajaran & Wali Kelas') {
+        res.redirect('/dashboard-walikelas');
+
     } else {
         res.redirect('/dashboard-siswa');
     }
@@ -175,15 +175,14 @@ app.get('/dashboard', (req, res) => {
         const { role } = req.session.user;
         if (role === 'Admin') {
             res.redirect('/dashboard-admin');
-        } else if (role.includes('Guru Mata Pelajaran') && role.includes('Guru Wali Kelas')) {
-            // Jika guru memiliki kedua role, misalnya, tampilkan dashboard gabungan atau pilihan
-            res.redirect('/dashboard-guru');
          } else if (role === 'Guru Mata Pelajaran') {
             res.redirect('/dashboard-matpel');
         } else if (role === 'Guru Wali Kelas') {
             res.redirect('/dashboard-walikelas');
+        } else if (role === 'Guru Mata Pelajaran & Wali Kelas') {
+            res.redirect('/dashboard-guru');
         } else if (role === 'Siswa') {
-            res.redirect('/dashboard-siswa');
+                res.redirect('/dashboard-siswa');
         } else {
             res.redirect('/login'); // Jika role tidak dikenali
         }
@@ -217,19 +216,10 @@ app.get('/dashboard-walikelas', (req, res) => {
     }
 });
 app.get('/dashboard-guru', (req, res) => {
-    if (req.session.user) {
-        const { role } = req.session.user;
-        if (role.includes('Guru Mata Pelajaran') && role.includes('Guru Wali Kelas')) {
-            // Jika guru memiliki kedua role, tampilkan pilihan untuk memilih bagian yang ingin dilihat
-            res.render('dashboard-guru', { 
-                message: 'Anda memiliki kedua role: Guru Mata Pelajaran dan Guru Wali Kelas. Pilih bagian yang ingin dilihat.',
-                role: role
-            })
-        } else {
-            res.redirect('/login');
-        }
+    if (req.session.user && req.session.user.role === 'Guru Mata Pelajaran & Wali Kelas') {
+        res.sendFile(path.join(__dirname, 'views', 'dashboard-guru.html'));
     } else {
-        res.redirect('/login'); // Jika tidak ada sesi
+        res.redirect('/login');
     }
 });
 

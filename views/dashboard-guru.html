@@ -3,24 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guru Wali Kelas</title>
-</head>
-<body>
-    <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <title>Guru Wali Kelas</title>
+    <title>Guru Mata Pelajaran dan Wali Kelas</title>
     <link rel="stylesheet" href="/css/dashboard-admin.css">
     <link rel="stylesheet" href="/css/data-pegawai.css">
     <link rel="stylesheet" href="/css/mading.css">
     <link rel="stylesheet" href="/css/mata-pelajaran.css">
     <link rel="stylesheet" href="/css/kelas.css">
     <link rel="stylesheet" href="/css/dataWaliKelas.css">
+    <link rel="stylesheet" href="/css/dataNilai.css">
 
 
 
@@ -29,11 +19,11 @@
     <!-- SweetAlert2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-</head>
 
+</head>
 <body>
     <header>
-        <h1>Guru Wali Kelas</h1>
+        <h1>Guru Mata Pelajatan dan Wali Kelas</h1>
         <div class="profile">
             <i class="fas fa-user-circle" id="profile-icon"></i>  <!-- ID untuk ikon -->
             <span id="employee-name-header" class="employee-name">Tamu</span>
@@ -44,8 +34,9 @@
         <aside class="sidebar">
             <ul>
                 <li><a href="#" data-target="guru-matpel-profile">Profil</a></li>
-                <li><a href="#" data-target="persetujuan-nilai">Data Nilai Siswa</a></li>
+                <li><a href="#" data-target="persetujuan-nilai">Persetujuan Nilai</a></li>
                 <li><a href="#" data-target="absensi-siswa">Data Absen Siswa</a></li>
+                <li><a href="#" data-target="data-nilai-siswa">Data Nilai Siswa</a></li>
 
             </ul>
                 </aside>
@@ -126,24 +117,55 @@
                 <div id="button-container" style="text-align: right; margin-top: 10px;">
                     <button id="setujui-semua" style="display: none;">Setujui Semua</button>
                 </div>
-                
-                 
-                
-                
             </section>
-            
-           <section>
-            <h2>Data absen</h2>
-           </section>
+            <section id="absensi-siswa" class="content-section hidden">
+                <h2>Data absen</h2>
+            </section>
+            <section id="data-nilai-siswa" class="content-section hidden">
+                <h2>Data Nilai Siswa</h2>
+                <div class="filter-wrapper">
+                    <select id="tahun-ajaran-filter">
+                        <option value="">Pilih Tahun Ajaran</option>
+                    </select>
+                </div>
+                <div class="filter-wrapper">
+                    <select id="kelas-filter">
+                        <option value="">Pilih Kelas</option>
+                    </select>
+                </div>
+                <div class="filter-wrapper">
+                    <select id="mapel-filter">
+                        <option value="">Pilih Mata Pelajaran</option>
+                    </select>
+                </div>
+                <div class="filter-wrapper">
+                    <select id="jenis-nilai-filter" disabled>
+                        <option value="">Pilih Jenis Nilai</option>
+                        <option value="uts">UTS</option>
+                        <option value="uas">UAS</option>
+                        <option value="tugas">Tugas</option>
+                        <option value="nilai-akhir">Nilai Akhir</option>
+                    </select>
+                </div>                             
+               
+                <table id="siswa-table" border="1">
+                    <caption id="button-container" style="text-align: right;"></caption>
+                    <thead>
+                        <tr>
+                            <th>NISN</th>
+                            <th>Nama</th>
+                        </tr>
+                    </thead>
+                    <tbody id="siswa-tbody">
+                        <!-- Data Siswa akan diisi dengan JavaScript -->
+                    </tbody>
+                </table>
+            </section>
         </main>
     </div>
     <script src="/js/dashboardWaliKelas.js"></script>
     <script src="/js/persetujuanNilaiSiswa.js"></script>
-
-
-</body>
-
-</html>
+    <script src="/js/dataNilaiSiswa.js"></script>
 
 
 </body>
