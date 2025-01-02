@@ -163,6 +163,8 @@ app.post('/login', (req, res) => {
         res.redirect('/dashboard-walikelas');
     } else if (userRole === 'Guru Mata Pelajaran & Wali Kelas') {
         res.redirect('/dashboard-walikelas');
+    } else if (userRole === 'Kepala Sekolah') {
+        res.redirect('/dashboard-kepalaSekolah');
 
     } else {
         res.redirect('/dashboard-siswa');
@@ -183,6 +185,8 @@ app.get('/dashboard', (req, res) => {
             res.redirect('/dashboard-guru');
         } else if (role === 'Siswa') {
                 res.redirect('/dashboard-siswa');
+        } else if (role === 'Kepala Sekolah') {
+                res.redirect('/dashboard-kepalaSekolah');
         } else {
             res.redirect('/login'); // Jika role tidak dikenali
         }
@@ -215,6 +219,7 @@ app.get('/dashboard-walikelas', (req, res) => {
         res.redirect('/login');
     }
 });
+
 app.get('/dashboard-guru', (req, res) => {
     if (req.session.user && req.session.user.role === 'Guru Mata Pelajaran & Wali Kelas') {
         res.sendFile(path.join(__dirname, 'views', 'dashboard-guru.html'));
@@ -222,6 +227,15 @@ app.get('/dashboard-guru', (req, res) => {
         res.redirect('/login');
     }
 });
+
+app.get('/dashboard-kepalaSekolah', (req, res) => {
+    if (req.session.user && req.session.user.role === 'Kepala Sekolah') {
+        res.sendFile(path.join(__dirname, 'views', 'dashboard-kepalaSekolah.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
 
 
 app.get('/dashboard-siswa', (req, res) => {
