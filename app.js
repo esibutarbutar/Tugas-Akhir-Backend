@@ -2020,6 +2020,89 @@ app.post('/api/confirm-reset-password', async (req, res) => {
     }
 });
 
+app.get('/api/grades', async (req, res) => {
+    const { tahunAjaran, kelasId, matpelId, jenisNilai } = req.query;
+
+    // Validasi parameter
+    if (!kelasId || !matpelId) {
+        return res.status(400).json({ error: 'Kelas ID dan Mata Pelajaran ID harus disertakan.' });
+    }
+
+    let query = `
+        SELECT g.nisn, s.nama_siswa, g.gradesType, g.grade, g.gradeStatus, g.catatan
+        FROM grades g
+        JOIN siswa s ON g.nisn = s.nisn
+        WHERE g.id_kelas = ? AND g.id_matpel = ?`;
+
+    const queryParams = [kelasId, matpelId];
+
+    // Menambahkan filter untuk tahun ajaran, jika ada
+    if (tahunAjaran) {
+        query += ` AND g.id_tahun_ajaran = ?`;
+        queryParams.push(tahunAjaran);
+    }
+
+    // Menambahkan filter untuk jenis nilai, jika ada
+    if (jenisNilai) {
+        const validGrades = ['uts', 'uas', 'tugas', 'nilai-akhir'];
+        if (!validGrades.includes(jenisNilai.toLowerCase())) {
+            return res.status(400).json({ error: 'Jenis nilai yang valid: uts, uas, tugas, nilai-akhir' });
+        }
+
+        if (jenisNilai.toLowerCase() !== 'nilai-akhir') {
+            query += ` AND g.gradesType = ?`;
+            queryParams.push(jenisNilai.toLowerCase());
+        }
+    }
+
+    try {
+        const [results] = await db.execute(query, queryParams);
+
+        // Proses hasil query untuk menyusun data nilai siswa
+        const nilaiAkhir = results.reduce((acc, row) => {
+            const { nisn, nama_siswa, gradesType, grade, gradeStatus, catatan } = row;
+
+            // Cek apakah siswa sudah ada di accumulator, jika belum tambahkan
+            if (!acc[nisn]) {
+                acc[nisn] = {
+                    nisn,
+                    nama_siswa,
+                    uts: null,  // nilai default kosong
+                    uas: null,  // nilai default kosong
+                    tugas: null,  // nilai default kosong
+                    nilai_akhir: null,  // nilai akhir kosong jika tidak ada
+                    gradeStatus: gradeStatus || '',  // default ke string kosong jika tidak ada
+                    catatan: catatan || ''  // default ke string kosong jika tidak ada
+                };
+            }
+
+            // Set nilai berdasarkan gradesType
+            if (gradesType.toLowerCase() === 'uts') {
+                acc[nisn].uts = grade ? Number(grade) : null;
+            } else if (gradesType.toLowerCase() === 'uas') {
+                acc[nisn].uas = grade ? Number(grade) : null;
+            } else if (gradesType.toLowerCase() === 'tugas') {
+                acc[nisn].tugas = grade ? Number(grade) : null;
+            }
+
+            // Simpan gradeStatus dan catatan terakhir (jika ada)
+            if (gradeStatus) acc[nisn].gradeStatus = gradeStatus;
+            if (catatan) acc[nisn].catatan = catatan;
+
+            return acc;
+        }, {});
+
+        // Ubah object menjadi array dan kirimkan response
+        const dataResponse = Object.values(nilaiAkhir);
+        res.json(dataResponse);
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });

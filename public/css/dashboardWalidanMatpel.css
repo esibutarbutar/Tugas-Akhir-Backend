@@ -1,0 +1,27 @@
+#matpel-filter {
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 200px;
+    transition: all 0.3s ease;
+}
+
+/* Gaya hover pada select */
+#matpel-filter:hover {
+    border-color: #007bff;
+    background-color: #e9f7ff;
+}
+
+/* Gaya ketika select dalam fokus */
+#matpel-filter:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #fff;
+}
+.nilai-input {
+    width: 60px;
+    text-align: center;
+}

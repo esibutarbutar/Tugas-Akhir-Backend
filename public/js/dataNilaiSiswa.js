@@ -53,7 +53,7 @@ async function loadKelasFilter(tahunAjaranId = '') {
     }
 
     try {
-        const nipGuru = await getUserSession(); 
+        const nipGuru = await getUserSession();
         if (!nipGuru) throw new Error("NIP pengguna tidak ditemukan.");
 
         const url = `/api/kelas-by-tahun-ajaran?tahun_ajaran_id=${encodeURIComponent(tahunAjaranId)}&nip_guru=${encodeURIComponent(nipGuru)}`;
@@ -73,7 +73,7 @@ async function loadKelasFilter(tahunAjaranId = '') {
             data.forEach(kelas => {
                 const option = document.createElement('option');
                 option.value = kelas.id;
-                option.textContent = `${kelas.nama_kelas} - ${kelas.tingkatan}`; 
+                option.textContent = `${kelas.nama_kelas} - ${kelas.tingkatan}`;
                 filterSelect.appendChild(option);
             });
         }
@@ -155,318 +155,153 @@ async function loadMapelFilter(tahunAjaranId = '', kelasId = '') {
         filterSelect.disabled = true; // Nonaktifkan filter mata pelajaran jika terjadi kesalahan
     }
 }
+function filterGrades() {
+    const tahunAjaran = document.getElementById("tahun-ajaran-filter").value;
+    const kelasId = document.getElementById("kelas-filter").value;
+    const matpelId = document.getElementById("mapel-filter").value;
+    const jenisNilai = document.getElementById("jenis-nilai-filter").value;
 
+    // Buat query string untuk mengirimkan semua parameter
+    const queryString = new URLSearchParams({
+        tahunAjaran,
+        kelasId,
+        matpelId,
+        jenisNilai
+    }).toString();
 
+    console.log(queryString); // Debug: lihat query string yang dihasilkan
 
-document.getElementById('jenis-nilai-filter').addEventListener('change', function () {
-    const jenisNilai = this.value;
-    const siswaTbody = document.getElementById('siswa-tbody');
-    let simpanButtonContainer = document.getElementById('simpan-button-container'); // Kontainer untuk tombol simpan
-    const allColumns = ['uts', 'uas', 'tugas', 'nilai-akhir'];
-
-    const tableHeader = document.querySelector('table thead tr');
-    const rows = siswaTbody.querySelectorAll('tr');
-    rows.forEach(row => {
-        allColumns.forEach(columnClass => {
-            const existingCell = row.querySelector(`.column-${columnClass}`);
-            if (existingCell) {
-                existingCell.remove();
-            }
+    // Panggil API dengan query string
+    fetch(`/api/grades?${queryString}`)
+        .then(response => response.json())
+        .then(gradesData => {
+            console.log('grades data:', JSON.stringify(gradesData, null, 2)); // Debugging
+            displayGrades(gradesData, jenisNilai);
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
-    });
-    allColumns.forEach(columnClass => {
-        const header = document.getElementById(`header-${columnClass}`);
-        if (header) {
-            header.style.display = (jenisNilai === columnClass || jenisNilai === 'nilai-akhir') ? '' : 'none';
-        }
-    });
-
-    function removeStatusAndCatatanColumns() {
-        const statusHeader = document.getElementById('header-status');
-        const catatanHeader = document.getElementById('header-catatan');
-        if (statusHeader) {
-            statusHeader.remove();
-        }
-        if (catatanHeader) {
-            catatanHeader.remove();
-        }
-        const rows = document.querySelectorAll('tr');
-        rows.forEach(row => {
-            const statusCell = row.querySelector('.column-status');
-            const catatanCell = row.querySelector('.column-catatan');
-            if (statusCell) {
-                statusCell.remove();
-            }
-            if (catatanCell) {
-                catatanCell.remove();
-            }
-        });
-    }
-
-if (jenisNilai !== 'nilai-akhir') {
-    removeStatusAndCatatanColumns();
-
-    const header = document.getElementById(`header-${jenisNilai}`);
-    if (!header) {
-        const newHeader = document.createElement('th');
-        newHeader.id = `header-${jenisNilai}`;
-        newHeader.textContent = `${jenisNilai.toUpperCase()}`;
-        tableHeader.appendChild(newHeader);
-    }
-
-    rows.forEach(row => {
-        if (!row.querySelector(`.column-${jenisNilai}`)) {
-            const newCell = document.createElement('td');
-            newCell.className = `column-${jenisNilai}`;
-
-            const nisn = row.querySelector('td').textContent.trim();
-            const tahunAjaran = document.getElementById('tahun-ajaran-filter').value;
-            const kelas = document.getElementById('kelas-filter').value;
-            const mapel = document.getElementById('mapel-filter').value;
-
-            if (tahunAjaran && kelas && mapel && nisn) {
-                fetch(`/api/get-nilai/${nisn}?jenisNilai=${jenisNilai}&tahunAjaran=${tahunAjaran}&kelas=${kelas}&mapel=${mapel}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const siswaData = data.find(siswa => siswa.nisn === nisn);
-                        if (siswaData && siswaData.nilai !== undefined) {
-                            newCell.textContent = siswaData.nilai; // Nilai sudah ada
-                            if (simpanButtonContainer) {
-                                const simpanButton = simpanButtonContainer.querySelector('.btn-simpan');
-                                if (simpanButton) {
-                                    simpanButton.textContent = 'Edit Nilai'; // Mengubah teks tombol menjadi Edit Nilai
-                                    simpanButton.addEventListener('click', function () {
-                                        // Logika untuk mengedit nilai, misalnya dengan mengganti input field
-                                        const input = document.createElement('input');
-                                        input.type = 'number';
-                                        input.className = `input-${jenisNilai}`;
-                                        input.value = siswaData.nilai; // Mengisi input dengan nilai yang ada
-                                        newCell.innerHTML = ''; // Menghapus teks nilai sebelumnya
-                                        newCell.appendChild(input);
-                                        simpanButton.textContent = 'Simpan Nilai'; // Mengubah teks tombol kembali
-                                    });
-                                }
-                            }
-                        } else {
-                            const input = document.createElement('input');
-                            input.type = 'number';
-                            input.className = `input-${jenisNilai}`;
-                            input.placeholder = `Input ${jenisNilai}`;
-                            newCell.appendChild(input); // Jika nilai belum ada, tampilkan input
-                            const simpanButton = document.createElement('button');
-                            simpanButton.textContent = 'Simpan Nilai';
-                            simpanButton.className = 'btn-simpan';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Gagal mengambil data nilai:', error);
-                    });
-            } else {
-                console.error('Parameter tidak lengkap untuk fetch nilai.');
-            }
-            
-            row.appendChild(newCell);
-        }
-    });
-} else {
-    const additionalHeaders = ['UTS', 'UAS', 'Tugas', 'Nilai Akhir', 'Status', 'Catatan'];
-    const additionalClasses = ['uts', 'uas', 'tugas', 'nilai-akhir', 'status', 'catatan'];
-    additionalHeaders.forEach((headerText, index) => {
-        if (!document.getElementById(`header-${additionalClasses[index]}`)) {
-            const newHeader = document.createElement('th');
-            newHeader.id = `header-${additionalClasses[index]}`;
-            newHeader.textContent = headerText;
-            tableHeader.appendChild(newHeader);
-        }
-    });
-
-    rows.forEach(row => {
-        let utsNilai, uasNilai, tugasNilai, statusNilai, catatanNilai;
-
-       additionalClasses.forEach(columnClass => {
-    if (!row.querySelector(`.column-${columnClass}`)) {
-        const newCell = document.createElement('td');
-        newCell.className = `column-${columnClass}`;
-
-        const nisn = row.querySelector('td').textContent.trim(); // Ambil NISN siswa
-        const tahunAjaran = document.getElementById('tahun-ajaran-filter').value;
-        const kelas = document.getElementById('kelas-filter').value;
-        const mapel = document.getElementById('mapel-filter').value;
-        const jenisNilai = document.getElementById('jenis-nilai-filter').value;
-        console.log(jenisNilai)
-        if (tahunAjaran && kelas && mapel && nisn && jenisNilai) {
-
-            fetch(`/api/get-nilai/${nisn}?jenisNilai=${columnClass}&tahunAjaran=${tahunAjaran}&kelas=${kelas}&mapel=${mapel}`)
-            .then(response => response.json())
-            .then(data => {
-                const siswaData = data.find(siswa => siswa.nisn === nisn);                
-                // Jika nilai ditemukan, tampilkan; jika tidak, biarkan kosong
-                if (siswaData && siswaData.nilai !== undefined) {
-                    console.log('kolom class' + columnClass)
-                    console.log('siswa data' + siswaData.nilai)
-                    
-                    newCell.textContent = siswaData.nilai; // Nilai lainnya ditampilkan
-
-                    if (columnClass === 'status') {
-                        newCell.textContent = '';  // Biarkan kosong
-                    } else if(columnClass === 'catatan'){
-                        newCell.textContent = '';  // Biarkan kosong
-                    }
-                    else {
-                    }
-                    if (columnClass === 'uts') {
-                        utsNilai = siswaData.nilai;
-                    } else if (columnClass === 'uas') {
-                        uasNilai = siswaData.nilai;
-                    } else if (columnClass === 'tugas') {
-                        tugasNilai = siswaData.nilai;
-                    } else if (columnClass === 'status') {
-                        statusNilai = '';  // Kosongkan status
-                    } else if (columnClass === 'catatan') {
-                        catatanNilai = '';  // Kosongkan catatan
-                    }
-                } else {
-                    newCell.textContent = ''; // Kosongkan kolom jika tidak ada data
-                }
-
-                row.appendChild(newCell);
-
-                // Setelah nilai UTS, UAS, dan Tugas terkumpul, hitung Nilai Akhir
-                if (utsNilai && uasNilai && tugasNilai) {
-                    const nilaiAkhir = calculateNilaiAkhir(utsNilai, uasNilai, tugasNilai);
-                    const nilaiAkhirCell = row.querySelector('.column-nilai-akhir');
-                    if (nilaiAkhirCell) {
-                        nilaiAkhirCell.textContent = nilaiAkhir;
-                    }
-                } else {
-                    const nilaiAkhirCell = row.querySelector('.column-nilai-akhir');
-                    if (nilaiAkhirCell) {
-                        nilaiAkhirCell.textContent = '';
-                    }
-                }
-                if (statusNilai && catatanNilai) {
-                    const statusCell = row.querySelector('.column-status');
-                    if (statusCell) {
-                        statusCell.textContent = statusNilai;
-                    }
-
-                    const catatanCell = row.querySelector('.column-catatan');
-                    if (catatanCell) {
-                        catatanCell.textContent = catatanNilai;
-                    }
-                }
-
-            })
-            .catch(error => {
-                console.error('Gagal mengambil data nilai:', error);
-            });
-        } else {
-            console.error('Parameter tidak lengkap untuk fetch nilai.');
-        }
-    }
-});
-
-    });
 }
 
-    function calculateNilaiAkhir(uts, uas, tugas) {
-        const utsWeight = 0.3;  // Bobot UTS
-        const uasWeight = 0.4;  // Bobot UAS
-        const tugasWeight = 0.3;  // Bobot Tugas
+function displayGrades(gradesData, jenisNilai = '') {
+    const tbody = document.getElementById("siswa-tbody");
+    const nilaiHeader = document.getElementById("nilai-header");
+    const utsHeader = document.getElementById("uts-header");
+    const uasHeader = document.getElementById("uas-header");
+    const tugasHeader = document.getElementById("tugas-header");
+    const nilaiAkhirHeader = document.getElementById("nilai-akhir-header");
+    const gradeStatusHeader = document.getElementById("grade-status-header");
+    const catatanHeader = document.getElementById("catatan-header");
 
-        const nilaiAkhir = (uts * utsWeight) + (uas * uasWeight) + (tugas * tugasWeight);
+    tbody.innerHTML = ''; // Bersihkan tabel sebelumnya
 
-        return nilaiAkhir.toFixed(1);
-    }
-
-    if (jenisNilai !== 'nilai-akhir') {
-        if (!simpanButtonContainer) {
-            simpanButtonContainer = document.createElement('div');
-            simpanButtonContainer.id = 'simpan-button-container';
-            simpanButtonContainer.style.marginTop = '20px';
-
-            const simpanButton = document.createElement('button');
-            simpanButton.textContent = 'Simpan Nilai';
-            simpanButton.className = 'btn-simpan';
-            simpanButton.addEventListener('click', function () {
-                Swal.fire({
-                    title: 'Konfirmasi',
-                    text: 'Apakah Anda yakin ingin menyimpan nilai?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, simpan',
-                    confirmButtonColor: '#004D40',
-                    cancelButtonText: 'Batal'
-                }).then(result => {
-                    if (result.isConfirmed) {
-                        rows.forEach(row => {
-                            const inputs = row.querySelectorAll('input');
-                            inputs.forEach(input => {
-                                if (input && input.value) {
-                                    const nilaiInput = input.value;
-                                    const nisn = row.querySelector('td').textContent.trim();
-                                    const gradestype = input.className.replace('input-', '');
-
-                                    fetch(`/api/update-nilai`, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                            gradestype: gradestype,
-                                            grade: nilaiInput,
-                                            id_tahun_ajaran: document.getElementById('tahun-ajaran-filter').value,
-                                            id_kelas: document.getElementById('kelas-filter').value,
-                                            id_matpel: document.getElementById('mapel-filter').value,
-                                            nisn: nisn
-                                        })
-                                    })
-                                        .then(response => response.json())
-                                        .then(data => {
-                                            console.log('Data berhasil disimpan:', data);
-                                            input.disabled = true;
-
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Berhasil!',
-                                                text: `Nilai ${gradestype.toUpperCase()} telah berhasil disimpan.`,
-                                                confirmButtonText: 'OK',
-                                                confirmButtonColor: '#004D40'
-                                            });
-                                        })
-                                        .catch(error => {
-                                            console.error('Gagal menyimpan data nilai:', error);
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Gagal!',
-                                                text: 'Terjadi kesalahan saat menyimpan nilai.',
-                                                confirmButtonText: 'OK'
-                                            });
-                                        });
-                                }
-                            });
-                        });
-                    }
-                });
-            });
-
-            simpanButtonContainer.appendChild(simpanButton);
-            const tableContainer = document.querySelector('table');
-            tableContainer.insertAdjacentElement('afterend', simpanButtonContainer);
-        }
+    if (jenisNilai === 'nilai-akhir') {
+        nilaiHeader.style.display = "none"; // Sembunyikan kolom "Nilai"
+        utsHeader.style.display = "table-cell";
+        uasHeader.style.display = "table-cell";
+        tugasHeader.style.display = "table-cell";
+        nilaiAkhirHeader.style.display = "table-cell";
+        gradeStatusHeader.style.display = "table-cell";
+        catatanHeader.style.display = "table-cell";
     } else {
-        // Jika jenisNilai adalah 'nilai-akhir', sembunyikan tombol simpan
-        if (simpanButtonContainer) {
-       simpanButtonContainer.remove();
-        }
+        nilaiHeader.style.display = jenisNilai ? "table-cell" : "none";
+        utsHeader.style.display = "none";
+        uasHeader.style.display = "none";
+        tugasHeader.style.display = "none";
+        nilaiAkhirHeader.style.display = "none";
+        gradeStatusHeader.style.display = "none";
+        catatanHeader.style.display = "none";
     }
+
+    if (Array.isArray(gradesData) && gradesData.length > 0) {
+        gradesData.forEach(grade => {
+            const row = document.createElement("tr");
+
+            // NISN dan Nama
+            const nisnCell = document.createElement("td");
+            nisnCell.textContent = grade.nisn || "-";
+            row.appendChild(nisnCell);
+
+            const namaCell = document.createElement("td");
+            namaCell.textContent = grade.nama_siswa || "Tidak tersedia";
+            row.appendChild(namaCell);
+
+            // Menampilkan nilai berdasarkan jenisNilai
+            if (jenisNilai && jenisNilai !== 'nilai-akhir') {
+                const nilaiCell = document.createElement("td");
+
+                // Cek apakah nilai untuk jenisNilai ada, jika tidak tampilkan input
+                if (grade[jenisNilai] === null || grade[jenisNilai] === undefined) {
+                    const input = document.createElement("input");
+                    input.type = "number";
+                    input.placeholder = "Masukkan nilai";
+                    input.value = '';  // Nilai awal kosong
+                    nilaiCell.appendChild(input);
+                } else {
+                    nilaiCell.textContent = grade[jenisNilai] || '-';
+                }
+                row.appendChild(nilaiCell);
+            }
+
+            // Untuk nilai-akhir, menampilkan beberapa kolom
+            if (jenisNilai === 'nilai-akhir') {
+                row.appendChild(createCell(grade.uts !== null ? grade.uts : '-'));
+                row.appendChild(createCell(grade.uas !== null ? grade.uas : '-'));
+                row.appendChild(createCell(grade.tugas !== null ? grade.tugas : '-'));
+                row.appendChild(createCell(grade.nilai_akhir !== null ? grade.nilai_akhir : '-'));
+                row.appendChild(createCell(grade.gradeStatus !== null ? grade.gradeStatus : '-'));
+                row.appendChild(createCell(grade.catatan !== null ? grade.catatan : '-'));
+            }
+
+            tbody.appendChild(row);
+        });
+    } else {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 8;  // Menyesuaikan jumlah kolom
+        cell.textContent = "Data tidak tersedia";
+        row.appendChild(cell);
+        tbody.appendChild(row);
+    }
+}
+
+function createInputCell(value) {
+    const cell = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "number";
+    input.placeholder = "Masukkan nilai";
+    input.value = value || '';  // Nilai awal kosong jika tidak ada
+    cell.appendChild(input);
+    return cell;
+}
+
+document.getElementById("jenis-nilai-filter").addEventListener("change", function () {
+    const jenisNilai = this.value; // Mengambil nilai dari select dropdown
+    filterGrades(jenisNilai); // Panggil filterGrades dengan jenisNilai yang dipilih
 });
+
+
+function updateHeader(headerText) {
+    const header = document.getElementById("nilai-header");
+    header.textContent = headerText;
+    header.style.display = "table-cell";
+}
+
+function createCell(content) {
+    const cell = document.createElement("td");
+    cell.textContent = content || "-";
+    return cell;
+}
+
+document.getElementById("jenis-nilai-filter").addEventListener("click", function () {
+    filterGrades();
+});
+
+
 
 function resetNilaiColumns() {
     const siswaTbody = document.getElementById("siswa-tbody");
     const allColumns = ['uts', 'uas', 'tugas', 'nilai-akhir', 'status', 'catatan'];
-
-    // Hapus kolom nilai yang ada
     const rows = siswaTbody.querySelectorAll('tr');
     rows.forEach(row => {
         allColumns.forEach(columnClass => {
@@ -476,8 +311,6 @@ function resetNilaiColumns() {
             }
         });
     });
-
-    // Sembunyikan header kolom nilai
     const tableHeader = document.querySelector('table thead tr');
     allColumns.forEach(columnClass => {
         const header = document.getElementById(`header-${columnClass}`);
@@ -488,8 +321,6 @@ function resetNilaiColumns() {
 }
 document.getElementById('kelas-filter').addEventListener('change', async (event) => {
     const kelasId = event.target.value;
-
-    // Reset nilai ketika kelas berubah
     resetNilaiColumns();
 
     if (!kelasId) {
@@ -512,38 +343,22 @@ document.getElementById('kelas-filter').addEventListener('change', async (event)
 
 document.getElementById('tahun-ajaran-filter').addEventListener('change', async function () {
     const selectedTahunAjaran = this.value;
-
-    // Reset tabel siswa
     const siswaTbody = document.getElementById('siswa-tbody');
     siswaTbody.innerHTML = '<tr><td colspan="2">Tidak ada data siswa.</td></tr>';
     document.getElementById('siswa-table').style.display = 'none';
-
-    // Reset dan nonaktifkan dropdown kelas
     const kelasFilter = document.getElementById('kelas-filter');
     kelasFilter.innerHTML = '<option value="">Pilih Kelas</option>';
     kelasFilter.disabled = true;
-
-    // Reset dan nonaktifkan dropdown mapel
     const mapelFilter = document.getElementById('mapel-filter');
     mapelFilter.innerHTML = '<option value="">Pilih Mata Pelajaran</option>';
     mapelFilter.disabled = true;
-
-    // Reset dropdown jenis nilai dan nonaktifkan
     const nilaiFilter = document.getElementById('jenis-nilai-filter');
     nilaiFilter.selectedIndex = 0;
     nilaiFilter.disabled = true;
-
-    // Sembunyikan kolom nilai
     const kolomNilai = document.getElementById('kolom-nilai');
     if (kolomNilai) kolomNilai.style.display = 'none';
-
-    // Jika tahun ajaran tidak dipilih, keluar
     if (!selectedTahunAjaran) return;
-
-    // Muat ulang filter kelas dan mapel sesuai tahun ajaran yang dipilih
     await loadKelasFilter(selectedTahunAjaran);
-
-    // Aktifkan filter jenis nilai setelah kelas dan mapel dimuat
     nilaiFilter.disabled = false;
 });
 
@@ -554,7 +369,7 @@ document.getElementById('mapel-filter').addEventListener('change', function () {
     const tableHeader = document.querySelector('table thead tr');
     const allColumns = siswaTbody.querySelectorAll('[class^="column-"]:not(.column-nilai-akhir):not(.column-status):not(.column-catatan)');
     const allHeaders = tableHeader.querySelectorAll('[id^="header-"]:not(#header-nilai-akhir):not(#header-status):not(#header-catatan)');
-    
+
     // Menyembunyikan semua kolom yang ada, termasuk nilai akhir, status, dan catatan
     allColumns.forEach(cell => {
         cell.style.display = 'none';
@@ -589,7 +404,7 @@ document.getElementById('mapel-filter').addEventListener('change', function () {
     jenisNilaiFilter.disabled = false;
 });
 
-    
+
 document.addEventListener('DOMContentLoaded', () => {
     loadTahunAjaranFilter();
     fetchSiswaData();
