@@ -231,12 +231,31 @@ if (jenisNilai !== 'nilai-akhir') {
                         const siswaData = data.find(siswa => siswa.nisn === nisn);
                         if (siswaData && siswaData.nilai !== undefined) {
                             newCell.textContent = siswaData.nilai; // Nilai sudah ada
+                            if (simpanButtonContainer) {
+                                const simpanButton = simpanButtonContainer.querySelector('.btn-simpan');
+                                if (simpanButton) {
+                                    simpanButton.textContent = 'Edit Nilai'; // Mengubah teks tombol menjadi Edit Nilai
+                                    simpanButton.addEventListener('click', function () {
+                                        // Logika untuk mengedit nilai, misalnya dengan mengganti input field
+                                        const input = document.createElement('input');
+                                        input.type = 'number';
+                                        input.className = `input-${jenisNilai}`;
+                                        input.value = siswaData.nilai; // Mengisi input dengan nilai yang ada
+                                        newCell.innerHTML = ''; // Menghapus teks nilai sebelumnya
+                                        newCell.appendChild(input);
+                                        simpanButton.textContent = 'Simpan Nilai'; // Mengubah teks tombol kembali
+                                    });
+                                }
+                            }
                         } else {
                             const input = document.createElement('input');
                             input.type = 'number';
                             input.className = `input-${jenisNilai}`;
                             input.placeholder = `Input ${jenisNilai}`;
                             newCell.appendChild(input); // Jika nilai belum ada, tampilkan input
+                            const simpanButton = document.createElement('button');
+                            simpanButton.textContent = 'Simpan Nilai';
+                            simpanButton.className = 'btn-simpan';
                         }
                     })
                     .catch(error => {
@@ -245,7 +264,7 @@ if (jenisNilai !== 'nilai-akhir') {
             } else {
                 console.error('Parameter tidak lengkap untuk fetch nilai.');
             }
-
+            
             row.appendChild(newCell);
         }
     });
@@ -388,7 +407,7 @@ if (jenisNilai !== 'nilai-akhir') {
                                     const nisn = row.querySelector('td').textContent.trim();
                                     const gradestype = input.className.replace('input-', '');
 
-                                    fetch(`/api/update-nilai`, {
+                                    fetch(`/api/simpan-nilai`, {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json'
@@ -526,20 +545,6 @@ document.getElementById('tahun-ajaran-filter').addEventListener('change', async 
 
     // Aktifkan filter jenis nilai setelah kelas dan mapel dimuat
     nilaiFilter.disabled = false;
-});
-
-// Tambahkan event listener untuk jenis nilai filter
-document.getElementById('jenis-nilai-filter').addEventListener('change', function () {
-    const nilaiFilter = this;
-    const kolomNilai = document.getElementById('kolom-nilai');
-    
-    // Jika jenis nilai dipilih, tampilkan kolom nilai
-    if (nilaiFilter.value) {
-        if (kolomNilai) kolomNilai.style.display = 'table-cell';
-    } else {
-        // Jika jenis nilai tidak dipilih, sembunyikan kolom nilai
-        if (kolomNilai) kolomNilai.style.display = 'none';
-    }
 });
 
 document.getElementById('mapel-filter').addEventListener('change', function () {

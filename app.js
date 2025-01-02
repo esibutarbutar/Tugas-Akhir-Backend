@@ -154,7 +154,11 @@ app.post('/api/login', async (req, res) => {
 app.post('/login', (req, res) => {
     const userRole = req.session.user?.role;
     console.log("User Role from session:", userRole);
-    if (userRole === 'Admin') {
+
+    if (userRole.includes('Guru Mata Pelajaran') && userRole.includes('Guru Wali Kelas')) {
+        // Jika guru memiliki kedua role, arahkan ke dashboard gabungan
+        res.redirect('/dashboard-gabungan');
+    } else if (userRole === 'Admin') {
         res.redirect('/dashboard-admin');
     } else if (userRole === 'Guru Mata Pelajaran') {
         res.redirect('/dashboard-matpel');
@@ -171,7 +175,10 @@ app.get('/dashboard', (req, res) => {
         const { role } = req.session.user;
         if (role === 'Admin') {
             res.redirect('/dashboard-admin');
-        } else if (role === 'Guru Mata Pelajaran') {
+        } else if (role.includes('Guru Mata Pelajaran') && role.includes('Guru Wali Kelas')) {
+            // Jika guru memiliki kedua role, misalnya, tampilkan dashboard gabungan atau pilihan
+            res.redirect('/dashboard-guru');
+         } else if (role === 'Guru Mata Pelajaran') {
             res.redirect('/dashboard-matpel');
         } else if (role === 'Guru Wali Kelas') {
             res.redirect('/dashboard-walikelas');
@@ -207,6 +214,22 @@ app.get('/dashboard-walikelas', (req, res) => {
         res.sendFile(path.join(__dirname, 'views', 'dashboard-walikelas.html'));
     } else {
         res.redirect('/login');
+    }
+});
+app.get('/dashboard-guru', (req, res) => {
+    if (req.session.user) {
+        const { role } = req.session.user;
+        if (role.includes('Guru Mata Pelajaran') && role.includes('Guru Wali Kelas')) {
+            // Jika guru memiliki kedua role, tampilkan pilihan untuk memilih bagian yang ingin dilihat
+            res.render('dashboard-guru', { 
+                message: 'Anda memiliki kedua role: Guru Mata Pelajaran dan Guru Wali Kelas. Pilih bagian yang ingin dilihat.',
+                role: role
+            })
+        } else {
+            res.redirect('/login');
+        }
+    } else {
+        res.redirect('/login'); // Jika tidak ada sesi
     }
 });
 
@@ -292,6 +315,23 @@ app.get('/api/pegawai', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan pada server' });
     }
 });
+app.get('/api/pegawai/:nip', async(req, res) => {
+    const { nip } = req.params;
+
+    try {
+        const query = 'SELECT * FROM pegawai WHERE nip = ?';
+        const [result] = await db.execute(query, [nip]);
+
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: 'Pegawai tidak ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Error mengambil data pegawai:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
+    }
+});
 
 app.delete('/api/pegawai/:nip', async (req, res) => {
     const { nip } = req.params;
@@ -328,13 +368,14 @@ app.post('/api/pegawai', (req, res, next) => {
             nip, namaPegawai, tanggalLahir, tempatLahir,
             jenisKelamin, alamat, agama, email,
             noHp, password, nik, tanggalMulaiTugas,
-            jenjangPendidikan, jurusan, roles
+            jenjangPendidikan, jurusan, role  // Perhatikan 'role' sebagai nilai tunggal
         } = req.body;
 
         console.log('Data diterima:', req.body);
 
-        if (!Array.isArray(roles)) {
-            return res.status(400).json({ message: 'roleId harus berupa array!' });
+        // Validasi role
+        if (!role) {
+            return res.status(400).json({ message: 'Role harus dipilih!' });
         }
 
         // Insert pegawai ke tabel pegawai
@@ -350,10 +391,8 @@ app.post('/api/pegawai', (req, res, next) => {
             jenjangPendidikan, jurusan
         ]);
 
-        // Insert roles ke tabel pegawai_roles
-        for (let role of roles) {
-            await db.execute('INSERT INTO pegawai_roles (nip, role_id) VALUES (?, ?)', [nip, role]);
-        }
+        // Insert role ke tabel pegawai_roles
+        await db.execute('INSERT INTO pegawai_roles (nip, role_id) VALUES (?, ?)', [nip, role]);
 
         res.status(201).json({ message: 'Data pegawai dan role berhasil ditambahkan!' });
     } catch (error) {
@@ -366,41 +405,7 @@ app.post('/api/pegawai', (req, res, next) => {
         res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
     }
 });
-app.get('/api/pegawai-edit/:nip', async (req, res) => {
-    const { nip } = req.params;
 
-    try {
-        // Query untuk mendapatkan data pegawai
-        const queryPegawai = 'SELECT * FROM pegawai WHERE nip = ?';
-        const [pegawaiResult] = await db.execute(queryPegawai, [nip]);
-
-        if (pegawaiResult.length > 0) {
-            // Query untuk mendapatkan role yang dimiliki oleh pegawai
-            const queryRoles = `
-                SELECT pr.role_id
-                FROM pegawai_roles pr
-                WHERE pr.nip = ?
-            `;
-            const [rolesResult] = await db.execute(queryRoles, [nip]);
-
-            // Ambil hanya array role_id
-            const roleIds = rolesResult.map(role => role.role_id);
-
-            // Menambahkan role pada data pegawai
-            const pegawaiData = {
-                ...pegawaiResult[0],
-                roles: roleIds // Hanya berisi daftar id role
-            };
-
-            res.status(200).json(pegawaiData);
-        } else {
-            res.status(404).json({ message: 'Pegawai tidak ditemukan.' });
-        }
-    } catch (error) {
-        console.error('Error mengambil data pegawai dan roles:', error);
-        res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
-    }
-});
 
 app.put('/api/pegawai/:nip', async (req, res) => {
     const { nip } = req.params;
@@ -417,12 +422,12 @@ app.put('/api/pegawai/:nip', async (req, res) => {
         tanggalMulaiTugas,
         jenjangPendidikan,
         jurusan,
-        roles,
+        role,  // role adalah string (contoh: "R1")
     } = req.body;
 
     try {
         // Validasi input jika diperlukan
-        if (!namaPegawai || !tanggalLahir || !tempatLahir || !jenisKelamin || !alamat || !agama || !email || !noHp || !nik || !tanggalMulaiTugas || !jenjangPendidikan || !jurusan || !roles) {
+        if (!namaPegawai || !tanggalLahir || !tempatLahir || !jenisKelamin || !alamat || !agama || !email || !noHp || !nik || !tanggalMulaiTugas || !jenjangPendidikan || !jurusan || !role) {
             return res.status(400).json({ message: 'Semua field wajib diisi.' });
         }
 
@@ -441,7 +446,7 @@ app.put('/api/pegawai/:nip', async (req, res) => {
                 nik = ?,
                 tanggal_mulai_tugas = ?,
                 jenjang_pendidikan = ?,
-                jurusan = ?
+                jurusan = ? 
             WHERE nip = ?
         `;
 
@@ -462,14 +467,13 @@ app.put('/api/pegawai/:nip', async (req, res) => {
             nip,
         ]);
 
-        // Hapus semua roles yang ada dan masukkan roles baru
+        // Hapus semua roles yang ada dan masukkan role baru (karena hanya satu role)
         const deleteRolesQuery = `DELETE FROM pegawai_roles WHERE nip = ?`;
         await db.execute(deleteRolesQuery, [nip]);
 
+        // Insert role baru (karena role adalah string)
         const insertRolesQuery = `INSERT INTO pegawai_roles (nip, role_id) VALUES (?, ?)`;
-        for (const role of roles) {
-            await db.execute(insertRolesQuery, [nip, role]);
-        }
+        await db.execute(insertRolesQuery, [nip, role]);
 
         res.status(200).json({ message: 'Data pegawai berhasil diperbarui.' });
     } catch (error) {
@@ -477,6 +481,45 @@ app.put('/api/pegawai/:nip', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui data pegawai.' });
     }
 });
+
+
+app.get('/api/pegawai-edit/:nip', async (req, res) => {
+    const { nip } = req.params;
+
+try {
+    // Query untuk mendapatkan data pegawai
+    const queryPegawai = 'SELECT * FROM pegawai WHERE nip = ?';
+    const [pegawaiResult] = await db.execute(queryPegawai, [nip]);
+
+    if (pegawaiResult.length > 0) {
+        // Query untuk mendapatkan role yang dimiliki oleh pegawai
+        const queryRoles = `
+            SELECT pr.role_id
+            FROM pegawai_roles pr
+            WHERE pr.nip = ?
+        `;
+        const [rolesResult] = await db.execute(queryRoles, [nip]);
+
+        // Ambil role pertama (jika ada) jika hanya ingin role tunggal
+        const role = rolesResult.length > 0 ? rolesResult[0].role_id : null;
+
+        // Menambahkan role pada data pegawai
+        const pegawaiData = {
+            ...pegawaiResult[0],
+            role: role // Hanya satu role yang akan diberikan
+        };
+
+        res.status(200).json(pegawaiData);
+    } else {
+        res.status(404).json({ message: 'Pegawai tidak ditemukan.' });
+    }
+} catch (error) {
+    console.error('Error mengambil data pegawai dan role:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server!' });
+}
+
+});
+
 
 app.put('/api/siswa/:nisn', async (req, res) => {
     const { nisn } = req.params;
@@ -1592,6 +1635,91 @@ app.get('/api/grades/:kelasId/:matpelId', async (req, res) => {
 
             // Status dan catatan sudah ada dalam siswa
             console.log(`Nilai akhir untuk ${siswa.nisn}: ${siswa.nilai_akhir}, Status: ${siswa.gradeStatus}, Catatan: ${siswa.catatan}`);
+            return siswa;
+        });
+
+        res.json(finalResults);
+    } catch (err) {
+        console.error("Error executing query:", err);
+        res.status(500).json({ error: 'Gagal memuat data nilai' });
+    }
+});
+
+app.get('/api/nilai-akhir', async (req, res) => {
+    const { nisn, jenisNilai, tahunAjaran, kelas, mapel } = req.query;
+
+    if (!nisn || !jenisNilai || !tahunAjaran || !kelas || !mapel) {
+        return res.status(400).json({
+            error: "Semua parameter (nisn, jenisNilai, tahunAjaran, kelas, mapel) harus disertakan.",
+        });
+    }
+
+    try {
+        // Ambil ID Kelas dan Mata Pelajaran berdasarkan nama
+        const getKelasIdQuery = 'SELECT id FROM kelas WHERE nama_kelas = ?';
+        const getMapelIdQuery = 'SELECT id FROM mata_pelajaran WHERE nama_mata_pelajaran = ?';
+        
+        const [kelasResults] = await db.execute(getKelasIdQuery, [kelas]);
+        const [mapelResults] = await db.execute(getMapelIdQuery, [mapel]);
+
+        const kelasId = kelasResults[0]?.id;
+        const matpelId = mapelResults[0]?.id;
+
+        if (!kelasId || !matpelId) {
+            return res.status(400).json({ error: 'Kelas atau Mata Pelajaran tidak valid.' });
+        }
+
+        const query = `
+            SELECT g.nisn, s.nama_siswa, g.gradesType, g.grade, g.gradeStatus, g.catatan
+            FROM grades g
+            JOIN siswa s ON g.nisn = s.nisn
+            WHERE g.id_kelas = ? AND g.id_matpel = ? AND g.gradesType IN ('uts', 'uas', 'tugas');
+        `;
+        
+        const [results] = await db.execute(query, [kelasId, matpelId]);
+        
+        // Kelompokkan data berdasarkan NISN
+        const nilaiAkhir = results.reduce((acc, row) => {
+            const { nisn, nama_siswa, gradesType, grade, gradeStatus, catatan } = row;
+
+            if (!acc[nisn]) {
+                acc[nisn] = {
+                    nisn,
+                    nama_siswa,
+                    uts: 0,
+                    uas: 0,
+                    tugas: 0,
+                    nilai_akhir: 0,
+                    gradeStatus: gradeStatus || '',
+                    catatan: catatan || ''
+                };
+            }
+
+            if (gradesType.toLowerCase() === 'uts') {
+                acc[nisn].uts = grade ? Number(grade) : 0;
+            } else if (gradesType.toLowerCase() === 'uas') {
+                acc[nisn].uas = grade ? Number(grade) : 0;
+            } else if (gradesType.toLowerCase() === 'tugas') {
+                acc[nisn].tugas = grade ? Number(grade) : 0;
+            }
+
+            if (gradeStatus) acc[nisn].gradeStatus = gradeStatus;
+            if (catatan) acc[nisn].catatan = catatan;
+
+            return acc;
+        }, {});
+
+        if (Object.keys(nilaiAkhir).length === 0) {
+            return res.status(404).json({ error: 'Tidak ada data nilai yang ditemukan.' });
+        }
+
+        // Hitung nilai akhir
+        const finalResults = Object.values(nilaiAkhir).map(siswa => {
+            if (siswa.uts !== 0 && siswa.uas !== 0 && siswa.tugas !== 0) {
+                siswa.nilai_akhir = ((siswa.uts * 0.4) + (siswa.uas * 0.4) + (siswa.tugas * 0.2)).toFixed(1);
+            } else {
+                siswa.nilai_akhir = 0; 
+            }
             return siswa;
         });
 
