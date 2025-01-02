@@ -124,6 +124,8 @@ function displayGrades(gradesData) {
     const tbody = document.getElementById("nilai-tbody");
     tbody.innerHTML = ''; // Bersihkan tabel sebelumnya
 
+    let showApproveAllButton = true; // Variabel untuk menampilkan tombol Setujui Semua
+
     if (Array.isArray(gradesData) && gradesData.length > 0) {
         gradesData.forEach(grade => {
             const nilaiAkhir = (grade.uts * 0.3) + (grade.uas * 0.4) + (grade.tugas * 0.3);
@@ -166,11 +168,13 @@ function displayGrades(gradesData) {
             if (grade.gradeStatus === "setuju") {
                 statusCell.innerHTML = `<i class="fas fa-check-circle" style="color: green; cursor: pointer;" title="Lulus"></i>`;
                 checkIcon = statusCell.querySelector('.fa-check-circle');
+                showApproveAllButton = false; // Menyembunyikan tombol Setujui Semua jika ada yang sudah disetujui
             } else if (grade.gradeStatus === "tolak") {
                 statusCell.innerHTML = `<i class="fas fa-times-circle" style="color: red; cursor: pointer;" title="Tidak Lulus"></i>`;
                 timesIcon = statusCell.querySelector('.fa-times-circle');
+                showApproveAllButton = false; // Menyembunyikan tombol Setujui Semua jika ada yang ditolak
             } else {
-                statusCell.innerHTML = `
+                statusCell.innerHTML = ` 
                     <i class="fas fa-check-circle" style="color: green; cursor: pointer;" title="Lulus"></i>
                     <i class="fas fa-times-circle" style="color: red; cursor: pointer; margin-left: 10px;" title="Tidak Lulus"></i>`;
                 checkIcon = statusCell.querySelector('.fa-check-circle');
@@ -231,7 +235,11 @@ function displayGrades(gradesData) {
                             if (checkIcon) checkIcon.style.display = "none";
                             updateStatusInDB(grade.nisn, note, "Tolak", grade);
                         } else {
-                            alert("Catatan tidak boleh kosong!");
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Catatan tidak boleh kosong!',
+                            });
                         }
                     });
 
@@ -250,80 +258,67 @@ function displayGrades(gradesData) {
 
             tbody.appendChild(row);
         });
-        const approveAllButton = document.createElement("button");
-        approveAllButton.textContent = "Setujui Semua";
-        approveAllButton.style.marginTop = "20px";
-        approveAllButton.style.cursor = "pointer";
-        approveAllButton.style.position = "absolute";
-        approveAllButton.style.right = "20px";
-        approveAllButton.style.backgroundColor = "#004D40";
-        approveAllButton.style.color = "white";
-        approveAllButton.style.padding = "8px 10px";
-        approveAllButton.style.border = "none";
-        approveAllButton.style.borderRadius = "5px";
-        approveAllButton.style.fontSize = "12px";
-        approveAllButton.style.transition = "background-color 0.3s";
-        approveAllButton.addEventListener('mouseover', () => {
-            approveAllButton.style.backgroundColor = "#45a049";
-        });
-        approveAllButton.addEventListener('mouseout', () => {
+
+        // Jika status semua nilai masih kosong, tampilkan tombol Setujui Semua
+        if (showApproveAllButton) {
+            const approveAllButton = document.createElement("button");
+            approveAllButton.textContent = "Setujui Semua";
+            approveAllButton.style.marginTop = "20px";
+            approveAllButton.style.cursor = "pointer";
+            approveAllButton.style.position = "absolute";
+            approveAllButton.style.right = "20px";
             approveAllButton.style.backgroundColor = "#004D40";
-        }); 
-        approveAllButton.addEventListener('click', () => {
-            const allRows = Array.from(tbody.querySelectorAll("tr"));
-            let allComplete = true; // Menyimpan status apakah semua nilai lengkap
-            let updateSuccessful = true; // Menandakan apakah pembaruan status berhasil
+            approveAllButton.style.color = "white";
+            approveAllButton.style.padding = "8px 10px";
+            approveAllButton.style.border = "none";
+            approveAllButton.style.borderRadius = "5px";
+            approveAllButton.style.fontSize = "12px";
+            approveAllButton.style.transition = "background-color 0.3s";
         
-            allRows.forEach(row => {
-                const uts = row.cells[2].textContent; // Nilai UTS
-                const uas = row.cells[3].textContent; // Nilai UAS
-                const tugas = row.cells[4].textContent; // Nilai Tugas
+            approveAllButton.addEventListener('click', () => {
+                let missingFields = new Set(); // Menggunakan Set untuk memastikan tidak ada duplikasi
         
-                // Cek jika ada nilai yang kosong
-                if (uts === '-' || uas === '-' || tugas === '-') {
-                    allComplete = false; // Menandakan ada nilai yang belum lengkap
-                }
-            });
-        
-            // Jika ada nilai yang belum lengkap, tampilkan SweetAlert
-            if (!allComplete) {
-                Swal.fire({
-                    title: 'Peringatan!',
-                    text: 'Beberapa nilai belum lengkap! Periksa semua nilai sebelum melanjutkan.',
-                    icon: 'warning',
-                    confirmButtonText: 'OK'
+                gradesData.forEach(grade => {
+                    if (!grade.uts) {
+                        missingFields.add('UTS');
+                    }
+                    if (!grade.uas) {
+                        missingFields.add('UAS');
+                    }
+                    if (!grade.tugas) {
+                        missingFields.add('Tugas');
+                    }
                 });
-            } else {
-                // Jika semua nilai lengkap, lanjutkan dengan menyetujui semua
-                allRows.forEach(row => {
-                    const statusCell = row.cells[5]; // Kolom Status
-                    const catatanCell = row.cells[6]; // Kolom Catatan
-                    const nisn = row.cells[0].textContent; // Ambil NISN
         
-                    if (statusCell && catatanCell) {
-                        // Update UI dengan status "Setuju"
-                        statusCell.innerHTML = `<i class="fas fa-check-circle" style="color: green;"></i> Setuju`;
-                        catatanCell.textContent = "Lulus";
+                // Cek apakah ada nilai yang belum diisi
+                if (missingFields.size > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Nilai belum lengkap!',
+                        text: 'Harap isi nilai ' + Array.from(missingFields).join(', ') + ' sebelum menyetujui.',
+                    });
+                } else {
+                    let updateSuccessful = true;
         
-                        // Kirim permintaan untuk memperbarui status ke backend
+                    gradesData.forEach(grade => {
+                        grade.gradeStatus = "setuju";
+                        grade.catatan = "Lulus";
+        
                         fetch('/api/update-grade-status', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                nisn: nisn,
-                                catatan: 'Lulus',
-                                status: 'Setuju',
-                                mapel_id: row.cells[7].textContent // Assuming the mapel_id is stored in column 7
+                                nisn: grade.nisn,
+                                catatan: grade.catatan,
+                                status: grade.gradeStatus,
+                                mapel_id: grade.mapel_id
                             })
                         })
                         .then(response => response.json())
                         .then(data => {
-                            if (data.message === 'Status berhasil diperbarui.') {
-                                // Status berhasil diperbarui, lanjutkan
-                                updateStatusInDB(nisn, "Lulus", "Setuju");
-                            } else {
+                            if (data.message !== 'Status berhasil diperbarui.') {
                                 updateSuccessful = false;
                             }
                         })
@@ -331,34 +326,34 @@ function displayGrades(gradesData) {
                             console.error('Error:', err);
                             updateSuccessful = false;
                         });
-                    }
-                });
+                    });
         
-                // Tampilkan SweetAlert hanya jika semua update berhasil
-                if (updateSuccessful) {
                     Swal.fire({
-                        title: 'Sukses!',
-                        text: 'Semua nilai berhasil disetujui!',
-                        icon: 'success',
+                        title: updateSuccessful ? 'Sukses!' : 'Gagal!',
+                        text: updateSuccessful 
+                            ? 'Semua nilai berhasil disetujui!' 
+                            : 'Terjadi kesalahan dalam memperbarui status nilai. Silakan coba lagi.',
+                        icon: updateSuccessful ? 'success' : 'error',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        // Sembunyikan tombol setelah berhasil
-                        approveAllButton.style.display = 'none'; // Menyembunyikan tombol
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan dalam memperbarui status nilai. Silakan coba lagi.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
+                        if (updateSuccessful) {
+                            approveAllButton.style.display = 'none';
+        
+                            // Nonaktifkan semua ikon di tabel
+                            document.querySelectorAll('.grade-icon').forEach(icon => {
+                                icon.classList.add('disabled'); // Tambahkan class "disabled"
+                                icon.style.pointerEvents = 'none'; // Nonaktifkan klik
+                                icon.style.opacity = '0.5'; // Tambahkan efek visual
+                            });
+                        }
                     });
                 }
-            }
-        });
+            });
         
-        
-        document.getElementById("nilaiTable").appendChild(approveAllButton);
-    } else {
+            // Menambahkan tombol ke dalam tabel
+            document.getElementById("nilaiTable").appendChild(approveAllButton);
+        }
+            } else {
         const noDataRow = document.createElement("tr");
         const noDataCell = document.createElement("td");
         noDataCell.colSpan = 8;
@@ -367,7 +362,6 @@ function displayGrades(gradesData) {
         tbody.appendChild(noDataRow);
     }
 }
-
 
 async function updateStatusInDB(nisn, catatan, status) {
     const mapelId = document.getElementById("mapel-filter").value;

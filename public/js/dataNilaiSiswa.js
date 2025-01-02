@@ -407,7 +407,7 @@ if (jenisNilai !== 'nilai-akhir') {
                                     const nisn = row.querySelector('td').textContent.trim();
                                     const gradestype = input.className.replace('input-', '');
 
-                                    fetch(`/api/simpan-nilai`, {
+                                    fetch(`/api/update-nilai`, {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json'
