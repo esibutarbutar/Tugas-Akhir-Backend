@@ -144,22 +144,20 @@ function displayGrades(gradesData) {
 
             // Nilai UTS, UAS, dan Tugas
             const utsCell = document.createElement("td");
-            utsCell.textContent = grade.uts || '-';
+            utsCell.textContent = grade.uts !== null ? grade.uts : '-';
             row.appendChild(utsCell);
 
             const uasCell = document.createElement("td");
-            uasCell.textContent = grade.uas || '-';
+            uasCell.textContent = grade.uas !== null ? grade.uas : '-';
             row.appendChild(uasCell);
 
             const tugasCell = document.createElement("td");
-            tugasCell.textContent = grade.tugas || '-';
+            tugasCell.textContent = grade.tugas !== null ? grade.tugas : '-';
             row.appendChild(tugasCell);
 
-            // Nilai Akhir
             const nilaiAkhirCell = document.createElement("td");
-            nilaiAkhirCell.textContent = nilaiAkhir.toFixed(2);
+            nilaiAkhirCell.textContent = nilaiAkhir;
             row.appendChild(nilaiAkhirCell);
-
             // Status
             const statusCell = document.createElement("td");
             let checkIcon, timesIcon;
