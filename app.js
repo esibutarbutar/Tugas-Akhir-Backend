@@ -1444,90 +1444,6 @@ app.get('/api/data-mapel', async (req, res) => {
 });
 
 
-app.post('/api/update-nilai', async (req, res) => {
-    const { gradestype, grade, id_tahun_ajaran, id_matpel, id_kelas, nisn } = req.body;
-
-    // Ambil nip dari session
-    const nip = req.session.user?.id; // Atau ambil dari JWT jika menggunakan token
-
-    if (!nip) {
-        return res.status(401).json({ message: 'User tidak terautentikasi.' });
-    }
-
-    // Validasi data
-    if (!gradestype || !grade || !id_tahun_ajaran || !id_matpel || !id_kelas || !nisn || !nip) {
-        return res.status(400).json({ error: 'Semua data wajib diisi.' });
-    }
-
-    try {
-        const query = `
-            INSERT INTO grades (gradesType, grade, id_tahun_ajaran, id_matpel, id_kelas, nisn, nip)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-        await db.execute(query, [gradestype, grade, id_tahun_ajaran, id_matpel, id_kelas, nisn, nip]);
-        res.status(201).json({ message: 'Data nilai berhasil disimpan.' });
-    } catch (error) {
-        console.error('Error menyimpan ke database:', error);
-        res.status(500).json({ error: 'Terjadi kesalahan pada server.' });
-    }
-});
-
-// app.post('/api/update-nilai', async (req, res) => {
-//     const { gradestype, grade, id_tahun_ajaran, id_kelas, id_matpel, nisn, status, catatan } = req.body;
-//     const nip = req.session.user?.id; // Atau ambil dari JWT jika menggunakan token
-
-//     if (!nip) {
-//         return res.status(401).json({ message: 'User tidak terautentikasi.' });
-//     }
-
-//     // Validasi input
-//     let missingFields = [];
-
-//     if (!gradestype) missingFields.push('Type Nilai');
-//     if (!grade) missingFields.push('Nilai');
-//     if (!id_tahun_ajaran) missingFields.push('Tahun Ajaran');
-//     if (!id_kelas) missingFields.push('Kelas');
-//     if (!id_matpel) missingFields.push('Mata Pelajaran');
-//     if (!nisn) missingFields.push('NISN');
-    
-//     if (missingFields.length > 0) {
-//         return res.status(400).json({ error: 'Data tidak lengkap: ' + missingFields.join(', ') });
-//     }
-
-//     // Cek apakah nilai sudah ada di database
-//     const checkQuery = `
-//         SELECT * FROM grades
-//         WHERE id_tahun_ajaran = ? AND id_kelas = ? AND id_matpel = ? AND gradesType = ? AND nisn = ?
-//     `;
-//     try {
-//         const [existingData] = await db.query(checkQuery, [id_tahun_ajaran, id_kelas, id_matpel, gradestype, nisn]);
-
-//         if (existingData.length > 0) {
-//             // Jika nilai sudah ada, update nilai, status, dan catatan
-//             const updateQuery = `
-//                 UPDATE grades
-//                 SET grade = ?, status = ?, catatan = ?, nip = ?
-//                 WHERE id_tahun_ajaran = ? AND id_kelas = ? AND id_matpel = ? AND gradesType = ? AND nisn = ?
-//             `;
-//             await db.query(updateQuery, [grade, status, catatan, nip, id_tahun_ajaran, id_kelas, id_matpel, gradestype, nisn]);
-
-//             return res.status(200).json({ message: 'Nilai berhasil diupdate' });
-//         } else {
-//             // Jika nilai belum ada, simpan nilai baru, status dan catatan akan NULL secara default
-//             const insertQuery = `
-//                 INSERT INTO grades (id_tahun_ajaran, id_kelas, id_matpel, gradesType, grade, nisn, nip, gradeStatus, catatan)
-//                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-//             `;
-//             await db.query(insertQuery, [id_tahun_ajaran, id_kelas, id_matpel, gradestype, grade, nisn, nip, status || null, catatan || null]);
-
-//             return res.status(200).json({ message: 'Nilai berhasil disimpan' });
-//         }
-//     } catch (error) {
-//         console.error('Gagal mengupdate nilai:', error);
-//         res.status(500).json({ error: 'Terjadi kesalahan saat mengupdate nilai' });
-//     }
-// });
-
 app.get('/api/get-nilai/:nisn', async (req, res) => {
     const { nisn } = req.params;
     const { jenisNilai, tahunAjaran, kelas, mapel } = req.query;
@@ -1911,33 +1827,6 @@ app.get('/api/grades/:tahunAjaran', async (req, res) => {
         res.status(500).json({ error: 'Gagal memuat data nilai' });
     }
 });
-const users = [
-    { email: 'user@example.com', username: 'user123' }
-];
-
-app.post('/api/confirm-reset-password', async (req, res) => {
-    const { newPassword, confirmPassword, token } = req.body;
-
-    try {
-        if (newPassword !== confirmPassword) {
-            return res.status(400).json({ message: 'Kata sandi tidak cocok' });
-        }
-
-        // Update password di database (simulasi)
-        const user = users.find(user => user.resetToken === token);
-        if (user) {
-            user.password = newPassword;  // Ganti dengan hashing password di aplikasi nyata
-            user.resetToken = null;  // Menghapus token reset setelah sukses
-            return res.status(200).json({ message: 'Kata sandi berhasil diperbarui' });
-        }
-
-        res.status(400).json({ message: 'Token tidak valid' });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Terjadi kesalahan' });
-    }
-});
 
 app.get('/api/grades', async (req, res) => {
     const { tahunAjaran, kelasId, matpelId, jenisNilai } = req.query;
@@ -2021,6 +1910,55 @@ app.get('/api/grades', async (req, res) => {
     }
 });
 
+app.post('/api/simpan-nilai', async (req, res) => {
+    const gradesData = req.body;  // Array berisi data nilai yang diterima dari frontend
+    const nip = req.session.user?.id; // Ambil ID guru atau pengajar
+
+    if (!nip) {
+        return res.status(401).json({ message: 'User tidak terautentikasi.' });
+    }
+
+    // Validasi data
+    if (!Array.isArray(gradesData) || gradesData.length === 0) {
+        return res.status(400).json({ message: 'Tidak ada data nilai yang dikirim.' });
+    }
+
+    try {
+        // Proses setiap data nilai
+        for (const gradeData of gradesData) {
+            const { nisn, grade, tahunAjaran, kelasId, matpelId, jenisNilai } = gradeData;
+
+            // Cek apakah nilai sudah ada untuk siswa tersebut
+            const checkQuery = `
+                SELECT * FROM grades
+                WHERE id_tahun_ajaran = ? AND id_kelas = ? AND id_matpel = ? AND gradesType = ? AND nisn = ?
+            `;
+            const [existingData] = await db.query(checkQuery, [tahunAjaran, kelasId, matpelId, jenisNilai, nisn]);
+
+            if (existingData.length > 0) {
+                // Update nilai jika sudah ada
+                const updateQuery = `
+                    UPDATE grades
+                    SET grade = ?, nip = ?
+                    WHERE id_tahun_ajaran = ? AND id_kelas = ? AND id_matpel = ? AND gradesType = ? AND nisn = ?
+                `;
+                await db.query(updateQuery, [grade, nip, tahunAjaran, kelasId, matpelId, jenisNilai, nisn]);
+            } else {
+                // Jika nilai belum ada, simpan sebagai data baru
+                const insertQuery = `
+                    INSERT INTO grades (id_tahun_ajaran, id_kelas, id_matpel, gradesType, grade, nisn, nip)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `;
+                await db.query(insertQuery, [tahunAjaran, kelasId, matpelId, jenisNilai, grade, nisn, nip]);
+            }
+        }
+
+        res.status(200).json({ message: 'Nilai berhasil disimpan.' });
+    } catch (error) {
+        console.error('Gagal menyimpan nilai:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan nilai.' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);

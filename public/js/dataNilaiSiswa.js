@@ -183,6 +183,7 @@ function filterGrades() {
         });
 }
 
+// Fungsi untuk menampilkan data nilai siswa
 function displayGrades(gradesData, jenisNilai = '') {
     const tbody = document.getElementById("siswa-tbody");
     const nilaiHeader = document.getElementById("nilai-header");
@@ -213,6 +214,9 @@ function displayGrades(gradesData, jenisNilai = '') {
         catatanHeader.style.display = "none";
     }
 
+    let shouldDisplaySaveButton = false; // Flag untuk mengecek apakah tombol simpan perlu ditampilkan
+    let shouldDisplayEditButton = false; // Flag untuk mengecek apakah tombol edit perlu ditampilkan
+
     if (Array.isArray(gradesData) && gradesData.length > 0) {
         gradesData.forEach(grade => {
             const row = document.createElement("tr");
@@ -236,9 +240,12 @@ function displayGrades(gradesData, jenisNilai = '') {
                     input.type = "number";
                     input.placeholder = "Masukkan nilai";
                     input.value = '';  // Nilai awal kosong
+                    input.classList.add('nilai-input');  // Tambahkan kelas untuk referensi
                     nilaiCell.appendChild(input);
+                    shouldDisplaySaveButton = true; // Jika ada nilai yang kosong, tampilkan tombol simpan
                 } else {
                     nilaiCell.textContent = grade[jenisNilai] || '-';
+                    shouldDisplayEditButton = true; // Jika nilai sudah ada, tampilkan tombol edit
                 }
                 row.appendChild(nilaiCell);
             }
@@ -263,17 +270,242 @@ function displayGrades(gradesData, jenisNilai = '') {
         row.appendChild(cell);
         tbody.appendChild(row);
     }
+
+    // Jika ada nilai yang kosong, tampilkan tombol simpan
+    if (shouldDisplaySaveButton) {
+        const saveButtonRow = document.createElement("tr");
+        const saveButtonCell = document.createElement("td");
+        saveButtonCell.colSpan = 8; // Sesuaikan kolom sesuai jumlah
+        saveButtonCell.style.textAlign = "right"; // Letakkan tombol di kanan
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Simpan Nilai";
+        saveButton.id = "save-button";
+        saveButton.addEventListener("click", saveAllGrades); // Simpan semua nilai yang belum diinput
+        saveButtonCell.appendChild(saveButton);
+        saveButtonRow.appendChild(saveButtonCell);
+        tbody.appendChild(saveButtonRow);
+    }
+
+    // Jika ada nilai yang sudah diinput, tampilkan tombol edit
+    if (shouldDisplayEditButton) {
+        const editButtonRow = document.createElement("tr");
+        const editButtonCell = document.createElement("td");
+        editButtonCell.colSpan = 8; // Sesuaikan kolom sesuai jumlah
+        editButtonCell.style.textAlign = "right"; // Letakkan tombol di kanan
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit Nilai";
+        editButton.addEventListener("click", editGrades); // Fungsi untuk mengedit nilai
+        editButtonCell.appendChild(editButton);
+        editButtonRow.appendChild(editButtonCell);
+        tbody.appendChild(editButtonRow);
+    }
+}
+function saveAllGrades() {
+    const nilaiInputs = document.querySelectorAll('.nilai-input');
+    const gradesData = [];
+    let isAllFilled = true;
+
+    nilaiInputs.forEach(input => {
+        const nisn = input.closest("tr").querySelector("td:nth-child(1)").textContent.trim();
+        const grade = input.value.trim();
+        const tahunAjaran = document.getElementById("tahun-ajaran-filter").value;
+        const kelasId = document.getElementById("kelas-filter").value;
+        const matpelId = document.getElementById("mapel-filter").value;
+        const jenisNilai = document.getElementById("jenis-nilai-filter").value;
+
+        if (!grade) {
+            isAllFilled = false;
+        }
+
+        if (nisn && grade && tahunAjaran && kelasId && matpelId && jenisNilai) {
+            gradesData.push({
+                nisn,
+                grade,
+                tahunAjaran,
+                kelasId,
+                matpelId,
+                jenisNilai
+            });
+        }
+    });
+
+    if (!isAllFilled) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Harap isi semua nilai terlebih dahulu!'
+        });
+        return;
+    }
+
+    if (gradesData.length === 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Tidak ada nilai yang diinput. Silakan masukkan nilai terlebih dahulu.'
+        });
+        return;
+    }
+
+    fetch('/api/simpan-nilai', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(gradesData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Nilai Berhasil Disimpan!',
+                text: data.message
+            }).then(() => {
+                const saveButton = document.getElementById("save-button");
+                if (saveButton) {
+                    saveButton.style.display = "none";  // Sembunyikan tombol simpan setelah berhasil
+                }
+
+                const tbody = document.querySelector("tbody");
+                const editButtonRow = document.createElement("tr");
+                const editButtonCell = document.createElement("td");
+                editButtonCell.colSpan = 8;  // Menyesuaikan dengan jumlah kolom
+                editButtonCell.style.textAlign = "right";  // Letakkan tombol di kanan
+
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit Nilai";
+                editButton.addEventListener("click", editGrades);  // Menambahkan event listener untuk mengedit nilai
+
+                editButtonCell.appendChild(editButton);
+                editButtonRow.appendChild(editButtonCell);
+                tbody.appendChild(editButtonRow);
+
+                // Nonaktifkan input setelah simpan
+                const nilaiCells = document.querySelectorAll("td");
+                nilaiCells.forEach(cell => {
+                    const input = cell.querySelector("input");
+                    if (input) {
+                        input.disabled = true;  // Nonaktifkan input setelah simpan
+                    }
+                });
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi kesalahan',
+                text: 'Terjadi kesalahan saat menyimpan nilai. Silakan coba lagi.'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error saving grades:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Terjadi kesalahan',
+            text: 'Terjadi kesalahan saat menyimpan nilai.'
+        });
+    });
 }
 
-function createInputCell(value) {
-    const cell = document.createElement("td");
-    const input = document.createElement("input");
-    input.type = "number";
-    input.placeholder = "Masukkan nilai";
-    input.value = value || '';  // Nilai awal kosong jika tidak ada
-    cell.appendChild(input);
-    return cell;
+// Fungsi untuk mengedit nilai
+function editGrades(event) {
+    const rows = document.querySelectorAll("#siswa-tbody tr");
+
+    rows.forEach(row => {
+        const cells = row.getElementsByTagName("td");
+        const nilaiCell = cells[2]; // Anggap nilai ada pada kolom ketiga (ubah indeks sesuai kebutuhan)
+
+        if (nilaiCell && !nilaiCell.querySelector("input")) {
+            // Jika cell belum mengandung input, buat input
+            const currentValue = nilaiCell.textContent.trim() || '';
+            const input = document.createElement("input");
+            input.disabled = false;
+            input.type = "number";
+            input.value = currentValue;
+            input.classList.add("nilai-input");
+            nilaiCell.innerHTML = ''; // Bersihkan teks nilai
+            nilaiCell.appendChild(input);
+            // Tambahkan input
+        }
+    });
+
+    // Setelah edit, ganti tombol edit menjadi tombol simpan
+    const editButton = event.target;
+    editButton.textContent = "Simpan Nilai";
+    editButton.removeEventListener("click", editGrades); // Hapus event edit
+    editButton.addEventListener("click", saveEditedGrades); // Ganti event menjadi simpan
 }
+
+function saveEditedGrades(event) {
+    const rows = document.querySelectorAll("#siswa-tbody tr");
+    const gradesData = []; // Data untuk disimpan ke server
+
+    rows.forEach(row => {
+        const cells = row.getElementsByTagName("td");
+        const nilaiCell = cells[2]; // Kolom nilai
+
+        if (nilaiCell && nilaiCell.querySelector("input")) {
+            const input = nilaiCell.querySelector("input");
+            const newValue = input.value.trim();
+
+            // Ambil NISN
+            const nisn = row.cells[0].textContent.trim();
+
+            // Persiapkan data untuk update
+            const siswaData = {
+                nisn,
+                grade: newValue,
+                tahunAjaran: document.getElementById("tahun-ajaran-filter").value,
+                kelasId: document.getElementById("kelas-filter").value,
+                matpelId: document.getElementById("mapel-filter").value,
+                jenisNilai: document.getElementById("jenis-nilai-filter").value
+            };
+
+            gradesData.push(siswaData);
+            nilaiCell.textContent = newValue;
+            input.disabled = true;
+            const editButton = event.target;
+            editButton.textContent = "Edit Nilai";
+            editButton.removeEventListener("click", saveEditedGrades); // Hapus event simpan
+            editButton.addEventListener("click", editGrades);
+        }
+    });
+
+    // Kirim data yang sudah diedit ke server
+    if (gradesData.length > 0) {
+        fetch('/api/simpan-nilai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(gradesData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Nilai Berhasil Diperbarui!',
+                        text: data.message,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#004D40',
+
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi kesalahan',
+                    text: 'Terjadi kesalahan saat memperbarui nilai.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#004D40',
+                });
+            });
+    }
+}
+
 
 document.getElementById("jenis-nilai-filter").addEventListener("change", function () {
     const jenisNilai = this.value; // Mengambil nilai dari select dropdown
@@ -296,8 +528,6 @@ function createCell(content) {
 document.getElementById("jenis-nilai-filter").addEventListener("click", function () {
     filterGrades();
 });
-
-
 
 function resetNilaiColumns() {
     const siswaTbody = document.getElementById("siswa-tbody");
@@ -360,48 +590,6 @@ document.getElementById('tahun-ajaran-filter').addEventListener('change', async 
     if (!selectedTahunAjaran) return;
     await loadKelasFilter(selectedTahunAjaran);
     nilaiFilter.disabled = false;
-});
-
-document.getElementById('mapel-filter').addEventListener('change', function () {
-    const jenisNilaiFilter = document.getElementById('jenis-nilai-filter');
-    const jenisNilai = jenisNilaiFilter.value;
-    const siswaTbody = document.getElementById('siswa-tbody');
-    const tableHeader = document.querySelector('table thead tr');
-    const allColumns = siswaTbody.querySelectorAll('[class^="column-"]:not(.column-nilai-akhir):not(.column-status):not(.column-catatan)');
-    const allHeaders = tableHeader.querySelectorAll('[id^="header-"]:not(#header-nilai-akhir):not(#header-status):not(#header-catatan)');
-
-    // Menyembunyikan semua kolom yang ada, termasuk nilai akhir, status, dan catatan
-    allColumns.forEach(cell => {
-        cell.style.display = 'none';
-    });
-    allHeaders.forEach(header => {
-        header.style.display = 'none';
-    });
-
-    const additionalColumns = ['nilai-akhir', 'status', 'catatan'];
-    additionalColumns.forEach(column => {
-        siswaTbody.querySelectorAll(`.column-${column}`).forEach(cell => {
-            cell.style.display = 'none';
-        });
-
-        const header = document.getElementById(`header-${column}`);
-        if (header) {
-            header.style.display = 'none';
-        }
-    });
-
-    if (jenisNilai && jenisNilai !== 'nilai-akhir') {
-        siswaTbody.querySelectorAll(`.column-${jenisNilai}`).forEach(cell => {
-            cell.style.display = '';
-        });
-
-        const header = document.getElementById(`header-${jenisNilai}`);
-        if (header) {
-            header.style.display = '';
-        }
-    }
-
-    jenisNilaiFilter.disabled = false;
 });
 
 
