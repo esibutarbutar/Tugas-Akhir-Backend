@@ -141,28 +141,36 @@
                         <option value="">Pilih Mata Pelajaran</option>
                     </select>
                 </div>
+               
                 <div class="filter-wrapper">
-                    <select id="jenis-nilai-filter" disabled>
+                    <select id="jenis-nilai-filter" onchange="filterGrades()">
                         <option value="">Pilih Jenis Nilai</option>
                         <option value="uts">UTS</option>
                         <option value="uas">UAS</option>
                         <option value="tugas">Tugas</option>
                         <option value="nilai-akhir">Nilai Akhir</option>
                     </select>
-                </div>                             
-               
-                <table id="siswa-table" border="1">
-                    <caption id="button-container" style="text-align: right;"></caption>
+                </div>
+                
+                <table id="siswa-table">
                     <thead>
-                        <tr>
+                        <tr id="header-row">
                             <th>NISN</th>
-                            <th>Nama</th>
+                            <th>Nama Siswa</th>
+                            <th id="nilai-header" style="display: none;">Nilai</th>
+                            <th id="uts-header" style="display: none;">UTS</th>
+                            <th id="uas-header" style="display: none;">UAS</th>
+                            <th id="tugas-header" style="display: none;">Tugas</th>
+                            <th id="nilai-akhir-header" style="display: none;">Nilai Akhir</th>
+                            <th id="grade-status-header" style="display: none;">Status</th>
+                            <th id="catatan-header" style="display: none;">Catatan</th>
                         </tr>
                     </thead>
                     <tbody id="siswa-tbody">
-                        <!-- Data Siswa akan diisi dengan JavaScript -->
+                        <!-- Data siswa akan ditambahkan di sini -->
                     </tbody>
                 </table>
+                
             </section>
         </main>
     </div>

@@ -1544,8 +1544,7 @@ app.get('/api/grades/:kelasId/:matpelId', async (req, res) => {
         // Gabungkan data siswa dengan data nilai
         const results = students.map(student => {
             const nilai = gradesMap[student.nisn] || { uts: 0, uas: 0, tugas: 0, gradeStatus: '', catatan: '' };
-            const nilaiAkhir = ((nilai.uts * 0.4) + (nilai.uas * 0.4) + (nilai.tugas * 0.2)).toFixed(1);
-
+            const nilaiAkhir = parseFloat(((nilai.uts * 0.4) + (nilai.uas * 0.4) + (nilai.tugas * 0.2)).toFixed(2));
             return {
                 nisn: student.nisn,
                 nama_siswa: student.nama_siswa,
@@ -1677,23 +1676,28 @@ app.get('/api/mapel/:idKelas', async (req, res) => {
 app.post('/api/update-grade-status', async (req, res) => {
     const { nisn, catatan, status, mapel_id } = req.body;
 
+    // Menambahkan console.log untuk memeriksa nilai variabel yang diterima
+    console.log({
+        nisn: nisn,
+        catatan: catatan,
+        status: status,
+        mapel_id: mapel_id
+    });
+
     // Validasi input
     if (!nisn || !status || !mapel_id) {
         return res.status(400).json({ message: 'Data tidak lengkap. Pastikan nisn, status, dan mapel_id disertakan.' });
     }
-
+    
     try {
-        // Query untuk memperbarui status nilai di database menggunakan db.execute()
         const query = `
             UPDATE grades
             SET gradeStatus = ?, catatan = ?
             WHERE nisn = ? AND id_matpel = ?
         `;
 
-        // Menjalankan query dengan db.execute()
         const [result] = await db.execute(query, [status, catatan || null, nisn, mapel_id]);
 
-        // Periksa apakah ada baris yang diperbarui
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Data tidak ditemukan atau tidak ada perubahan yang dilakukan.' });
         }
@@ -1704,7 +1708,6 @@ app.post('/api/update-grade-status', async (req, res) => {
         return res.status(500).json({ message: 'Gagal memperbarui status. Silakan coba lagi.' });
     }
 });
-
 app.get('/api/get-grades', async (req, res) => {
     const { nisn, id_matpel } = req.query;
 
