@@ -468,7 +468,9 @@ document.getElementById('add-student-btn').addEventListener('click', async () =>
         `,
         showCancelButton: true,
         confirmButtonText: 'Tambah',
-        cancelButtonText: 'Batal',
+        confirmButtonColor: '#004D40',
+        cancelButtonColor: '#dc3545',
+                cancelButtonText: 'Batal',
         preConfirm: () => {
             const nisn = document.getElementById('nisn');
             const namaSiswa = document.getElementById('nama_siswa');

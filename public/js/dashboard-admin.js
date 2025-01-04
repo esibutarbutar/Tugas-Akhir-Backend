@@ -28,11 +28,7 @@ async function fetchSessionData() {
         document.getElementById('biodata-nuptk').textContent = user.nuptk;
         document.getElementById('biodata-golongan').textContent = user.golongan;
 
-        // Set image URL if available
-        if (user.profile_image) {
-            profileImage.src = user.profile_image;
-        }
-
+        
         // Set the profile initial (first letter of name) in the circle
         const profileInitial = document.getElementById('profile-initial');
         if (profileInitial) {

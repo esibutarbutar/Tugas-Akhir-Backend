@@ -288,19 +288,65 @@ main {
 #add-mading-btn{
     background-color: #004D40;
 }
-
-#kelas-detail {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-#kelas-detail.hidden {
+.hidden {
     display: none;
 }
-
-#data-kelas {
-    margin-bottom: 20px;
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+/* Styling untuk Detail Kelas */
+.kelas-detail-title {
+    color: #004D40;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+
+/* Mengatur warna latar belakang tombol dan warna teks */
+#deleteButton {
+    margin-top: 5px;
+    background-color: #c00a0a; /* Warna latar belakang merah */
+    color: white;              /* Warna teks putih */
+    border: none;              /* Menghilangkan border */
+    padding: 5px 10px;        /* Padding untuk membuat tombol lebih besar */
+    font-size: 10px;           /* Ukuran font */
+    border-radius: 5px;        /* Sudut melengkung */
+    cursor: pointer;          /* Menampilkan kursor pointer saat hover */
+    transition: background-color 0.3s; /* Transisi halus pada perubahan warna */
+}
+
+/* Efek hover untuk tombol */
+#deleteButton:hover {
+    background-color: #0f7262; /* Warna merah lebih gelap saat hover */
+}
+

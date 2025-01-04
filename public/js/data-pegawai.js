@@ -134,7 +134,8 @@ document.getElementById('add-data-btn').addEventListener('click', function () {
 
     `,
         confirmButtonText: 'Tambah',
-        confirmButtonColor: '#3CB371',
+        confirmButtonColor: '#004D40',
+        cancelButtonColor: '#dc3545',
         showCancelButton: true,
         cancelButtonText: 'Batal',
         preConfirm: () => {

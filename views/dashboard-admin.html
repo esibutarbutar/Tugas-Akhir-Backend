@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/css/mading.css">
     <link rel="stylesheet" href="/css/mata-pelajaran.css">
     <link rel="stylesheet" href="/css/kelas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
     <!-- SweetAlert2 CSS -->
@@ -25,11 +26,11 @@
     <header>
         <h1>Admin Dashboard</h1>
         <div class="profile">
-            <i class="fas fa-user-circle" id="profile-icon"></i>  <!-- ID untuk ikon -->
+            <i class="fas fa-user-circle" id="profile-icon"></i> <!-- ID untuk ikon -->
             <span id="employee-name-header" class="employee-name">Tamu</span>
         </div>
     </header>
-    
+
     <div class="dashboard">
         <aside class="sidebar">
             <ul>
@@ -41,7 +42,7 @@
                 <li><a href="#" data-target="tahun-ajaran">Tahun Ajaran</a></li>
                 <li><a href="#" data-target="mading">Mading</a></li>
             </ul>
-            
+
         </aside>
         <main>
             <div class="welcome-message">
@@ -52,7 +53,7 @@
                     <div class="profile-picture">
                         <!-- Menampilkan huruf pertama dari nama pengguna -->
                         <span id="profile-initial">T</span>
-                        <i id="camera-icon" class="fas fa-camera"></i>                    </div>
+                    </div>
                     <hr class="profile-divider">
                     <div class="profile-details">
                         <div class="bio-item">
@@ -110,11 +111,11 @@
                             <th>Action</th> <!-- Kolom untuk tombol Edit, Delete, dan Lihat Selengkapnya -->
                         </tr>
                     </thead>
-                    <tbody id="pegawai-tbody">                       
+                    <tbody id="pegawai-tbody">
                     </tbody>
                 </table>
             </section>
-            
+
             <section id="data-siswa" class="content-section hidden">
                 <h2>Data Siswa</h2>
                 <div class="search-add-container">
@@ -148,7 +149,7 @@
                         <input type="text" id="search-year-input" placeholder="Cari tahun ajaran..." class="search-bar">
                         <i class="fas fa-search search-icon"></i>
                     </div>
-                    <button id="tambah-tahun-ajaran" >Tambah Tahun Ajaran</button>
+                    <button id="tambah-tahun-ajaran">Tambah Tahun Ajaran</button>
                 </div>
                 <table border="1">
                     <thead>
@@ -165,44 +166,51 @@
                     </tbody>
                 </table>
             </section>
-            <section id="data-kelas" class="content-section hidden">
-                <h2>Data Kelas</h2>
-                <div class="filter-wrapper">
-                    <label for="kelas-filter">Tahun Ajaran:</label>
-                    <select id="kelas-filter">
-                        <option value="">Semua</option>
-                        <!-- Options akan diisi melalui JavaScript -->
-                    </select>
-                </div>
-                <div class="search-add-container">
-                    <div class="search-wrapper">
-                        <input type="text" id="search-kelas-input" placeholder="Cari Data Kelas..." class="search-bar">
-                        <i class="fas fa-search search-icon"></i>
+            <section id="data-kelas" class="content-section">
+                <div id="sembunyi">
+                    <h2>Data Kelas</h2>
+                    <div class="filter-wrapper">
+                        <label for="kelas-filter">Tahun Ajaran:</label>
+                        <select id="kelas-filter">
+                            <option value="">Semua</option>
+                        </select>
                     </div>
-                    <button id="add-kelas-btn" class="btn btn-primary">Tambah Kelas</button>
+                    <div class="search-add-container">
+                        <div class="search-wrapper">
+                            <input type="text" id="search-kelas-input" placeholder="Cari Data Kelas..."
+                                class="search-bar">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <button id="add-kelas-btn" class="btn btn-primary">Tambah Kelas</button>
+                    </div>
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>ID Kelas</th>
+                                <th>Nama Kelas</th>
+                                <th>Wali Kelas</th>
+                                <th>Tingkatan</th>
+                                <th>Detail</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kelas-tbody">
+                            <!-- Data Kelas akan diisi dengan JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>ID Kelas</th>
-                            <th>Nama Kelas</th>
-                            <th>Wali Kelas</th>
-                            <th>Tingkatan</th>
-                            <th>Detail</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="kelas-tbody">
-                        <!-- Data Kelas akan diisi dengan JavaScript -->
-                    </tbody>
-                </table>
             
-                <!-- Modal untuk detail kelas -->
                 <div id="kelas-detail" class="hidden">
-                    <!-- Detail kelas akan ditampilkan di sini -->
+                    <div id="detail-kelas-content">
+                        <!-- Detail kelas akan ditampilkan di sini -->
+                    </div>
                 </div>
             </section>
             
+
+
+
+
             <section id="mata-pelajaran" class="content-section hidden">
                 <h2>Data Mata Pelajaran</h2>
                 <div class="filter-wrapper">
@@ -214,12 +222,13 @@
                 </div>
                 <div class="search-add-container">
                     <div class="search-wrapper">
-                        <input type="text" id="search-subject-input" placeholder="Cari mata pelajaran..." class="search-bar">
+                        <input type="text" id="search-subject-input" placeholder="Cari mata pelajaran..."
+                            class="search-bar">
                         <i class="fas fa-search search-icon"></i>
                     </div>
                     <button id="add-subject-btn" class="btn btn-primary">Tambah Mata Pelajaran</button>
                 </div>
-                
+
                 <table border="1">
                     <thead>
                         <tr>
@@ -227,20 +236,21 @@
                             <th>Nama Mata Pelajaran</th>
                             <th>NIP</th>
                             <th>Kelas</th>
-                            <th>Action</th> 
-                            
+                            <th>Action</th>
+
                         </tr>
                     </thead>
                     <tbody id="mata-pelajaran-tbody">
                         <!-- Data Mata Pelajaran akan diisi dengan JavaScript -->
                     </tbody>
                 </table>
-            </section>            
+            </section>
             <section id="mading" class="content-section hidden">
                 <h2>Data Pengumuman pada Mading</h2>
                 <div class="search-add-container">
                     <div class="search-wrapper">
-                        <input type="text" id="search-mading-input" placeholder="Cari mata Pengumuman..." class="search-bar">
+                        <input type="text" id="search-mading-input" placeholder="Cari mata Pengumuman..."
+                            class="search-bar">
                         <i class="fas fa-search search-icon"></i>
                     </div>
                     <button id="add-mading-btn" class="btn btn-primary">Tambah Pengumuman</button>
@@ -250,13 +260,7 @@
                 </div>
             </section>
             <!-- Modal untuk Detail Kelas -->
-<div id="kelas-detail-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span id="close-detail" class="close">&times;</span>
-        <h2 id="modal-title"></h2>
-        <div id="modal-body"></div>
-    </div>
-</div>
+
 
         </main>
     </div>
@@ -273,4 +277,3 @@
 </body>
 
 </html>
-
