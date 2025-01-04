@@ -318,7 +318,10 @@ function saveAllGrades() {
         const tahunAjaran = document.getElementById("tahun-ajaran-filter").value;
         const kelasId = document.getElementById("kelas-filter").value;
         const matpelId = document.getElementById("mapel-filter").value;
-        const jenisNilai = document.getElementById("jenis-nilai-filter").value;
+        
+        console.log('Kelas ID:', kelasId); // Debugging
+        console.log('Mata Pelajaran ID:', matpelId); // Debugging
+                const jenisNilai = document.getElementById("jenis-nilai-filter").value;
 
         if (!grade) {
             isAllFilled = false;
@@ -553,12 +556,7 @@ function resetNilaiColumns() {
 }
 document.getElementById('kelas-filter').addEventListener('change', async (event) => {
     const kelasId = event.target.value;
-    resetNilaiColumns();
 
-    if (!kelasId) {
-        console.warn('Kelas belum dipilih.');
-        return;
-    }
 
     fetchSiswaData(kelasId);
 

@@ -539,11 +539,7 @@ document.getElementById('kelas-filter').addEventListener('change', async (event)
     const kelasId = event.target.value;
     resetNilaiColumns();
 
-    if (!kelasId) {
-        console.warn('Kelas belum dipilih.');
-        return;
-    }
-
+    
     fetchSiswaData(kelasId);
 
     const tahunAjaranId = document.getElementById('tahun-ajaran-filter').value;

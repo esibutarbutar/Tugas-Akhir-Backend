@@ -1834,11 +1834,7 @@ app.get('/api/grades/:tahunAjaran', async (req, res) => {
 app.get('/api/grades', async (req, res) => {
     const { tahunAjaran, kelasId, matpelId, jenisNilai } = req.query;
 
-    // Validasi parameter wajib
-    if (!kelasId || !matpelId) {
-        return res.status(400).json({ error: 'Kelas ID dan Mata Pelajaran ID harus disertakan.' });
-    }
-
+   
     try {
         // Query semua siswa berdasarkan kelas
         const [students] = await db.execute(`
@@ -1962,6 +1958,27 @@ app.post('/api/simpan-nilai', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan nilai.' });
     }
 });
+app.post('/forgot-password', async (req, res) => {
+    const { email, nik } = req.body;
+    if (!email || !nik) {
+        return res.status(400).json({ error: 'Email dan NIK harus diisi.' });
+    }
+    
+    try {
+        // Query untuk mencocokkan email dan NIK
+        const [rows] = await db.query('SELECT * FROM pegawai WHERE email = ? AND nik = ?', [email, nik]);
+
+        if (rows.length > 0) {
+            res.status(200).json({ message: 'Data valid. Silakan reset password.' });
+        } else {
+            res.status(404).json({ error: 'Email dan NIK tidak sesuai.' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Terjadi kesalahan pada server.' });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
