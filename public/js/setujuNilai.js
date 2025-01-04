@@ -114,14 +114,13 @@ async function fetchGrades(kelasId, mapelId) {
         console.log("Data nilai:", gradesData);
 
         // Tampilkan data nilai di tabel
-        Nilai(gradesData);
+        TampilkanNilai(gradesData);
     } catch (error) {
         console.error("Error:", error);
         alert("Gagal memuat data nilai.");
     }
 }
-function Nilai(gradesData) {
-    console.log('gradesData '+gradesData)
+function TampilkanNilai(gradesData) {
     const tbody = document.getElementById("nilai-tbody");
     tbody.innerHTML = ''; // Bersihkan tabel sebelumnya
 
@@ -129,8 +128,7 @@ function Nilai(gradesData) {
 
     if (Array.isArray(gradesData) && gradesData.length > 0) {
         gradesData.forEach(grade => {
-            const nilaiAkhir = (grade.uts * 0.3) + (grade.uas * 0.4) + (grade.tugas * 0.3);
-
+          nilaiAkhir=  parseFloat(((grade.uts * 0.4) + (grade.uas * 0.4) + (grade.tugas * 0.2)).toFixed(2))
             const row = document.createElement("tr");
 
             // NISN
@@ -145,22 +143,20 @@ function Nilai(gradesData) {
 
             // Nilai UTS, UAS, dan Tugas
             const utsCell = document.createElement("td");
-            utsCell.textContent = grade.uts || '-';
+            utsCell.textContent = grade.uts !== null ? grade.uts : '-';
             row.appendChild(utsCell);
 
             const uasCell = document.createElement("td");
-            uasCell.textContent = grade.uas || '-';
+            uasCell.textContent = grade.uas !== null ? grade.uas : '-';
             row.appendChild(uasCell);
 
             const tugasCell = document.createElement("td");
-            tugasCell.textContent = grade.tugas || '-';
+            tugasCell.textContent = grade.tugas !== null ? grade.tugas : '-';
             row.appendChild(tugasCell);
 
-            // Nilai Akhir
             const nilaiAkhirCell = document.createElement("td");
-            nilaiAkhirCell.textContent = nilaiAkhir.toFixed(2);
+            nilaiAkhirCell.textContent = nilaiAkhir;
             row.appendChild(nilaiAkhirCell);
-
             // Status
             const statusCell = document.createElement("td");
             let checkIcon, timesIcon;
@@ -278,7 +274,8 @@ function Nilai(gradesData) {
         
             approveAllButton.addEventListener('click', () => {
                 let missingFields = new Set(); // Menggunakan Set untuk memastikan tidak ada duplikasi
-        
+                const mapelId = document.getElementById("matpel-filter").value;
+            
                 gradesData.forEach(grade => {
                     if (!grade.uts) {
                         missingFields.add('UTS');
@@ -290,7 +287,7 @@ function Nilai(gradesData) {
                         missingFields.add('Tugas');
                     }
                 });
-        
+            
                 // Cek apakah ada nilai yang belum diisi
                 if (missingFields.size > 0) {
                     Swal.fire({
@@ -300,11 +297,11 @@ function Nilai(gradesData) {
                     });
                 } else {
                     let updateSuccessful = true;
-        
-                    gradesData.forEach(grade => {
+            
+                    gradesData.forEach((grade, index) => {
                         grade.gradeStatus = "setuju";
                         grade.catatan = "Lulus";
-        
+            
                         fetch('/api/update-grade-status', {
                             method: 'POST',
                             headers: {
@@ -314,7 +311,7 @@ function Nilai(gradesData) {
                                 nisn: grade.nisn,
                                 catatan: grade.catatan,
                                 status: grade.gradeStatus,
-                                mapel_id: grade.mapel_id
+                                mapel_id: mapelId
                             })
                         })
                         .then(response => response.json())
@@ -322,34 +319,42 @@ function Nilai(gradesData) {
                             if (data.message !== 'Status berhasil diperbarui.') {
                                 updateSuccessful = false;
                             }
+            
+                            // Update UI jika status berhasil diubah
+                            if (updateSuccessful) {
+                                // Cari baris berdasarkan index
+                                const row = tbody.children[index];
+                                const statusCell = row.querySelector('td:nth-child(7)'); // Asumsi kolom status ada di index 7
+                                const catatanCell = row.querySelector('td:nth-child(8)'); // Asumsi kolom catatan ada di index 8
+                                
+                                // Update status menjadi "Lulus" dan ikon centang
+                                statusCell.innerHTML = `<i class="fas fa-check-circle" style="color: green;"></i> Setuju`;
+            
+                                // Update catatan menjadi "Lulus"
+                                catatanCell.textContent = "Lulus";
+                            }
                         })
                         .catch(err => {
                             console.error('Error:', err);
                             updateSuccessful = false;
                         });
                     });
-        
+            
                     Swal.fire({
                         title: updateSuccessful ? 'Sukses!' : 'Gagal!',
-                        text: updateSuccessful 
-                            ? 'Semua nilai berhasil disetujui!' 
+                        text: updateSuccessful
+                            ? 'Semua nilai berhasil disetujui!'
                             : 'Terjadi kesalahan dalam memperbarui status nilai. Silakan coba lagi.',
                         icon: updateSuccessful ? 'success' : 'error',
-                        confirmButtonText: 'OK'
+                        confirmButtonText: 'OK',
                     }).then(() => {
                         if (updateSuccessful) {
-                            approveAllButton.style.display = 'none';
-        
-                            // Nonaktifkan semua ikon di tabel
-                            document.querySelectorAll('.grade-icon').forEach(icon => {
-                                icon.classList.add('disabled'); // Tambahkan class "disabled"
-                                icon.style.pointerEvents = 'none'; // Nonaktifkan klik
-                                icon.style.opacity = '0.5'; // Tambahkan efek visual
-                            });
+                            approveAllButton.style.display = 'none'; // Menyembunyikan tombol Setujui Semua setelah berhasil
                         }
                     });
                 }
             });
+            
         
             // Menambahkan tombol ke dalam tabel
             document.getElementById("nilaiTable").appendChild(approveAllButton);
@@ -364,40 +369,40 @@ function Nilai(gradesData) {
     }
 }
 
-async function updateStatusInDB(nisn, catatan, status) {
-    const mapelId = document.getElementById("matpel-filter").value;
+// async function updateStatusInDB(nisn, catatan, status) {
+//     const mapelId = document.getElementById("matpel-filter").value;
 
-    if (!mapelId) {
-        alert("Silakan pilih mata pelajaran");
-        return;
-    }
+//     if (!mapelId) {
+//         alert("Silakan pilih mata pelajaran");
+//         return;
+//     }
 
-    try {
-        const response = await fetch(`/api/update-grade-status`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                nisn: nisn,
-                catatan: catatan,
-                status: status,
-                mapel_id: mapelId,
-            }),
-        });
+//     try {
+//         const response = await fetch(`/api/update-grade-status`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({
+//                 nisn: nisn,
+//                 catatan: catatan,
+//                 status: status,
+//                 mapel_id: mapelId,
+//             }),
+//         });
 
-        if (!response.ok) {
-            throw new Error('Gagal memperbarui status nilai.');
-        }
+//         if (!response.ok) {
+//             throw new Error('Gagal memperbarui status nilai.');
+//         }
 
-        const result = await response.json();
-        console.log('Status berhasil diperbarui:', result);
-        alert('Status nilai berhasil diperbarui!');
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Gagal memperbarui status nilai.');
-    }
-}
+//         const result = await response.json();
+//         console.log('Status berhasil diperbarui:', result);
+//         alert('Status nilai berhasil diperbarui!');
+//     } catch (error) {
+//         console.error('Error:', error);
+//         alert('Gagal memperbarui status nilai.');
+//     }
+// }
 
 document.getElementById("matpel-filter").addEventListener("change", async function () {
     const kelasId = await getSelectedKelasId();

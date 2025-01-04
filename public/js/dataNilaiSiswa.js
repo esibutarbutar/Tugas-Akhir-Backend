@@ -115,8 +115,6 @@ async function getUserSession() {
     }
 }
 
-
-
 async function loadMapelFilter(tahunAjaranId = '', kelasId = '') {
     const filterSelect = document.getElementById('mapel-filter');
     filterSelect.innerHTML = '<option value="">Pilih Mata Pelajaran</option>';
@@ -149,12 +147,21 @@ async function loadMapelFilter(tahunAjaranId = '', kelasId = '') {
                 option.textContent = mapel.nama_mata_pelajaran;
                 filterSelect.appendChild(option);
             });
+
+            // Panggil filterGrades setelah mata pelajaran dimuat
+            filterGrades();
         }
     } catch (error) {
         console.error('Error saat memuat filter mata pelajaran:', error);
         filterSelect.disabled = true; // Nonaktifkan filter mata pelajaran jika terjadi kesalahan
     }
 }
+
+document.getElementById("mapel-filter").addEventListener("change", function() {
+    filterGrades(); // Panggil filterGrades ketika mata pelajaran dipilih
+});
+
+
 function filterGrades() {
     const tahunAjaran = document.getElementById("tahun-ajaran-filter").value;
     const kelasId = document.getElementById("kelas-filter").value;
@@ -367,28 +374,7 @@ function saveAllGrades() {
                     saveButton.style.display = "none";  // Sembunyikan tombol simpan setelah berhasil
                 }
 
-                const tbody = document.querySelector("tbody");
-                const editButtonRow = document.createElement("tr");
-                const editButtonCell = document.createElement("td");
-                editButtonCell.colSpan = 8;  // Menyesuaikan dengan jumlah kolom
-                editButtonCell.style.textAlign = "right";  // Letakkan tombol di kanan
-
-                const editButton = document.createElement("button");
-                editButton.textContent = "Edit Nilai";
-                editButton.addEventListener("click", editGrades);  // Menambahkan event listener untuk mengedit nilai
-
-                editButtonCell.appendChild(editButton);
-                editButtonRow.appendChild(editButtonCell);
-                tbody.appendChild(editButtonRow);
-
-                // Nonaktifkan input setelah simpan
-                const nilaiCells = document.querySelectorAll("td");
-                nilaiCells.forEach(cell => {
-                    const input = cell.querySelector("input");
-                    if (input) {
-                        input.disabled = true;  // Nonaktifkan input setelah simpan
-                    }
-                });
+               filterGrades()
             });
         } else {
             Swal.fire({

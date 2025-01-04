@@ -115,8 +115,6 @@ async function getUserSession() {
     }
 }
 
-
-
 async function loadMapelFilter(tahunAjaranId = '', kelasId = '') {
     const filterSelect = document.getElementById('mapel-filter');
     filterSelect.innerHTML = '<option value="">Pilih Mata Pelajaran</option>';
@@ -149,12 +147,21 @@ async function loadMapelFilter(tahunAjaranId = '', kelasId = '') {
                 option.textContent = mapel.nama_mata_pelajaran;
                 filterSelect.appendChild(option);
             });
+
+            // Panggil filterGrades setelah mata pelajaran dimuat
+            filterGrades();
         }
     } catch (error) {
         console.error('Error saat memuat filter mata pelajaran:', error);
         filterSelect.disabled = true; // Nonaktifkan filter mata pelajaran jika terjadi kesalahan
     }
 }
+
+document.getElementById("mapel-filter").addEventListener("change", function() {
+    filterGrades(); // Panggil filterGrades ketika mata pelajaran dipilih
+});
+
+
 function filterGrades() {
     const tahunAjaran = document.getElementById("tahun-ajaran-filter").value;
     const kelasId = document.getElementById("kelas-filter").value;
@@ -362,25 +369,27 @@ function saveAllGrades() {
                 title: 'Nilai Berhasil Disimpan!',
                 text: data.message
             }).then(() => {
+                // Sembunyikan tombol simpan setelah berhasil
                 const saveButton = document.getElementById("save-button");
                 if (saveButton) {
-                    saveButton.style.display = "none";  // Sembunyikan tombol simpan setelah berhasil
+                    saveButton.style.display = "none";
                 }
-
+                filterGrades();
+                // Tampilkan tombol edit
                 const tbody = document.querySelector("tbody");
                 const editButtonRow = document.createElement("tr");
                 const editButtonCell = document.createElement("td");
-                editButtonCell.colSpan = 8;  // Menyesuaikan dengan jumlah kolom
+                editButtonCell.colSpan = 8;  // Sesuaikan dengan jumlah kolom
                 editButtonCell.style.textAlign = "right";  // Letakkan tombol di kanan
-
+    
                 const editButton = document.createElement("button");
                 editButton.textContent = "Edit Nilai";
                 editButton.addEventListener("click", editGrades);  // Menambahkan event listener untuk mengedit nilai
-
+    
                 editButtonCell.appendChild(editButton);
                 editButtonRow.appendChild(editButtonCell);
                 tbody.appendChild(editButtonRow);
-
+    
                 // Nonaktifkan input setelah simpan
                 const nilaiCells = document.querySelectorAll("td");
                 nilaiCells.forEach(cell => {
@@ -398,14 +407,7 @@ function saveAllGrades() {
             });
         }
     })
-    .catch(error => {
-        console.error('Error saving grades:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Terjadi kesalahan',
-            text: 'Terjadi kesalahan saat menyimpan nilai.'
-        });
-    });
+    
 }
 
 // Fungsi untuk mengedit nilai

@@ -401,13 +401,59 @@ function deleteKelas(id) {
         }
     });
 }
+document.addEventListener('DOMContentLoaded', () => {
+    const tbody = document.getElementById('kelas-tbody');
+    
+    tbody.addEventListener('click', (e) => {
+        // Pastikan hanya menghandle klik pada link 'Lihat Selengkapnya'
+        if (e.target && e.target.classList.contains('detail-link')) {
+            e.preventDefault(); // Mencegah halaman berpindah
 
-document.getElementById("kelas-tbody").addEventListener('click', (event) => {
-    if (event.target.classList.contains('detail-link')) {
-        const id = event.target.getAttribute('data-id-kelas');
-        showDetailKelas(id);
+            const kelasId = e.target.getAttribute('data-id-kelas');
+            showKelasDetail(kelasId);
+        }
+    });
+
+    // Menampilkan detail kelas langsung di halaman
+    function showKelasDetail(kelasId) {
+        console.log('Memuat detail kelas untuk ID:', kelasId); // Debugging: Periksa apakah ID kelas dikirim dengan benar
+
+        const url = `/api/kelas/${kelasId}`;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Detail Kelas yang diterima:', data); // Debugging: Periksa apakah data diterima dengan benar
+
+                // Pastikan data kelas ada sebelum ditampilkan
+                if (data) {
+                    // Menampilkan detail kelas di bagian tertentu halaman
+                    const kelasDetailDiv = document.getElementById('kelas-detail');
+                    kelasDetailDiv.innerHTML = `
+                        <h3>Detail Kelas</h3>
+                        <p><strong>ID Kelas:</strong> ${data.id}</p>
+                        <p><strong>Nama Kelas:</strong> ${data.nama_kelas}</p>
+                        <p><strong>Wali Kelas:</strong> ${data.nip} - ${data.nama_pegawai}</p>
+                        <p><strong>Tingkatan:</strong> ${data.tingkatan}</p>
+                        <p><strong>Deskripsi:</strong> ${data.deskripsi || 'Tidak ada deskripsi'}</p>
+                    `;
+                    
+                    // Tampilkan section detail kelas jika tersembunyi
+                    kelasDetailDiv.classList.remove('hidden');
+                } else {
+                    console.error('Data kelas tidak ditemukan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat memuat detail kelas.');
+            });
     }
 });
+
+
 
 function showDetailKelas(id) {
     fetch(`/api/kelas/${id}`)

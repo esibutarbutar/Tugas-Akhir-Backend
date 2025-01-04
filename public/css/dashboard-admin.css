@@ -288,3 +288,19 @@ main {
 #add-mading-btn{
     background-color: #004D40;
 }
+
+#kelas-detail {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#kelas-detail.hidden {
+    display: none;
+}
+
+#data-kelas {
+    margin-bottom: 20px;
+}

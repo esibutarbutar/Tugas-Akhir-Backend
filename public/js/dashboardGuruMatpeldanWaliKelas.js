@@ -90,3 +90,4 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Default section not found!'); // Debugging
   }
 });
+
